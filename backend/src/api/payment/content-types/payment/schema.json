@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payments",
+  "info": {
+    "singularName": "payment",
+    "pluralName": "payments",
+    "displayName": "Payment"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "orderId": {
+      "type": "string",
+      "required": true
+    },
+    "transactionId": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "decimal",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["created", "pending", "successful", "failed", "refunded"],
+      "default": "created"
+    },
+    "paymentMethod": {
+      "type": "string"
+    }
+  }
+}

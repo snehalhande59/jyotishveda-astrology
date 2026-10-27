@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pricing_plans",
+  "info": {
+    "singularName": "pricing-plan",
+    "pluralName": "pricing-plans",
+    "displayName": "Pricing Plan",
+    "description": "Subscription & Astrology Membership Tiers"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "tag": {
+      "type": "string"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "interval": {
+      "type": "enumeration",
+      "enum": ["one-time", "monthly", "yearly"],
+      "default": "one-time"
+    },
+    "features": {
+      "type": "json"
+    },
+    "isPopular": {
+      "type": "boolean",
+      "default": false
+    },
+    "razorpayPlanId": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chat_sessions",
+  "info": {
+    "singularName": "chat-session",
+    "pluralName": "chat-sessions",
+    "displayName": "Chat Session",
+    "description": "Vedic Astrology Live Chat Consultations"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "sessionNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "sessionType": {
+      "type": "enumeration",
+      "enum": ["free_intro", "paid_consultation"],
+      "default": "free_intro"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["active", "completed", "expired", "cancelled"],
+      "default": "active"
+    },
+    "durationMinutes": {
+      "type": "integer",
+      "default": 5
+    },
+    "maxMessages": {
+      "type": "integer",
+      "default": 10
+    },
+    "messageCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "startedAt": {
+      "type": "datetime"
+    },
+    "expiresAt": {
+      "type": "datetime"
+    },
+    "endedAt": {
+      "type": "datetime"
+    },
+    "birthChartSummary": {
+      "type": "json"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "astrologer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::astrologer.astrologer"
+    },
+    "booking": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::consultation-booking.consultation-booking"
+    },
+    "payment": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::payment-record.payment-record"
+    }
+  }
+}

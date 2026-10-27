@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "astrology_articles",
+  "info": {
+    "singularName": "astrology-article",
+    "pluralName": "astrology-articles",
+    "displayName": "Astrology Article",
+    "description": "Educational Vedic Astrology Articles & Wisdom"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "excerpt": {
+      "type": "text"
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "category": {
+      "type": "string",
+      "default": "Planetary Transits"
+    },
+    "author": {
+      "type": "string",
+      "default": "Pandit Rajesh Shastri"
+    },
+    "readTime": {
+      "type": "string",
+      "default": "5 min read"
+    },
+    "coverImage": {
+      "type": "string"
+    }
+  }
+}

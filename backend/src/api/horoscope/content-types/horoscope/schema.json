@@ -1,0 +1,67 @@
+{
+  "kind": "collectionType",
+  "collectionName": "horoscopes",
+  "info": {
+    "singularName": "horoscope",
+    "pluralName": "horoscopes",
+    "displayName": "Horoscope",
+    "description": "Daily, Weekly, Monthly Planetary Forecasts"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "sign": {
+      "type": "enumeration",
+      "enum": [
+        "Aries",
+        "Taurus",
+        "Gemini",
+        "Cancer",
+        "Leo",
+        "Virgo",
+        "Libra",
+        "Scorpio",
+        "Sagittarius",
+        "Capricorn",
+        "Aquarius",
+        "Pisces"
+      ],
+      "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "period": {
+      "type": "enumeration",
+      "enum": ["daily", "weekly", "monthly", "yearly"],
+      "default": "daily"
+    },
+    "generalGuidance": {
+      "type": "text",
+      "required": true
+    },
+    "love": {
+      "type": "text"
+    },
+    "career": {
+      "type": "text"
+    },
+    "finance": {
+      "type": "text"
+    },
+    "health": {
+      "type": "text"
+    },
+    "luckyNumber": {
+      "type": "integer"
+    },
+    "luckyColor": {
+      "type": "string"
+    },
+    "luckyTime": {
+      "type": "string"
+    }
+  }
+}

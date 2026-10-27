@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "consultation_bookings",
+  "info": {
+    "singularName": "consultation-booking",
+    "pluralName": "consultation-bookings",
+    "displayName": "Consultation Booking",
+    "description": "Astrologer Appointment Bookings"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "bookingNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "timeSlot": {
+      "type": "string",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "confirmed", "completed", "cancelled"],
+      "default": "pending"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "clientNotes": {
+      "type": "text"
+    },
+    "meetingLink": {
+      "type": "string"
+    },
+    "durationMinutes": {
+      "type": "integer",
+      "default": 30
+    },
+    "consultationFee": {
+      "type": "decimal",
+      "default": 1499
+    },
+    "sessionType": {
+      "type": "enumeration",
+      "enum": ["free_intro", "paid_consultation"],
+      "default": "paid_consultation"
+    },
+    "astrologer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::astrologer.astrologer"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "payment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::payment-record.payment-record"
+    }
+  }
+}

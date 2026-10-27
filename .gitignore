@@ -1,0 +1,36 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.development.example
+!.env.production.example
+!.env.test.example
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+!.env.development.example
+!.env.production.example
+!.env.test.example
+
+# Dependencies and generated files
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+
+# Strapi generated files and local database
+backend/.tmp/
+backend/.strapi/
+
+# TypeScript generated build information
+frontend/tsconfig.tsbuildinfo

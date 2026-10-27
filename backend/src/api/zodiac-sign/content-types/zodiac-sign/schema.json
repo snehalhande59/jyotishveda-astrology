@@ -1,0 +1,52 @@
+{
+  "kind": "collectionType",
+  "collectionName": "zodiac_signs",
+  "info": {
+    "singularName": "zodiac-sign",
+    "pluralName": "zodiac-signs",
+    "displayName": "Zodiac Sign",
+    "description": "12 Rashis of Vedic Astrology"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sanskritName": {
+      "type": "string",
+      "required": true
+    },
+    "signNumber": {
+      "type": "integer",
+      "required": true
+    },
+    "element": {
+      "type": "enumeration",
+      "enum": ["Fire", "Earth", "Air", "Water"]
+    },
+    "ruler": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "dateRange": {
+      "type": "string"
+    },
+    "traits": {
+      "type": "text"
+    },
+    "strengths": {
+      "type": "json"
+    },
+    "weaknesses": {
+      "type": "json"
+    },
+    "compatibleSigns": {
+      "type": "json"
+    }
+  }
+}

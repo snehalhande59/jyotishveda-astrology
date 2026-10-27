@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "astrology_services",
+  "info": {
+    "singularName": "astrology-service",
+    "pluralName": "astrology-services",
+    "displayName": "Astrology Service",
+    "description": "Vedic Astrology Reports & Services Catalog"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["report", "consultation", "kundli", "yearly", "specialized"],
+      "default": "report"
+    },
+    "shortDescription": {
+      "type": "string"
+    },
+    "fullDescription": {
+      "type": "text"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "discountedPrice": {
+      "type": "decimal"
+    },
+    "features": {
+      "type": "json"
+    },
+    "deliveryTime": {
+      "type": "string",
+      "default": "Instant Online Access"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "badge": {
+      "type": "string"
+    }
+  }
+}

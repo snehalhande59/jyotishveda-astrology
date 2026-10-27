@@ -1,0 +1,76 @@
+{
+  "kind": "collectionType",
+  "collectionName": "astrologers",
+  "info": {
+    "singularName": "astrologer",
+    "pluralName": "astrologers",
+    "displayName": "Astrologer",
+    "description": "Vedic Astrologers Directory"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "bio": {
+      "type": "text"
+    },
+    "experienceYears": {
+      "type": "integer",
+      "default": 10
+    },
+    "specialties": {
+      "type": "json"
+    },
+    "languages": {
+      "type": "json"
+    },
+    "consultationFee": {
+      "type": "decimal",
+      "required": true,
+      "default": 1500
+    },
+    "rating": {
+      "type": "decimal",
+      "default": 4.9
+    },
+    "reviewCount": {
+      "type": "integer",
+      "default": 120
+    },
+    "avatarUrl": {
+      "type": "string"
+    },
+    "availableSlots": {
+      "type": "json"
+    },
+    "isFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "isOnline": {
+      "type": "boolean",
+      "default": true
+    },
+    "availableNow": {
+      "type": "boolean",
+      "default": true
+    },
+    "perMinuteRate": {
+      "type": "decimal",
+      "default": 25
+    }
+  }
+}

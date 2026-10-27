@@ -1,0 +1,51 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_settings",
+  "info": {
+    "singularName": "site-setting",
+    "pluralName": "site-settings",
+    "displayName": "Site Setting",
+    "description": "Global Platform Configuration & Branding"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "siteName": {
+      "type": "string",
+      "default": "JyotishVeda"
+    },
+    "tagline": {
+      "type": "string",
+      "default": "Timeless Vedic Wisdom with Pure Astronomical Precision"
+    },
+    "heroTitle": {
+      "type": "string",
+      "default": "Discover Your True Celestial Blueprint"
+    },
+    "heroSubtitle": {
+      "type": "text",
+      "default": "Uncover your true karmic path, planetary alignments, and authentic Jyotish forecasts through classical Lahiri sidereal calculations."
+    },
+    "contactEmail": {
+      "type": "email",
+      "default": "contact@jyotishveda.com"
+    },
+    "contactPhone": {
+      "type": "string",
+      "default": "+91 (0) 11 4987 6543"
+    },
+    "address": {
+      "type": "string",
+      "default": "Vedic Knowledge Center, Connaught Place, New Delhi 110001, India"
+    },
+    "defaultAyanamsa": {
+      "type": "string",
+      "default": "Lahiri (Chitrapaksha)"
+    },
+    "announcementBar": {
+      "type": "string",
+      "default": "✨ Auspicious Muhurat Consultations Now Open for this Vedic Season"
+    }
+  }
+}

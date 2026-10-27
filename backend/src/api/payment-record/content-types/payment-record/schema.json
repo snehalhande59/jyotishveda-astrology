@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "payment_records",
+  "info": {
+    "singularName": "payment-record",
+    "pluralName": "payment-records",
+    "displayName": "Payment Record",
+    "description": "Razorpay Transactions & Verification Logs"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "orderId": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "paymentId": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "decimal",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["created", "authorized", "captured", "failed", "refunded"],
+      "default": "created"
+    },
+    "serviceType": {
+      "type": "string"
+    },
+    "referenceId": {
+      "type": "string"
+    },
+    "rawPayload": {
+      "type": "json"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "faqs",
+  "info": {
+    "singularName": "faq",
+    "pluralName": "faqs",
+    "displayName": "FAQ",
+    "description": "Frequently Asked Questions about Vedic Astrology & Services"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "question": {
+      "type": "string",
+      "required": true
+    },
+    "answer": {
+      "type": "text",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["General", "Kundli", "Payments", "Consultation", "Astrology Reports"],
+      "default": "General"
+    },
+    "order": {
+      "type": "integer",
+      "default": 1
+    }
+  }
+}

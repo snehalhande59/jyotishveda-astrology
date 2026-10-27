@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "astrology_reports",
+  "info": {
+    "singularName": "astrology-report",
+    "pluralName": "astrology-reports",
+    "displayName": "Astrology Report",
+    "description": "Personalized Vedic Astrology Reports"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "reportType": {
+      "type": "enumeration",
+      "enum": ["career", "marriage", "finance", "premium-kundli", "yearly"],
+      "required": true
+    },
+    "birthDetails": {
+      "type": "json",
+      "required": true
+    },
+    "reportContent": {
+      "type": "json",
+      "required": true
+    },
+    "isPurchased": {
+      "type": "boolean",
+      "default": false
+    },
+    "payment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::payment-record.payment-record"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}

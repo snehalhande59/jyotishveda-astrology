@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "nakshatras",
+  "info": {
+    "singularName": "nakshatra",
+    "pluralName": "nakshatras",
+    "displayName": "Nakshatra",
+    "description": "27 Lunar Mansions of Vedic Astrology"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "number": {
+      "type": "integer",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sanskritName": {
+      "type": "string"
+    },
+    "lord": {
+      "type": "string",
+      "required": true
+    },
+    "deity": {
+      "type": "string"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "rashi": {
+      "type": "string"
+    },
+    "degreeRange": {
+      "type": "string"
+    },
+    "padas": {
+      "type": "json"
+    },
+    "characteristics": {
+      "type": "text"
+    },
+    "favorableActivities": {
+      "type": "json"
+    }
+  }
+}
