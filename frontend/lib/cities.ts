@@ -4,6 +4,7 @@ export interface CityLocation {
   latitude: number;
   longitude: number;
   timezoneOffset: number;
+  aliases?: string[];
 }
 
 export const POPULAR_CITIES: CityLocation[] = [

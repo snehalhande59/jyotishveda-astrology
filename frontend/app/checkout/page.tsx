@@ -1,98 +1,410 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import PaymentModal from '@/components/PaymentModal';
-import { CreditCard, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getCart, clearCart, getCartTotals, CartItem } from '@/lib/cart';
+import { getCurrentUser } from '@/lib/auth';
+import { useLanguage } from '@/context/LanguageContext';
+import {
+  ShieldCheck,
+  CheckCircle2,
+  Lock,
+  ChevronRight,
+  ShoppingBag,
+  Sparkles,
+  AlertCircle,
+  Truck,
+} from 'lucide-react';
 
-function CheckoutContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  const title = searchParams.get('title') || 'Vedic Astrology Premium Service';
-  const amount = parseFloat(searchParams.get('amount') || '999');
-  const serviceType = searchParams.get('type') || 'report';
-  const referenceId = searchParams.get('id') || 'general';
-
-  const [showModal, setShowModal] = useState(false);
-
-  const handleSuccess = (paymentRecord: any) => {
-    setTimeout(() => {
-      router.push(`/payment/status?status=success&orderId=${paymentRecord.orderId}&paymentId=${paymentRecord.paymentId}`);
-    }, 1200);
-  };
-
-  return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#FDFBF7]">
-          Secure Checkout
-        </h1>
-        <p className="text-xs sm:text-sm text-[#D8C7A5] mt-1">
-          Review your order details and complete payment via Razorpay.
-        </p>
-      </section>
-
-      <div className="max-w-2xl mx-auto px-4 mt-12 space-y-8">
-        <div className="bg-white p-8 rounded-3xl border border-[#D4AF37]/25 shadow-sm space-y-6">
-          <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-            <div>
-              <span className="text-[10px] uppercase font-bold text-[#8C6D1F]">Order Summary</span>
-              <h3 className="font-serif text-xl font-bold text-[#150D2A] mt-1">{title}</h3>
-            </div>
-            <div className="text-right">
-              <span className="font-serif text-2xl font-bold text-[#150D2A]">₹{amount}</span>
-            </div>
-          </div>
-
-          <div className="space-y-3 text-xs text-gray-600">
-            <div className="flex justify-between">
-              <span>Service Type:</span>
-              <strong className="text-gray-900 capitalize">{serviceType}</strong>
-            </div>
-            <div className="flex justify-between">
-              <span>Tax / GST:</span>
-              <strong className="text-gray-900">Included (18% GST)</strong>
-            </div>
-            <div className="flex justify-between pt-3 border-t border-gray-100 text-sm">
-              <strong className="text-gray-900">Total Payable:</strong>
-              <strong className="text-[#8C6D1F] font-serif text-lg">₹{amount}</strong>
-            </div>
-          </div>
-
-          <div className="p-4 bg-[#FAF6F0] rounded-2xl border border-[#D4AF37]/25 text-xs text-gray-600 flex items-start space-x-3">
-            <ShieldCheck className="w-5 h-5 text-[#8C6D1F] flex-shrink-0 mt-0.5" />
-            <p>
-              Payments are verified directly on our Strapi backend server via cryptographic signatures. Test credentials are ready.
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowModal(true)}
-            className="w-full py-3.5 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-sm rounded-xl shadow-gold hover:opacity-95 transition-all"
-          >
-            Pay with Razorpay (₹{amount})
-          </button>
-        </div>
-      </div>
-
-      <PaymentModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        serviceTitle={title}
-        amount={amount}
-        serviceType={serviceType}
-        referenceId={referenceId}
-        onSuccess={handleSuccess}
-      />
-    </div>
-  );
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
 }
 
 export default function CheckoutPage() {
+  const { language } = useLanguage();
+  const isMr = language === 'mr';
+  const router = useRouter();
+
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [totals, setTotals] = useState(getCartTotals());
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<any>(null);
+
+  // Address Form State
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [city, setCity] = useState('');
+  const [stateName, setStateName] = useState('Maharashtra');
+  const [pincode, setPincode] = useState('');
+
+  useEffect(() => {
+    const current = getCart();
+    if (current.length === 0 && !confirmedOrder) {
+      router.push('/shop');
+      return;
+    }
+    setItems(current);
+    setTotals(getCartTotals(current));
+
+    const u = getCurrentUser();
+    if (u) {
+      setFullName(u.username || '');
+      setEmail(u.email || '');
+    }
+
+    // Load Razorpay checkout script dynamically
+    if (!document.getElementById('razorpay-script')) {
+      const script = document.createElement('script');
+      script.id = 'razorpay-script';
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, [router, confirmedOrder]);
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setLoading(true);
+
+    try {
+      // 1. Send checkout request to server for validation & order creation
+      const res = await fetch('/api/shop/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          shippingAddress: {
+            fullName,
+            phone,
+            email,
+            addressLine1,
+            city,
+            state: stateName,
+            pincode,
+          },
+          user: getCurrentUser(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Failed to initialize order on server.');
+      }
+
+      const { order } = data;
+
+      // 2. Handle Razorpay Gateway
+      if (typeof window !== 'undefined' && window.Razorpay && order.keyId && !order.isTestMode) {
+        const options = {
+          key: order.keyId,
+          amount: order.amount * 100,
+          currency: 'INR',
+          name: 'JyotishVeda Astrology Store',
+          description: `Vedic Shop Order (${order.receipt})`,
+          order_id: order.orderId,
+          prefill: {
+            name: fullName,
+            email,
+            contact: phone,
+          },
+          theme: {
+            color: '#D97706',
+          },
+          handler: async function (response: any) {
+            // Verify payment on server
+            const verifyRes = await fetch('/api/shop/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                orderDetails: order,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              clearCart();
+              setConfirmedOrder(verifyData.confirmedOrder);
+            } else {
+              setErrorMsg('Payment verification failed on server.');
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+            },
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        // Fallback for simulated development / test mode
+        const mockVerifyRes = await fetch('/api/shop/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.orderId,
+            paymentId: `pay_test_${Date.now()}`,
+            signature: 'simulated_test_sig',
+            orderDetails: order,
+          }),
+        });
+
+        const verifyData = await mockVerifyRes.json();
+        clearCart();
+        setConfirmedOrder(verifyData.confirmedOrder || {
+          orderId: order.orderId,
+          paymentId: `pay_test_${Date.now()}`,
+          total: order.amount,
+          items: order.validatedItems,
+          shippingAddress: order.shippingAddress,
+          status: 'confirmed (Test Mode)',
+        });
+      }
+    } catch (err: any) {
+      console.error('Order error:', err);
+      setErrorMsg(err.message || 'An error occurred during order submission.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // SUCCESS CONFIRMATION VIEW
+  if (confirmedOrder) {
+    return (
+      <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans py-16 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-[#EAE1D2] p-8 sm:p-12 shadow-xl text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center mx-auto text-emerald-600">
+            <CheckCircle2 className="w-10 h-10" />
+          </div>
+
+          <div>
+            <span className="text-xs uppercase font-bold text-emerald-700 tracking-wider">
+              {isMr ? 'ऑर्डर यशस्वी झाली!' : 'Order Successfully Placed!'}
+            </span>
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">
+              {isMr ? 'धन्यवाद! तुमची ऑर्डर नोंदवली गेली आहे' : 'Thank You! Your Sacred Order is Confirmed'}
+            </h1>
+            <p className="text-xs text-[#786C60] mt-2">
+              {isMr ? 'ऑर्डर संदर्भ क्रमांक:' : 'Order ID:'} <span className="font-mono font-bold text-[#D97706]">{confirmedOrder.orderId}</span>
+            </p>
+          </div>
+
+          <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#EAE1D2] text-xs text-left space-y-2">
+            <div className="flex justify-between border-b border-[#EAE1D2] pb-2 font-bold text-[#2D1810]">
+              <span>{isMr ? 'पाठवणीचा पत्ता:' : 'Shipping Address:'}</span>
+              <span>₹{confirmedOrder.total}</span>
+            </div>
+            <p className="text-[#5C4535]">
+              <strong>{confirmedOrder.shippingAddress?.fullName}</strong><br />
+              {confirmedOrder.shippingAddress?.addressLine1}, {confirmedOrder.shippingAddress?.city}, {confirmedOrder.shippingAddress?.state} - {confirmedOrder.shippingAddress?.pincode}
+            </p>
+            <div className="flex items-center space-x-1.5 pt-2 text-[#92400E]">
+              <Truck className="w-4 h-4 text-[#D97706]" />
+              <span>{isMr ? 'प्राण प्रतिष्ठेनंतर ३ ते ५ दिवसांत सुरक्षित वितरण.' : 'Dispatch within 3-5 days after Vedic Pran Pratishtha consecration.'}</span>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/shop"
+              className="inline-block px-8 py-3.5 rounded-full bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold transition-all shadow-md"
+            >
+              {isMr ? 'भांडारात परत जा' : 'Continue Shopping'}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-[#D8C7A5]">Loading checkout...</div>}>
-      <CheckoutContent />
-    </Suspense>
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans pb-24">
+      {/* Header */}
+      <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] py-6 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <nav className="flex items-center space-x-2 text-xs text-[#786C60] mb-2">
+            <Link href="/" className="hover:text-[#D97706]">Home</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-[#D8C7A5]" />
+            <Link href="/shop" className="hover:text-[#D97706]">{isMr ? 'भांडार' : 'Shop'}</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-[#D8C7A5]" />
+            <Link href="/cart" className="hover:text-[#D97706]">{isMr ? 'खरेदी टोपली' : 'Cart'}</Link>
+            <ChevronRight className="w-3.5 h-3.5 text-[#D8C7A5]" />
+            <span className="text-[#D97706] font-semibold">{isMr ? 'सुरक्षित चेकआउट' : 'Checkout'}</span>
+          </nav>
+          <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810]">
+            {isMr ? 'सुरक्षित चेकआउट' : 'Secure Order Checkout'}
+          </h1>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
+        {errorMsg && (
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Shipping Address Column */}
+          <div className="lg:col-span-7 bg-white rounded-3xl border border-[#EAE1D2] p-6 sm:p-8 shadow-sm space-y-5">
+            <h2 className="font-serif font-bold text-lg text-[#2D1810] pb-2 border-b border-[#F3ECE1]">
+              {isMr ? 'वितरण पत्ता तपशील' : 'Shipping & Delivery Address'}
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'पूर्ण नाव' : 'Full Name'}</label>
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'मोबाईल नंबर' : 'Phone Number'}</label>
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="9876543210"
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'ईमेल पत्ता' : 'Email Address'}</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'पत्ता (घर क्रमांक, इमारत, रस्ता)' : 'Delivery Address (Street, Building)'}</label>
+              <input
+                type="text"
+                required
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'शहर' : 'City'}</label>
+                <input
+                  type="text"
+                  required
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'राज्य' : 'State'}</label>
+                <input
+                  type="text"
+                  required
+                  value={stateName}
+                  onChange={(e) => setStateName(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'पिनकोड' : 'Pincode'}</label>
+                <input
+                  type="text"
+                  required
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="bg-[#FFFBEB] p-4 rounded-2xl border border-[#FDE68A] text-xs text-[#785D46] flex items-center space-x-2">
+              <ShieldCheck className="w-4 h-4 text-[#D97706] flex-shrink-0" />
+              <span>{isMr ? 'कार्ड किंवा खाजगी माहिती आमच्याकडे कधीही साठवली जात नाही.' : 'We never store your card numbers or CVVs. All transactions are securely handled by Razorpay.'}</span>
+            </div>
+          </div>
+
+          {/* Order Summary & Payment Button */}
+          <div className="lg:col-span-5 bg-white rounded-3xl border border-[#EAE1D2] p-6 sm:p-8 shadow-sm space-y-5 sticky top-24">
+            <h3 className="font-serif font-bold text-base text-[#2D1810] pb-2 border-b border-[#F3ECE1]">
+              {isMr ? 'ऑर्डर तपशील' : 'Order Details'} ({totals.totalItems})
+            </h3>
+
+            {/* Items mini list */}
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1 text-xs">
+              {items.map(({ product, quantity }) => (
+                <div key={product.id} className="flex items-center justify-between py-1 border-b border-[#F5EFE6]">
+                  <div className="truncate max-w-[180px]">
+                    <strong className="text-[#2D1810]">{isMr ? product.marathiName : product.name}</strong>
+                    <span className="text-[11px] text-gray-500 block">Qty: {quantity}</span>
+                  </div>
+                  <span className="font-serif font-bold text-[#2D1810]">₹{product.price * quantity}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Calculations */}
+            <div className="space-y-2 text-xs pt-2">
+              <div className="flex justify-between text-[#5C4535]">
+                <span>{isMr ? 'उपएकूण:' : 'Subtotal:'}</span>
+                <strong className="text-[#2D1810]">₹{totals.subtotal}</strong>
+              </div>
+              <div className="flex justify-between text-[#5C4535]">
+                <span>{isMr ? 'पाठवणी:' : 'Shipping:'}</span>
+                <strong className={totals.shipping === 0 ? 'text-emerald-700' : 'text-[#2D1810]'}>
+                  {totals.shipping === 0 ? 'FREE' : `₹${totals.shipping}`}
+                </strong>
+              </div>
+              <div className="flex justify-between text-[#5C4535]">
+                <span>{isMr ? 'वैदिक सेवा व विमा:' : 'Vedic Seva (3%):'}</span>
+                <strong className="text-[#2D1810]">₹{totals.tax}</strong>
+              </div>
+
+              <div className="pt-3 border-t border-[#F3ECE1] flex justify-between items-baseline">
+                <span className="font-serif font-bold text-sm text-[#2D1810]">{isMr ? 'एकूण रक्कम:' : 'Total:'}</span>
+                <span className="font-serif text-2xl font-extrabold text-[#D97706]">
+                  ₹{totals.total}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 bg-[#D97706] hover:bg-[#B45309] disabled:opacity-50 text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2"
+            >
+              <Lock className="w-4 h-4" />
+              <span>{loading ? (isMr ? 'प्रक्रिया सुरू आहे...' : 'Processing...') : (isMr ? `₹${totals.total} पेमेंट करा` : `Pay ₹${totals.total} via Razorpay`)}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

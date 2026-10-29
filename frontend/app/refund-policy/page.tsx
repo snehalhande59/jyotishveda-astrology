@@ -4,32 +4,32 @@ import { ShieldCheck, HelpCircle, ArrowLeft } from 'lucide-react';
 
 export default function RefundPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#0F0B1E] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2D1810] py-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
         <Link
           href="/"
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-[#D4AF37] hover:underline"
+          className="inline-flex items-center space-x-2 text-xs font-bold text-[#D97706] hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Home</span>
         </Link>
 
-        <div className="space-y-4 border-b border-[#D4AF37]/20 pb-6">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs font-semibold uppercase tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Customer Protection & Fair Practice</span>
+        <div className="space-y-4 border-b border-[#EAE1D2] pb-6">
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-xs font-semibold uppercase tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>Customer Protection &amp; Fair Practice</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#F7DF94] via-[#D4AF37] to-[#E5C058] bg-clip-text text-transparent">
+          <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#2D1810]">
             Refund and Cancellation Policy
           </h1>
-          <p className="text-xs text-[#D8C7A5]/70">
+          <p className="text-xs text-[#786C60]">
             Last updated: October 2026 • JyotishVeda Platform
           </p>
         </div>
 
-        <div className="space-y-6 text-sm text-[#D8C7A5]/90 leading-relaxed">
-          <section className="space-y-2">
-            <h2 className="font-serif text-lg font-bold text-[#FDFBF7]">
+        <div className="space-y-6 text-sm text-[#5C4033] leading-relaxed">
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-2">
+            <h2 className="font-serif text-lg font-bold text-[#2D1810]">
               1. Digital Astrology Reports
             </h2>
             <p>
@@ -40,9 +40,9 @@ export default function RefundPolicyPage() {
             </p>
           </section>
 
-          <section className="space-y-2">
-            <h2 className="font-serif text-lg font-bold text-[#FDFBF7]">
-              2. Astrologer Consultations & Cancellations
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-2">
+            <h2 className="font-serif text-lg font-bold text-[#2D1810]">
+              2. Astrologer Consultations &amp; Cancellations
             </h2>
             <p>
               We honor the valuable time of our senior Vedic scholars and our clients alike. For one-on-one live video or phone consultations:
@@ -63,8 +63,8 @@ export default function RefundPolicyPage() {
             </ul>
           </section>
 
-          <section className="space-y-2">
-            <h2 className="font-serif text-lg font-bold text-[#FDFBF7]">
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-2">
+            <h2 className="font-serif text-lg font-bold text-[#2D1810]">
               3. Refund Processing Timeline
             </h2>
             <p>
@@ -72,16 +72,16 @@ export default function RefundPolicyPage() {
             </p>
           </section>
 
-          <section className="space-y-2">
-            <h2 className="font-serif text-lg font-bold text-[#FDFBF7]">
+          <section className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-2">
+            <h2 className="font-serif text-lg font-bold text-[#2D1810]">
               4. Contacting Support for Refund Requests
             </h2>
             <p>
               To initiate a cancellation or request assistance with a purchase, please email us directly with your Order ID or Booking Number:
             </p>
-            <div className="bg-[#191233] border border-[#D4AF37]/30 rounded-xl p-4 text-xs space-y-1">
-              <div>Email: <strong className="text-[#FDFBF7]">support@jyotishveda.com</strong></div>
-              <div>Support Desk: <strong className="text-[#FDFBF7]">+91 (0) 11 4987 6543</strong></div>
+            <div className="bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl p-4 text-xs space-y-1 text-[#2D1810]">
+              <div>Email: <strong className="text-[#D97706]">support@jyotishveda.com</strong></div>
+              <div>Support Desk: <strong>+91 (0) 11 4987 6543</strong></div>
               <div>Hours: Monday to Saturday, 9:00 AM – 7:00 PM IST</div>
             </div>
           </section>

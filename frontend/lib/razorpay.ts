@@ -50,6 +50,7 @@ export interface RazorpayOptions {
     razorpay_order_id: string;
     razorpay_signature: string;
   }) => void;
+  onFailure?: (response: any) => void;
   modal?: {
     ondismiss?: () => void;
   };
@@ -61,13 +62,21 @@ export async function openRazorpayModal(options: RazorpayOptions): Promise<void>
     throw new Error('Razorpay SDK could not be loaded. Please check your internet connection.');
   }
 
+  const { onFailure, ...rzpOptions } = options;
+
   const rzp = new window.Razorpay({
-    ...options,
+    ...rzpOptions,
     theme: {
       color: '#D4AF37', // Gold brand theme
-      ...options.theme,
+      ...rzpOptions.theme,
     },
   });
+
+  if (onFailure) {
+    rzp.on('payment.failed', (resp: any) => {
+      onFailure(resp);
+    });
+  }
 
   rzp.open();
 }

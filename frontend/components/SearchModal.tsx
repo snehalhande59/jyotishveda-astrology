@@ -91,72 +91,72 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-[#150D2A] border-2 border-[#D4AF37]/50 rounded-2xl shadow-cosmic overflow-hidden text-[#FDFBF7]">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-white border border-[#EAE1D2] rounded-2xl shadow-2xl overflow-hidden text-[#2D1810]">
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-[#D4AF37]/25 bg-[#0F0B1E]">
-          <Search className="w-5 h-5 text-[#D4AF37] mr-3 flex-shrink-0" />
+        <div className="flex items-center px-4 py-3.5 border-b border-[#EAE1D2] bg-[#FAF7F2]">
+          <Search className="w-5 h-5 text-[#D97706] mr-3 flex-shrink-0" />
           <input
             type="text"
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search Kundli, Horoscope, Nakshatra, Astrologers, Festivals, Remedies..."
-            className="w-full bg-transparent text-sm focus:outline-none placeholder-[#D8C7A5]/50 text-[#FDFBF7]"
+            className="w-full bg-transparent text-sm focus:outline-none placeholder-gray-400 text-[#2D1810]"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="text-[#D8C7A5]/60 hover:text-white mr-2 text-xs"
+              className="text-gray-400 hover:text-gray-700 mr-2 text-xs font-medium"
             >
               Clear
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#D8C7A5]/70 hover:text-white hover:bg-[#25184B]"
+            className="p-1 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Search Results List */}
-        <div className="max-h-[60vh] overflow-y-auto p-3 space-y-1 divide-y divide-[#D4AF37]/10">
-          {filtered.length > 0 ? (
-            filtered.map((item, index) => (
+        {/* Results List */}
+        <div className="max-h-96 overflow-y-auto divide-y divide-[#F3ECE1] p-2 bg-[#FFFDF9]">
+          {filtered.length === 0 ? (
+            <div className="p-8 text-center text-xs text-gray-500">
+              No matching Vedic tools, reports, or articles found for &ldquo;{query}&rdquo;.
+            </div>
+          ) : (
+            filtered.map((item, idx) => (
               <Link
-                key={index}
+                key={idx}
                 href={item.url}
                 onClick={onClose}
-                className="flex items-center justify-between p-3 rounded-xl hover:bg-[#25184B] group transition-all"
+                className="group flex items-center justify-between p-3 rounded-xl hover:bg-[#FFF9EB] transition-colors"
               >
                 <div className="space-y-0.5">
                   <div className="flex items-center space-x-2">
-                    <span className="font-serif text-sm font-semibold text-[#F7DF94] group-hover:text-[#D4AF37]">
-                      {item.title}
-                    </span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#0F0B1E] border border-[#D4AF37]/30 text-[#D8C7A5]">
+                    <span className="text-[10px] uppercase font-semibold text-[#B45309] bg-[#FEF3C7] px-2 py-0.5 rounded-full border border-[#FDE68A]">
                       {item.category}
                     </span>
+                    <strong className="text-xs text-[#2D1810] group-hover:text-[#D97706] font-medium">
+                      {item.title}
+                    </strong>
                   </div>
-                  <p className="text-xs text-[#D8C7A5]/70 line-clamp-1">{item.description}</p>
+                  <p className="text-[11px] text-gray-500 line-clamp-1">
+                    {item.description}
+                  </p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-[#D4AF37] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all flex-shrink-0 ml-3" />
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#D97706] group-hover:translate-x-1 transition-all flex-shrink-0 ml-2" />
               </Link>
             ))
-          ) : (
-            <div className="py-12 text-center text-[#D8C7A5]/60 text-xs">
-              <Sparkles className="w-6 h-6 mx-auto mb-2 text-[#D4AF37]/40" />
-              <p>No celestial matching found for &quot;{query}&quot;</p>
-              <p className="text-[11px] mt-1 text-[#D8C7A5]/40">Try searching &quot;Kundli&quot;, &quot;Horoscope&quot;, &quot;Panchang&quot;, or &quot;Gemstones&quot;</p>
-            </div>
           )}
         </div>
 
-        {/* Footer shortcuts */}
-        <div className="px-4 py-2.5 bg-[#0F0B1E] border-t border-[#D4AF37]/20 flex items-center justify-between text-[11px] text-[#D8C7A5]/60">
-          <span>Press <kbd className="px-1.5 py-0.5 bg-[#25184B] rounded text-white border border-[#D4AF37]/30">ESC</kbd> to close</span>
-          <span className="text-[#D4AF37]">JyotishVeda Ephemeris Search</span>
+        {/* Modal Footer */}
+        <div className="px-4 py-2.5 bg-[#FAF7F2] border-t border-[#EAE1D2] flex justify-between items-center text-[11px] text-gray-500">
+          <span>Press <kbd className="px-1.5 py-0.5 bg-white border border-gray-300 rounded text-[10px] text-gray-700">ESC</kbd> to dismiss</span>
+          <span className="text-[#D97706] font-semibold">JyotishVeda Ephemeris Search</span>
         </div>
       </div>
     </div>

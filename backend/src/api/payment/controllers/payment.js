@@ -1,36 +1,90 @@
 const paymentService = require('../../../services/payment-service');
 
+// Standard verified catalog pricing (INR)
+const STANDARD_REPORT_PRICES = {
+  career: 999,
+  marriage: 999,
+  finance: 999,
+  yearly: 999,
+  'premium-kundli': 1499,
+  default: 999,
+};
+
 module.exports = {
   async createOrder(ctx) {
     const user = ctx.state.user;
-    const { amount, serviceType, referenceId, currency = 'INR', notes = {} } = ctx.request.body;
+    const { amount, serviceType = 'general', referenceId, currency = 'INR', notes = {} } = ctx.request.body;
 
-    if (!amount || amount <= 0) {
-      return ctx.badRequest('Invalid payment amount');
+    let validatedAmount = parseFloat(amount);
+
+    // Server-side price validation based on service type
+    try {
+      if (serviceType === 'report') {
+        const reportType = (notes && notes.reportType) || (referenceId && isNaN(Number(referenceId)) ? referenceId : null);
+        if (reportType && STANDARD_REPORT_PRICES[reportType]) {
+          validatedAmount = STANDARD_REPORT_PRICES[reportType];
+        } else if (!validatedAmount || validatedAmount <= 0) {
+          validatedAmount = STANDARD_REPORT_PRICES.default;
+        }
+      } else if (serviceType === 'consultation') {
+        if (referenceId && !isNaN(Number(referenceId))) {
+          // Look up booking or astrologer
+          try {
+            const booking = await strapi.entityService.findOne('api::consultation-booking.consultation-booking', Number(referenceId), {
+              populate: ['astrologer'],
+            });
+            if (booking && booking.consultationFee) {
+              validatedAmount = parseFloat(booking.consultationFee);
+            } else if (booking && booking.astrologer && booking.astrologer.consultationFee) {
+              validatedAmount = parseFloat(booking.astrologer.consultationFee);
+            }
+          } catch (e) {
+            // If booking not yet persisted by ID, fall back to astrologer check
+          }
+        }
+        if (!validatedAmount || validatedAmount < 100) {
+          validatedAmount = 999; // Standard 30-min consultation baseline
+        }
+      } else if (serviceType === 'wallet_recharge') {
+        // Enforce recharge limits (min ₹50, max ₹50,000)
+        if (!validatedAmount || isNaN(validatedAmount) || validatedAmount < 50 || validatedAmount > 50000) {
+          return ctx.badRequest('Wallet recharge amount must be between ₹50 and ₹50,000');
+        }
+      } else {
+        // General services & shop orders
+        if (!validatedAmount || isNaN(validatedAmount) || validatedAmount <= 0) {
+          return ctx.badRequest('Invalid payment amount');
+        }
+      }
+    } catch (e) {
+      console.warn('Price validation fallback applied:', e.message);
+      if (!validatedAmount || validatedAmount <= 0) {
+        validatedAmount = 999;
+      }
     }
 
     try {
       const order = await paymentService.createOrder({
-        amountInRupees: parseFloat(amount),
+        amountInRupees: validatedAmount,
         currency,
         receipt: `rcpt_${Date.now()}`,
         notes: {
           ...notes,
           serviceType: serviceType || 'astrology_service',
-          referenceId: referenceId || '',
+          referenceId: referenceId ? String(referenceId) : '',
           userId: user ? String(user.id) : 'guest',
         },
       });
 
-      // Save initial payment record
+      // Persist initial payment record with status 'created'
       await strapi.entityService.create('api::payment-record.payment-record', {
         data: {
           orderId: order.orderId,
-          amount: parseFloat(amount),
+          amount: validatedAmount,
           currency,
           status: 'created',
           serviceType: serviceType || 'general',
-          referenceId: String(referenceId || ''),
+          referenceId: referenceId ? String(referenceId) : '',
           user: user ? user.id : null,
           rawPayload: order,
         },
@@ -39,7 +93,7 @@ module.exports = {
       return {
         data: {
           orderId: order.orderId,
-          amount: order.amount,
+          amount: validatedAmount,
           currency: order.currency,
           keyId: order.keyId,
           isTestMode: Boolean(order.isTestMode),
@@ -59,6 +113,41 @@ module.exports = {
       return ctx.badRequest('Missing orderId or paymentId');
     }
 
+    // 1. Retrieve payment record by orderId
+    const existingRecords = await strapi.entityService.findMany('api::payment-record.payment-record', {
+      filters: { orderId },
+      populate: ['user'],
+      limit: 1,
+    });
+
+    const existingRecord = existingRecords && existingRecords.length > 0 ? existingRecords[0] : null;
+
+    // 2. Authorization check if record is bound to a user
+    if (existingRecord && existingRecord.user && user) {
+      const recordUserId = existingRecord.user.id || existingRecord.user;
+      if (recordUserId !== user.id) {
+        return ctx.forbidden('Access denied to verify this payment order');
+      }
+    }
+
+    // 3. Idempotency guard: if already captured, return success immediately
+    if (existingRecord && existingRecord.status === 'captured') {
+      return {
+        success: true,
+        message: 'Payment already verified and captured',
+        data: {
+          orderId,
+          paymentId: existingRecord.paymentId || paymentId,
+          status: 'captured',
+          paymentRecordId: existingRecord.id,
+          serviceType: existingRecord.serviceType || serviceType,
+          referenceId: existingRecord.referenceId || referenceId,
+          alreadyCaptured: true,
+        },
+      };
+    }
+
+    // 4. Verify HMAC-SHA256 signature
     const isValid = paymentService.verifySignature({
       orderId,
       paymentId,
@@ -66,23 +155,26 @@ module.exports = {
     });
 
     if (!isValid) {
+      if (existingRecord) {
+        await strapi.entityService.update('api::payment-record.payment-record', existingRecord.id, {
+          data: { status: 'failed' },
+        });
+      }
       return ctx.badRequest('Invalid payment signature verification failed');
     }
 
-    // Retrieve or update payment record
-    const existingRecords = await strapi.entityService.findMany('api::payment-record.payment-record', {
-      filters: { orderId },
-      limit: 1,
-    });
-
+    // 5. Update or create payment record
     let paymentRecord;
-    if (existingRecords && existingRecords.length > 0) {
-      paymentRecord = await strapi.entityService.update('api::payment-record.payment-record', existingRecords[0].id, {
+    const sType = serviceType || existingRecord?.serviceType || 'general';
+    const refId = referenceId || existingRecord?.referenceId || '';
+
+    if (existingRecord) {
+      paymentRecord = await strapi.entityService.update('api::payment-record.payment-record', existingRecord.id, {
         data: {
           paymentId,
           signature,
           status: 'captured',
-          user: user ? user.id : existingRecords[0].user,
+          user: user ? user.id : existingRecord.user?.id || existingRecord.user,
         },
       });
     } else {
@@ -94,49 +186,62 @@ module.exports = {
           amount: 999,
           currency: 'INR',
           status: 'captured',
-          serviceType: serviceType || 'general',
-          referenceId: String(referenceId || ''),
+          serviceType: sType,
+          referenceId: String(refId),
           user: user ? user.id : null,
         },
       });
     }
 
-    // Grant access to report or confirm booking if referenceId exists
-    if (serviceType === 'report' && referenceId) {
+    // 6. Fulfill service idempotently
+    if (sType === 'report' && refId) {
       try {
-        await strapi.entityService.update('api::astrology-report.astrology-report', referenceId, {
+        await strapi.entityService.update('api::astrology-report.astrology-report', refId, {
           data: {
             isPurchased: true,
             payment: paymentRecord.id,
           },
         });
       } catch (e) {
-        // Report update if already created
+        console.warn('Report fulfillment notice:', e.message);
       }
-    } else if (serviceType === 'consultation' && referenceId) {
+    } else if (sType === 'consultation' && refId) {
       try {
-        await strapi.entityService.update('api::consultation-booking.consultation-booking', referenceId, {
+        await strapi.entityService.update('api::consultation-booking.consultation-booking', refId, {
           data: {
             status: 'confirmed',
             payment: paymentRecord.id,
           },
         });
       } catch (e) {
-        // Booking update
+        console.warn('Consultation booking fulfillment notice:', e.message);
+      }
+    } else if (sType === 'wallet_recharge' && user) {
+      try {
+        const u = await strapi.entityService.findOne('plugin::users-permissions.user', user.id);
+        if (u) {
+          const currentBal = parseFloat(u.walletBalance || 0);
+          const rechargeAmt = parseFloat(paymentRecord.amount || 0);
+          await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+            data: { walletBalance: currentBal + rechargeAmt },
+          });
+        }
+      } catch (e) {
+        console.warn('User wallet update notice:', e.message);
       }
     }
 
     return {
       success: true,
-      message: 'Payment verified and access granted successfully',
+      message: 'Payment verified and service fulfilled successfully',
       data: {
         orderId,
         paymentId,
         status: 'captured',
         paymentRecordId: paymentRecord.id,
-        serviceType,
-        referenceId,
-        bookingId: serviceType === 'consultation' ? referenceId : null,
+        serviceType: sType,
+        referenceId: refId,
+        bookingId: sType === 'consultation' ? refId : null,
       },
     };
   },
@@ -164,13 +269,17 @@ module.exports = {
       });
 
       if (records && records.length > 0) {
-        await strapi.entityService.update('api::payment-record.payment-record', records[0].id, {
-          data: {
-            paymentId: payload.id,
-            status: event === 'payment.captured' ? 'captured' : 'failed',
-            rawPayload,
-          },
-        });
+        const rec = records[0];
+        // Do not revert an already captured payment
+        if (rec.status !== 'captured' || event === 'payment.captured') {
+          await strapi.entityService.update('api::payment-record.payment-record', rec.id, {
+            data: {
+              paymentId: payload.id,
+              status: event === 'payment.captured' ? 'captured' : rec.status,
+              rawPayload: rawBody,
+            },
+          });
+        }
       }
     }
 

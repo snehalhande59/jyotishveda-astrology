@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { AstrologyService } from '@/lib/types';
-import { CheckCircle, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { CheckCircle2, Sparkles, ShieldCheck, Zap, ChevronRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 import { getLocalizedField } from '@/lib/translations';
 
@@ -25,18 +25,18 @@ export default function PricingPage() {
   }, []);
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
       {/* Banner */}
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-20 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] text-center">
         <div className="max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3.5 py-1 rounded-full text-xs text-[#F7DF94]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1 rounded-full text-xs font-semibold text-[#92400E]">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
             <span>{t('pricing.badge')}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FDFBF7]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2D1810]">
             {t('pricing.title')}
           </h1>
-          <p className="text-xs sm:text-sm text-[#D8C7A5] max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#786C60] max-w-xl mx-auto leading-relaxed">
             {t('pricing.subtitle')}
           </p>
         </div>
@@ -44,7 +44,7 @@ export default function PricingPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-16">
         {/* Reports Catalog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
           {services.map((service, index) => {
             const isFeatured = service.isFeatured || index === 0;
             const title = getLocalizedField(service, 'title', language) || service.title;
@@ -55,8 +55,8 @@ export default function PricingPage() {
                 key={service.id}
                 className={`rounded-3xl p-8 flex flex-col justify-between transition-all ${
                   isFeatured
-                    ? 'bg-[#150D2A] text-[#FDFBF7] border-2 border-[#D4AF37] shadow-cosmic scale-105'
-                    : 'bg-white border border-[#D4AF37]/25 shadow-sm text-gray-800'
+                    ? 'bg-gradient-to-b from-[#FFFDF9] to-[#FFFBEB] border-2 border-[#F59E0B] shadow-md scale-105'
+                    : 'bg-white border border-[#EAE1D2] shadow-sm text-[#2D1810]'
                 }`}
               >
                 <div>
@@ -64,43 +64,43 @@ export default function PricingPage() {
                     <span
                       className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full border ${
                         isFeatured
-                          ? 'bg-[#25184B] text-[#D4AF37] border-[#D4AF37]/40'
-                          : 'bg-[#FAF6F0] text-[#8C6D1F] border-[#D4AF37]/30'
+                          ? 'bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]'
+                          : 'bg-[#FAF7F2] text-[#786C60] border-[#EAE1D2]'
                       }`}
                     >
                       {service.category}
                     </span>
                     {service.badge && (
-                      <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                      <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                         {service.badge}
                       </span>
                     )}
                   </div>
 
-                  <h3 className={`font-serif text-2xl font-bold ${isFeatured ? 'text-[#FDFBF7]' : 'text-[#150D2A]'}`}>
+                  <h3 className="font-serif text-2xl font-bold text-[#2D1810]">
                     {title}
                   </h3>
-                  <p className={`text-xs mt-2 leading-relaxed ${isFeatured ? 'text-[#D8C7A5]/80' : 'text-gray-600'}`}>
+                  <p className="text-xs mt-2 leading-relaxed text-[#6B5A4E]">
                     {shortDesc}
                   </p>
 
-                  <div className="mt-6 py-4 border-y border-[#D4AF37]/20 flex items-baseline space-x-2">
-                    <span className="font-serif text-3xl font-bold text-[#D4AF37]">
+                  <div className="mt-6 py-4 border-y border-[#F5EFE6] flex items-baseline space-x-2">
+                    <span className="font-serif text-3xl font-extrabold text-[#B45309]">
                       {formatCurrency(service.discountedPrice || service.price)}
                     </span>
                     {service.discountedPrice && (
-                      <span className={`text-xs line-through ${isFeatured ? 'text-gray-400' : 'text-gray-400'}`}>
+                      <span className="text-xs line-through text-[#786C60]/60">
                         {formatCurrency(service.price)}
                       </span>
                     )}
-                    <span className="text-[10px] text-gray-400 ml-auto">{t('pricing.oneTime')}</span>
+                    <span className="text-[10px] text-[#786C60] ml-auto">{t('pricing.oneTime')}</span>
                   </div>
 
                   <ul className="mt-6 space-y-2.5 text-xs">
                     {service.features?.map((feat, idx) => (
-                      <li key={idx} className="flex items-center space-x-2.5">
-                        <CheckCircle className="w-4 h-4 text-[#D4AF37] flex-shrink-0" />
-                        <span className={isFeatured ? 'text-[#D8C7A5]' : 'text-gray-700'}>{feat}</span>
+                      <li key={idx} className="flex items-center space-x-2.5 text-[#4A2E18]">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
@@ -109,11 +109,7 @@ export default function PricingPage() {
                 <div className="mt-8 pt-4">
                   <Link
                     href={service.slug === 'detailed-kundli' ? '/reports/premium-kundli' : `/reports/${service.slug}`}
-                    className={`w-full block text-center py-3 rounded-xl font-serif font-bold text-xs tracking-wide shadow-gold transition-all ${
-                      isFeatured
-                        ? 'bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E]'
-                        : 'bg-[#150D2A] text-[#FDFBF7] hover:bg-[#8C6D1F]'
-                    }`}
+                    className="w-full block text-center py-3.5 rounded-xl font-serif font-bold text-xs tracking-wide bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all"
                   >
                     {t('pricing.selectPlan')}
                   </Link>
@@ -124,21 +120,27 @@ export default function PricingPage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="bg-white p-8 rounded-3xl border border-[#D4AF37]/20 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
-          <div className="space-y-1">
-            <ShieldCheck className="w-6 h-6 text-[#8C6D1F] mx-auto" />
-            <strong className="text-gray-900 block text-sm">{t('pricing.trustEncryption')}</strong>
-            <p className="text-gray-600">{t('pricing.trustEncryptionDesc')}</p>
+        <div className="bg-white p-8 rounded-3xl border border-[#EAE1D2] shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
+          <div className="space-y-1.5">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center mx-auto text-[#D97706] shadow-2xs">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <strong className="text-[#2D1810] block text-sm font-bold">{t('pricing.trustEncryption')}</strong>
+            <p className="text-[#786C60] leading-relaxed">{t('pricing.trustEncryptionDesc')}</p>
           </div>
-          <div className="space-y-1">
-            <Zap className="w-6 h-6 text-[#8C6D1F] mx-auto" />
-            <strong className="text-gray-900 block text-sm">{t('pricing.trustInstant')}</strong>
-            <p className="text-gray-600">{t('pricing.trustInstantDesc')}</p>
+          <div className="space-y-1.5">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center mx-auto text-[#D97706] shadow-2xs">
+              <Zap className="w-6 h-6" />
+            </div>
+            <strong className="text-[#2D1810] block text-sm font-bold">{t('pricing.trustInstant')}</strong>
+            <p className="text-[#786C60] leading-relaxed">{t('pricing.trustInstantDesc')}</p>
           </div>
-          <div className="space-y-1">
-            <Sparkles className="w-6 h-6 text-[#8C6D1F] mx-auto" />
-            <strong className="text-gray-900 block text-sm">{t('pricing.trustScholar')}</strong>
-            <p className="text-gray-600">{t('pricing.trustScholarDesc')}</p>
+          <div className="space-y-1.5">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center mx-auto text-[#D97706] shadow-2xs">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <strong className="text-[#2D1810] block text-sm font-bold">{t('pricing.trustScholar')}</strong>
+            <p className="text-[#786C60] leading-relaxed">{t('pricing.trustScholarDesc')}</p>
           </div>
         </div>
       </div>

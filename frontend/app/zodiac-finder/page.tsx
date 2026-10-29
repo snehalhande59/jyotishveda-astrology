@@ -5,8 +5,10 @@ import { api } from '@/lib/api';
 import { ZodiacSign } from '@/lib/types';
 import BirthDetailsForm, { BirthFormData } from '@/components/BirthDetailsForm';
 import { Sparkles, Sun, Moon, ShieldCheck, Heart, Zap } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ZodiacFinderPage() {
+  const { language } = useLanguage();
   const [signs, setSigns] = useState<ZodiacSign[]>([]);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -49,27 +51,28 @@ export default function ZodiacFinderPage() {
     element: 'Fire' as const,
     ruler: 'Mars',
     symbol: 'Ram',
-    dateRange: 'Apr 14 - May 14',
-    traits: 'Dynamic, pioneering, courageous, leadership-oriented.',
-    strengths: ['Courage', 'Decisiveness', 'Optimism', 'Passion'],
-    weaknesses: ['Impatience', 'Short-tempered', 'Impulsive'],
-    compatibleSigns: ['Leo', 'Sagittarius', 'Gemini'],
+    traits: 'Dynamic, courageous, pioneering, and passionate energy.',
+    strengths: ['Courageous', 'Determined', 'Confident', 'Enthusiastic'],
+    weaknesses: ['Impatient', 'Moody', 'Short-tempered', 'Impulsive'],
+    compatibleSigns: ['Leo', 'Sagittarius', 'Gemini', 'Aquarius'],
   };
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
       {/* Banner */}
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] text-center">
         <div className="max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3 py-1 rounded-full text-xs text-[#F7DF94]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Chandra Rashi vs. Surya Rashi</span>
+          <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1 rounded-full text-xs font-semibold text-[#92400E]">
+            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>{language === 'mr' ? 'चंद्र राशी विरूद्ध सूर्य राशी' : 'Chandra Rashi vs. Surya Rashi'}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FDFBF7]">
-            Vedic Zodiac Sign (Rashi) Finder
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2D1810]">
+            {language === 'mr' ? 'वैदिक राशी शोधक' : 'Vedic Zodiac Sign (Rashi) Finder'}
           </h1>
-          <p className="text-xs sm:text-sm text-[#D8C7A5] max-w-xl mx-auto">
-            In Vedic astrology, your Moon sign (Chandra Rashi) governs the mind, instincts, and soul destiny. Find your exact sidereal sign.
+          <p className="text-xs sm:text-sm text-[#786C60] max-w-xl mx-auto leading-relaxed">
+            {language === 'mr'
+              ? 'वैदिक ज्योतिषात आपली चंद्र राशी (Chandra Rashi) मन, भावना आणि जीवन प्रवासाचे नियमन करते. आपली खरी राशी शोधा.'
+              : 'In Vedic astrology, your Moon sign (Chandra Rashi) governs the mind, instincts, and soul destiny. Find your exact sidereal sign.'}
           </p>
         </div>
       </section>
@@ -81,60 +84,67 @@ export default function ZodiacFinderPage() {
             <BirthDetailsForm
               onSubmit={handleCalculateZodiac}
               isLoading={loading}
-              buttonText="Find My Vedic Zodiac Signs"
+              buttonText={language === 'mr' ? 'माझी वैदिक राशी शोधा' : 'Find My Vedic Zodiac Signs'}
             />
           </div>
 
           {/* Result Card or Introduction */}
           <div className="lg:col-span-7">
             {result ? (
-              <div className="bg-[#150D2A] text-[#FDFBF7] p-6 sm:p-8 rounded-3xl border-2 border-[#D4AF37] shadow-cosmic space-y-6">
-                <span className="text-[10px] uppercase font-bold text-[#D4AF37] tracking-wider block">
-                  Sidereal Astrological Calculation
+              <div className="bg-white text-[#2D1810] p-6 sm:p-8 rounded-2xl border-2 border-[#D97706] shadow-md space-y-6">
+                <span className="text-[10px] uppercase font-bold text-[#B45309] tracking-wider block">
+                  {language === 'mr' ? 'निरयन खगोलीय गणना' : 'Sidereal Astrological Calculation'}
                 </span>
-                <h3 className="font-serif text-2xl font-bold text-[#F7DF94]">
-                  Your Vedic Cosmic Profile
+                <h3 className="font-serif text-2xl font-bold text-[#2D1810]">
+                  {language === 'mr' ? 'आपली वैदिक ग्रह रूपरेषा' : 'Your Vedic Cosmic Profile'}
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-[#191233] p-4 rounded-xl border border-[#D4AF37]/30 text-center">
-                    <Moon className="w-5 h-5 text-[#D4AF37] mx-auto mb-1" />
-                    <span className="text-[10px] text-[#D8C7A5] block">Moon Sign (Rashi)</span>
-                    <strong className="text-base text-[#FDFBF7] block">{result.moonSign.signName}</strong>
-                    <span className="text-[10px] text-[#D4AF37]">{result.moonSign.degreeFormatted}</span>
+                  <div className="bg-[#FFFDF9] p-4 rounded-xl border border-[#EAE1D2] text-center">
+                    <Moon className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#786C60] block">{language === 'mr' ? 'चंद्र राशी' : 'Moon Sign (Rashi)'}</span>
+                    <strong className="text-base text-[#2D1810] block">{result.moonSign.signName}</strong>
+                    <span className="text-[10px] text-[#D97706] font-mono">{result.moonSign.degreeFormatted}</span>
                   </div>
 
-                  <div className="bg-[#191233] p-4 rounded-xl border border-[#D4AF37]/30 text-center">
-                    <Sun className="w-5 h-5 text-[#D4AF37] mx-auto mb-1" />
-                    <span className="text-[10px] text-[#D8C7A5] block">Sun Sign (Surya)</span>
-                    <strong className="text-base text-[#FDFBF7] block">{result.sunSign.signName}</strong>
-                    <span className="text-[10px] text-[#D4AF37]">{result.sunSign.degreeFormatted}</span>
+                  <div className="bg-[#FFFDF9] p-4 rounded-xl border border-[#EAE1D2] text-center">
+                    <Sun className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#786C60] block">{language === 'mr' ? 'सूर्य राशी' : 'Sun Sign (Surya)'}</span>
+                    <strong className="text-base text-[#2D1810] block">{result.sunSign.signName}</strong>
+                    <span className="text-[10px] text-[#D97706] font-mono">{result.sunSign.degreeFormatted}</span>
                   </div>
 
-                  <div className="bg-[#191233] p-4 rounded-xl border border-[#D4AF37]/30 text-center">
-                    <Zap className="w-5 h-5 text-[#D4AF37] mx-auto mb-1" />
-                    <span className="text-[10px] text-[#D8C7A5] block">Ascendant (Lagna)</span>
-                    <strong className="text-base text-[#FDFBF7] block">{result.ascendant.signName}</strong>
-                    <span className="text-[10px] text-[#D4AF37]">{result.ascendant.degreeFormatted}</span>
+                  <div className="bg-[#FFFDF9] p-4 rounded-xl border border-[#EAE1D2] text-center">
+                    <Zap className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
+                    <span className="text-[10px] text-[#786C60] block">{language === 'mr' ? 'लग्न राशी' : 'Ascendant (Lagna)'}</span>
+                    <strong className="text-base text-[#2D1810] block">{result.ascendant.signName}</strong>
+                    <span className="text-[10px] text-[#D97706] font-mono">{result.ascendant.degreeFormatted}</span>
                   </div>
                 </div>
 
-                <div className="bg-[#0F0B1E] p-5 rounded-2xl border border-[#D4AF37]/20 text-xs text-[#D8C7A5] leading-relaxed space-y-2">
+                <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-[#EAE1D2] text-xs text-[#5C4033] leading-relaxed space-y-2">
                   <p>
-                    <strong>Why Moon Sign Dominates in Jyotish:</strong> In ancient India, sages recognized that the Moon moves through the entire zodiac in 27.3 days, staying in each sign for roughly 2.25 days. The Moon governs the subconscious mind (Manas), emotional temperament, and perceptual filters.
+                    <strong>{language === 'mr' ? 'ज्योतिषात चंद्र राशीचे प्राधान्य का:' : 'Why Moon Sign Dominates in Jyotish:'}</strong>{' '}
+                    {language === 'mr'
+                      ? 'प्राचीन भारतात ऋषींनी ओळखले की चंद्र संपूर्ण राशीचक्र २७.३ दिवसांत पूर्ण करतो आणि प्रत्येक राशीत सुमारे सव्वादोन दिवस राहतो. चंद्र मनाचे (मानस), भावनांचे आणि आकलनाचे नियमन करतो.'
+                      : 'In ancient India, sages recognized that the Moon moves through the entire zodiac in 27.3 days, staying in each sign for roughly 2.25 days. The Moon governs the subconscious mind (Manas), emotional temperament, and perceptual filters.'}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-white p-8 rounded-3xl border border-[#D4AF37]/20 shadow-sm space-y-4">
-                <h3 className="font-serif text-xl font-bold text-[#150D2A]">
-                  Western Sun Sign vs. Vedic Moon Sign
+              <div className="bg-white p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
+                <h3 className="font-serif text-xl font-bold text-[#2D1810]">
+                  {language === 'mr' ? 'पाश्चात्त्य सूर्य राशी विरूद्ध वैदिक चंद्र राशी' : 'Western Sun Sign vs. Vedic Moon Sign'}
                 </h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  In Western horoscopes, people typically only know their Sun sign. Because Vedic astrology incorporates the 24-degree Lahiri Ayanamsa, your Vedic Moon sign is often <strong>one sign earlier</strong> than what Western astrology presents.
+                <p className="text-xs text-[#786C60] leading-relaxed">
+                  {language === 'mr'
+                    ? 'पाश्चात्त्य कुंडलीत लोक सहसा फक्त सूर्य राशी ओळखतात. वैदिक ज्योतिष २४ अंशांच्या लाहिरी अयनांशाचा समावेश करत असल्याने, आपली वैदिक चंद्र राशी पाश्चात्त्य राशीपेक्षा सामान्यतः एक राशी मागे असते.'
+                    : 'In Western horoscopes, people typically only know their Sun sign. Because Vedic astrology incorporates the 24-degree Lahiri Ayanamsa, your Vedic Moon sign is often one sign earlier than what Western astrology presents.'}
                 </p>
-                <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#D4AF37]/20 text-xs text-[#8C6D1F]">
-                  Enter your birth time and city on the left to verify your precise Chandra Rashi.
+                <div className="p-4 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] text-xs text-[#92400E]">
+                  {language === 'mr'
+                    ? 'आपली अचूक चंद्र राशी पडताळण्यासाठी डावीकडील फॉर्ममध्ये जन्म वेळ व शहर प्रविष्ट करा.'
+                    : 'Enter your birth time and city on the left to verify your precise Chandra Rashi.'}
                 </div>
               </div>
             )}
@@ -142,26 +152,28 @@ export default function ZodiacFinderPage() {
         </div>
 
         {/* 12 Signs Exploration Directory */}
-        <section className="bg-white p-8 sm:p-10 rounded-3xl border border-[#D4AF37]/25 shadow-sm space-y-8">
+        <section className="bg-white p-8 sm:p-10 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-8">
           <div>
-            <h3 className="font-serif text-2xl font-bold text-[#150D2A]">
-              Explore the 12 Vedic Rashis
+            <h3 className="font-serif text-2xl font-bold text-[#2D1810]">
+              {language === 'mr' ? '१२ वैदिक राशींची माहिती' : 'Explore the 12 Vedic Rashis'}
             </h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Select any sign below to inspect its governing element, ruling planet, strengths, and compatibility.
+            <p className="text-xs text-[#786C60] mt-1">
+              {language === 'mr'
+                ? 'खालीलपैकी कोणतीही राशी निवडून तिचे घटक, स्वामी ग्रह, सामर्थ्य आणि सुसंगतता तपासा.'
+                : 'Select any sign below to inspect its governing element, ruling planet, strengths, and compatibility.'}
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 pb-4 border-b border-gray-100">
+          <div className="flex flex-wrap gap-2 pb-4 border-b border-[#EAE1D2]">
             {signs.length > 0
               ? signs.map((s) => (
                   <button
                     key={s.name}
                     onClick={() => setActiveSignTab(s.name)}
-                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeSignTab === s.name
-                        ? 'bg-[#150D2A] text-[#F7DF94] border border-[#D4AF37]'
-                        : 'bg-[#FAF6F0] text-gray-700 hover:bg-[#FAF6F0]/80'
+                        ? 'bg-[#D97706] text-white shadow-sm border border-[#D97706]'
+                        : 'bg-[#FAF7F2] text-[#5C4033] hover:bg-[#F3EFEA]'
                     }`}
                   >
                     {s.name} ({s.sanskritName})
@@ -171,10 +183,10 @@ export default function ZodiacFinderPage() {
                   <button
                     key={name}
                     onClick={() => setActiveSignTab(name)}
-                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeSignTab === name
-                        ? 'bg-[#150D2A] text-[#F7DF94] border border-[#D4AF37]'
-                        : 'bg-[#FAF6F0] text-gray-700 hover:bg-[#FAF6F0]/80'
+                        ? 'bg-[#D97706] text-white shadow-sm border border-[#D97706]'
+                        : 'bg-[#FAF7F2] text-[#5C4033] hover:bg-[#F3EFEA]'
                     }`}
                   >
                     {name}
@@ -184,22 +196,22 @@ export default function ZodiacFinderPage() {
 
           {/* Active Sign Detailed Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-            <div className="p-6 bg-[#FAF6F0] rounded-2xl border border-[#D4AF37]/20 space-y-3">
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Sign Overview</span>
-              <h4 className="font-serif text-xl font-bold text-[#150D2A]">
+            <div className="p-6 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] space-y-3">
+              <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">{language === 'mr' ? 'राशी सारांश' : 'Sign Overview'}</span>
+              <h4 className="font-serif text-xl font-bold text-[#2D1810]">
                 {selectedSignDetails.name} ({selectedSignDetails.sanskritName})
               </h4>
-              <p className="text-xs text-gray-600 leading-relaxed">{selectedSignDetails.traits}</p>
-              <div className="pt-2 text-xs text-gray-600 space-y-1">
+              <p className="text-xs text-[#786C60] leading-relaxed">{selectedSignDetails.traits}</p>
+              <div className="pt-2 text-xs text-[#5C4033] space-y-1">
                 <div><strong>Element:</strong> {selectedSignDetails.element}</div>
                 <div><strong>Ruler:</strong> {selectedSignDetails.ruler}</div>
                 <div><strong>Symbol:</strong> {selectedSignDetails.symbol}</div>
               </div>
             </div>
 
-            <div className="p-6 bg-[#FAF6F0] rounded-2xl border border-[#D4AF37]/20 space-y-3">
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Core Strengths</span>
-              <ul className="space-y-1.5 text-xs text-gray-700">
+            <div className="p-6 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] space-y-3">
+              <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">{language === 'mr' ? 'प्रमुख सामर्थ्य' : 'Core Strengths'}</span>
+              <ul className="space-y-1.5 text-xs text-[#5C4033]">
                 {selectedSignDetails.strengths?.map((str, i) => (
                   <li key={i} className="flex items-center space-x-2">
                     <span className="text-emerald-600 font-bold">✓</span>
@@ -207,23 +219,23 @@ export default function ZodiacFinderPage() {
                   </li>
                 ))}
               </ul>
-              <span className="text-[10px] text-gray-500 uppercase font-semibold block pt-3">Challenges to Balance</span>
-              <ul className="space-y-1 text-xs text-gray-700">
+              <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider block pt-3">{language === 'mr' ? 'सावधगिरी' : 'Challenges to Balance'}</span>
+              <ul className="space-y-1 text-xs text-[#5C4033]">
                 {selectedSignDetails.weaknesses?.map((w, i) => (
                   <li key={i} className="text-rose-600">• {w}</li>
                 ))}
               </ul>
             </div>
 
-            <div className="p-6 bg-[#FAF6F0] rounded-2xl border border-[#D4AF37]/20 space-y-3">
-              <span className="text-[10px] text-gray-500 uppercase font-semibold">Compatibility</span>
-              <div className="flex items-center space-x-2 text-[#8C6D1F] font-semibold text-xs">
+            <div className="p-6 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] space-y-3">
+              <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">{language === 'mr' ? 'सुसंगतता' : 'Compatibility'}</span>
+              <div className="flex items-center space-x-2 text-[#92400E] font-semibold text-xs">
                 <Heart className="w-4 h-4 text-rose-500" />
-                <span>Most Harmonious With:</span>
+                <span>{language === 'mr' ? 'सर्वात सुसंगत राशी:' : 'Most Harmonious With:'}</span>
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
                 {selectedSignDetails.compatibleSigns?.map((c, i) => (
-                  <span key={i} className="px-3 py-1 bg-white border border-[#D4AF37]/30 rounded-lg text-xs font-medium text-[#150D2A]">
+                  <span key={i} className="px-3 py-1 bg-white border border-[#EAE1D2] rounded-lg text-xs font-bold text-[#2D1810]">
                     {c}
                   </span>
                 ))}

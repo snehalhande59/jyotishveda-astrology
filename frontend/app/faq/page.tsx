@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { FAQ } from '@/lib/types';
 import { HelpCircle, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function FaqPage() {
+  const { language } = useLanguage();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
   const [activeCategory, setActiveCategory] = useState<string>('All');
@@ -29,13 +31,15 @@ export default function FaqPage() {
     : faqs.filter((f) => f.category === activeCategory);
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FDFBF7]">
-          Frequently Asked Questions
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] text-center">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2D1810]">
+          {language === 'mr' ? 'नेहमी विचारले जाणारे प्रश्न (FAQ)' : 'Frequently Asked Questions'}
         </h1>
-        <p className="text-xs sm:text-sm text-[#D8C7A5] max-w-xl mx-auto mt-2">
-          Clear answers regarding Vedic astrology, astronomical algorithms, payment gateways, and consultation procedures.
+        <p className="text-xs sm:text-sm text-[#786C60] max-w-xl mx-auto mt-2 leading-relaxed">
+          {language === 'mr'
+            ? 'वैदिक ज्योतिष, खगोलीय सूत्रे, पेमेंट गेटवे आणि सल्लामसलत प्रक्रियेबद्दलचे सर्व प्रश्न.'
+            : 'Clear answers regarding Vedic astrology, astronomical algorithms, payment gateways, and consultation procedures.'}
         </p>
       </section>
 
@@ -46,13 +50,13 @@ export default function FaqPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
                 activeCategory === cat
-                  ? 'bg-[#150D2A] text-[#F7DF94] border border-[#D4AF37]'
-                  : 'bg-white text-gray-700 border border-gray-200 hover:border-[#D4AF37]'
+                  ? 'bg-[#D97706] text-white shadow-sm border border-[#D97706]'
+                  : 'bg-white text-[#5C4033] border border-[#EAE1D2] hover:border-[#D97706]'
               }`}
             >
-              {cat}
+              {cat === 'All' ? (language === 'mr' ? 'सर्व' : 'All') : cat}
             </button>
           ))}
         </div>
@@ -62,19 +66,19 @@ export default function FaqPage() {
           {filtered.map((faq, index) => (
             <div
               key={faq.id || index}
-              className="bg-white border border-[#D4AF37]/25 rounded-2xl overflow-hidden shadow-sm"
+              className="bg-white border border-[#EAE1D2] rounded-2xl overflow-hidden shadow-sm"
             >
               <button
                 onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                className="w-full p-5 text-left flex justify-between items-center text-sm font-semibold text-[#150D2A] hover:text-[#8C6D1F]"
+                className="w-full p-5 text-left flex justify-between items-center text-sm font-bold text-[#2D1810] hover:text-[#D97706] transition-colors"
               >
                 <span>{faq.question}</span>
-                <span className="text-xl font-bold text-[#8C6D1F] ml-3">
+                <span className="text-xl font-bold text-[#D97706] ml-3">
                   {activeFaq === index ? '−' : '+'}
                 </span>
               </button>
               {activeFaq === index && (
-                <div className="px-5 pb-5 text-xs text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
+                <div className="px-5 pb-5 text-xs text-[#5C4033] leading-relaxed border-t border-[#EAE1D2] pt-3">
                   {faq.answer}
                 </div>
               )}

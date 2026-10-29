@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser, getWalletBalance, updateWalletBalance } from '@/lib/auth';
 import { User } from '@/lib/types';
+import PaymentModal from '@/components/PaymentModal';
 import {
   Wallet,
   CreditCard,
@@ -18,19 +19,35 @@ import {
   HelpCircle,
   Lock,
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function WalletPage() {
   const router = useRouter();
+  const { language, formatCurrency } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [selectedAmount, setSelectedAmount] = useState<number>(500);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [activeRechargeAmount, setActiveRechargeAmount] = useState(500);
 
   const [transactions, setTransactions] = useState([
-    { id: 'TXN-9841', description: 'Welcome Bonus Astro Credits', amount: 500, type: 'credit', date: 'Just now' },
-    { id: 'TXN-8722', description: 'Kundli Deep-Dive Consultation Promo', amount: 150, type: 'credit', date: 'Yesterday' },
+    {
+      id: 'TXN-9841',
+      description: language === 'mr' ? 'स्वागत बोनस ॲस्ट्रो क्रेडिट्स' : 'Welcome Bonus Astro Credits',
+      amount: 500,
+      type: 'credit',
+      date: language === 'mr' ? 'आत्ताच' : 'Just now',
+    },
+    {
+      id: 'TXN-8722',
+      description: language === 'mr' ? 'कुंडली सल्लामसलत प्रोमो' : 'Kundli Consultation Promo',
+      amount: 150,
+      type: 'credit',
+      date: language === 'mr' ? 'काल' : 'Yesterday',
+    },
   ]);
 
   useEffect(() => {
@@ -46,58 +63,70 @@ export default function WalletPage() {
   const handleRecharge = () => {
     const amt = customAmount ? parseFloat(customAmount) : selectedAmount;
     if (isNaN(amt) || amt < 50) {
-      alert('Minimum recharge amount is ₹50');
+      alert(language === 'mr' ? 'किमान रिचार्ज रक्कम ₹५० आहे' : 'Minimum recharge amount is ₹50');
+      return;
+    }
+    if (amt > 50000) {
+      alert(language === 'mr' ? 'कमाल रिचार्ज रक्कम ₹५०,००० आहे' : 'Maximum recharge amount is ₹50,000');
       return;
     }
 
-    setIsProcessing(true);
-    setTimeout(() => {
-      const nextBal = updateWalletBalance(amt);
-      setBalance(nextBal);
-      setTransactions((prev) => [
-        {
-          id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
-          description: 'Wallet Balance Recharge (Razorpay Test)',
-          amount: amt,
-          type: 'credit',
-          date: 'Just now',
-        },
-        ...prev,
-      ]);
-      setIsProcessing(false);
-      setSuccessMessage(`Successfully added ₹${amt} to your JyotishVeda Wallet!`);
-      setCustomAmount('');
-      setTimeout(() => setSuccessMessage(null), 5000);
-    }, 800);
+    setActiveRechargeAmount(amt);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = (paymentData: any) => {
+    const amt = activeRechargeAmount;
+    const nextBal = updateWalletBalance(amt);
+    setBalance(nextBal);
+    setTransactions((prev) => [
+      {
+        id: paymentData?.paymentId || `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+        description: language === 'mr' ? 'वॉलेट रिचार्ज (रेझरपे प्रमाणित)' : 'Wallet Balance Recharge (Razorpay Verified)',
+        amount: amt,
+        type: 'credit',
+        date: language === 'mr' ? 'आत्ताच' : 'Just now',
+      },
+      ...prev,
+    ]);
+    setSuccessMessage(
+      language === 'mr'
+        ? `तुमच्या ज्योतिषवेद वॉलेटमध्ये ₹${amt} यशस्वीरीत्या जमा झाले!`
+        : `Successfully added ₹${amt} to your JyotishVeda Wallet!`
+    );
+    setCustomAmount('');
+    setTimeout(() => setSuccessMessage(null), 5000);
   };
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
       {/* Top Banner */}
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2]">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3 py-1 rounded-full text-xs text-[#F7DF94] mb-3">
-              <Wallet className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>JyotishVeda AstroPay Wallet</span>
+            <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1 rounded-full text-xs font-semibold text-[#92400E] mb-3">
+              <Wallet className="w-3.5 h-3.5 text-[#D97706]" />
+              <span>{language === 'mr' ? 'ज्योतिषवेद सुरक्षित वॉलेट' : 'JyotishVeda Secure Wallet'}</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#FDFBF7]">
-              Astrologer Consultation Wallet
+            <h1 className="font-serif text-3xl sm:text-4xl font-extrabold text-[#2D1810]">
+              {language === 'mr' ? 'ज्योतिषी सल्लामसलत वॉलेट' : 'Astrologer Consultation Wallet'}
             </h1>
-            <p className="text-xs sm:text-sm text-[#D8C7A5] mt-1 max-w-lg">
-              Preload credits for instant 1-on-1 calls, live chat with senior Acharyas, and express horoscope reports.
+            <p className="text-xs sm:text-sm text-[#786C60] mt-1 max-w-lg leading-relaxed">
+              {language === 'mr'
+                ? 'वरिष्ठ ज्योतिषांशी थेट कॉल, चॅट आणि त्वरित कुंडली अहवालांसाठी क्रेडिट्स जमा करा.'
+                : 'Preload credits for instant 1-on-1 calls, live chat with senior Acharyas, and express horoscope reports.'}
             </p>
           </div>
 
-          <div className="bg-[#191233] border-2 border-[#D4AF37] rounded-2xl p-5 shadow-cosmic text-center min-w-[200px]">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37] block">
-              Available Balance
+          <div className="bg-white border-2 border-[#D97706] rounded-2xl p-5 shadow-sm text-center min-w-[220px]">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[#B45309] block">
+              {language === 'mr' ? 'उपलब्ध शिल्लक' : 'Available Balance'}
             </span>
-            <span className="font-serif text-3xl font-bold text-[#F7DF94] block my-1">
+            <span className="font-serif text-3xl font-extrabold text-[#D97706] block my-1">
               ₹{balance.toLocaleString('en-IN')}
             </span>
-            <span className="text-[11px] text-[#D8C7A5]/70">
-              {user ? `Account: ${user.username}` : 'Guest Session'}
+            <span className="text-[11px] text-[#786C60]">
+              {user ? (language === 'mr' ? `खाते: ${user.username}` : `Account: ${user.username}`) : (language === 'mr' ? 'अतिथी सत्र' : 'Guest Session')}
             </span>
           </div>
         </div>
@@ -106,10 +135,10 @@ export default function WalletPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Recharge Controls */}
         <div className="md:col-span-7 space-y-6">
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#D4AF37]/30 shadow-sm space-y-6">
-            <h2 className="font-serif text-xl font-bold text-[#150D2A] flex items-center space-x-2">
-              <PlusCircle className="w-5 h-5 text-[#8C6D1F]" />
-              <span>Add Balance to Wallet</span>
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+            <h2 className="font-serif text-xl font-bold text-[#2D1810] flex items-center space-x-2">
+              <PlusCircle className="w-5 h-5 text-[#D97706]" />
+              <span>{language === 'mr' ? 'वॉलेटमध्ये शिल्लक जोडा' : 'Add Balance to Wallet'}</span>
             </h2>
 
             {successMessage && (
@@ -121,8 +150,8 @@ export default function WalletPage() {
 
             {/* Quick Amount Options */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-2">
-                Select Recharge Amount (INR)
+              <label className="block text-xs font-semibold text-[#5C4033] mb-2">
+                {language === 'mr' ? 'रिचार्ज रक्कम निवडा (रुपये)' : 'Select Recharge Amount (INR)'}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[200, 500, 1000, 2000].map((amt) => (
@@ -133,10 +162,10 @@ export default function WalletPage() {
                       setSelectedAmount(amt);
                       setCustomAmount('');
                     }}
-                    className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all ${
+                    className={`py-3 px-4 rounded-xl border text-sm font-bold transition-all ${
                       selectedAmount === amt && !customAmount
-                        ? 'bg-[#150D2A] border-[#D4AF37] text-[#F7DF94] shadow-md'
-                        : 'bg-[#FAF6F0] border-gray-200 text-gray-800 hover:border-[#D4AF37]'
+                        ? 'bg-[#D97706] border-[#D97706] text-white shadow-md'
+                        : 'bg-[#FFFDF9] border-[#EAE1D2] text-[#2D1810] hover:border-[#D97706]'
                     }`}
                   >
                     ₹{amt}
@@ -147,11 +176,11 @@ export default function WalletPage() {
 
             {/* Custom Amount */}
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">
-                Or Enter Custom Amount (Min ₹50)
+              <label className="block text-xs font-semibold text-[#5C4033] mb-1">
+                {language === 'mr' ? 'किंवा इच्छित रक्कम टाका (किमान ₹५०)' : 'Or Enter Custom Amount (Min ₹50)'}
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-3 text-gray-500 font-semibold text-sm">₹</span>
+                <span className="absolute left-4 top-3 text-[#786C60] font-semibold text-sm">₹</span>
                 <input
                   type="number"
                   min="50"
@@ -159,34 +188,38 @@ export default function WalletPage() {
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   placeholder="e.g. 1500"
-                  className="w-full pl-8 pr-4 py-2.5 bg-[#FAF6F0] border border-[#D4AF37]/30 rounded-xl text-sm focus:outline-none focus:border-[#D4AF37]"
+                  className="w-full pl-8 pr-4 py-2.5 bg-[#FFFDF9] border border-[#EAE1D2] rounded-xl text-sm focus:outline-none focus:border-[#D97706] text-[#2D1810]"
                 />
               </div>
             </div>
 
             {/* Payment Method Details */}
-            <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#D4AF37]/20 text-xs text-gray-600 space-y-2">
-              <div className="flex items-center justify-between text-gray-900 font-semibold">
-                <span>Payment Gateways:</span>
-                <span className="text-[#8C6D1F]">UPI, Cards, NetBanking, Wallets</span>
+            <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] text-xs text-[#786C60] space-y-2">
+              <div className="flex items-center justify-between text-[#2D1810] font-semibold">
+                <span>{language === 'mr' ? 'स्वीकृत पेमेंट्स:' : 'Accepted Payment Gateways:'}</span>
+                <span className="text-[#B45309] font-medium">UPI, Cards, NetBanking, Wallets</span>
               </div>
               <p className="text-[11px] leading-relaxed">
-                Powered by secure Razorpay payment integration with 256-bit encryption. Zero hidden deduction fees.
+                {language === 'mr'
+                  ? '२५६-बिट सुरक्षित रेझरपे पेमेंट गेटवे. कोणतेही छुपे शुल्क नाही.'
+                  : 'Powered by secure Razorpay payment integration with 256-bit encryption. Zero hidden fees.'}
               </p>
             </div>
 
             <button
               onClick={handleRecharge}
               disabled={isProcessing}
-              className="w-full py-3.5 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-sm rounded-xl shadow-gold hover:opacity-95 transition-all flex items-center justify-center space-x-2"
+              className="w-full py-3.5 bg-gradient-to-r from-[#D97706] to-[#B45309] hover:from-[#B45309] hover:to-[#92400E] text-white font-bold text-sm rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               {isProcessing ? (
-                <span>Securing Transaction...</span>
+                <span>{language === 'mr' ? 'प्रक्रिया सुरू आहे...' : 'Securing Transaction...'}</span>
               ) : (
                 <>
                   <Lock className="w-4 h-4" />
                   <span>
-                    Proceed to Add ₹{customAmount ? customAmount : selectedAmount}
+                    {language === 'mr'
+                      ? `₹${customAmount ? customAmount : selectedAmount} जोडण्यासाठी पुढे जा`
+                      : `Proceed to Add ₹${customAmount ? customAmount : selectedAmount}`}
                   </span>
                 </>
               )}
@@ -196,20 +229,20 @@ export default function WalletPage() {
 
         {/* Transaction History & Quick Actions */}
         <div className="md:col-span-5 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-[#D4AF37]/25 shadow-sm space-y-4">
-            <h3 className="font-serif text-base font-bold text-[#150D2A] flex items-center justify-between">
-              <span>Recent Transactions</span>
-              <Clock className="w-4 h-4 text-gray-400" />
+          <div className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
+            <h3 className="font-serif text-base font-bold text-[#2D1810] flex items-center justify-between">
+              <span>{language === 'mr' ? 'अलीकडील व्यवहार' : 'Recent Transactions'}</span>
+              <Clock className="w-4 h-4 text-[#786C60]" />
             </h3>
 
-            <div className="divide-y divide-gray-100 text-xs">
+            <div className="divide-y divide-[#EAE1D2]/60 text-xs">
               {transactions.map((t) => (
                 <div key={t.id} className="py-3 flex items-center justify-between">
                   <div>
-                    <strong className="block text-gray-900">{t.description}</strong>
-                    <span className="text-[10px] text-gray-500">{t.date} • {t.id}</span>
+                    <strong className="block text-[#2D1810]">{t.description}</strong>
+                    <span className="text-[10px] text-[#786C60]">{t.date} • {t.id}</span>
                   </div>
-                  <span className="font-semibold text-emerald-600">
+                  <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     +₹{t.amount}
                   </span>
                 </div>
@@ -217,20 +250,37 @@ export default function WalletPage() {
             </div>
           </div>
 
-          <div className="bg-[#150D2A] text-[#FDFBF7] p-6 rounded-2xl border border-[#D4AF37]/30 shadow-cosmic space-y-3">
-            <h4 className="font-serif text-sm font-bold text-[#F7DF94]">Need to Consult an Astrologer?</h4>
-            <p className="text-xs text-[#D8C7A5]/80 leading-relaxed">
-              Use your wallet balance to instantly book live video or chat consultations with verified Vedic scholars.
+          <div className="bg-[#FFF9EB] text-[#2D1810] p-6 rounded-2xl border border-[#FDE68A] shadow-sm space-y-3">
+            <div className="flex items-center gap-2 text-[#92400E]">
+              <Sparkles className="w-4 h-4 text-[#D97706]" />
+              <h4 className="font-serif text-sm font-bold">
+                {language === 'mr' ? 'ज्योतिषांशी चर्चा करायची आहे?' : 'Need to Consult an Astrologer?'}
+              </h4>
+            </div>
+            <p className="text-xs text-[#786C60] leading-relaxed">
+              {language === 'mr'
+                ? 'आपली शिल्लक वापरून सत्यापित वैदिक विद्वानांशी थेट कॉल किंवा चॅट बुक करा.'
+                : 'Use your wallet balance to instantly book live video or chat consultations with verified Vedic scholars.'}
             </p>
             <Link
               href="/astrologers"
-              className="inline-block mt-2 px-4 py-2 bg-[#25184B] border border-[#D4AF37]/40 text-xs font-semibold text-[#F7DF94] rounded-lg hover:border-[#D4AF37]"
+              className="inline-block mt-2 px-4 py-2 bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold rounded-lg shadow-sm transition-colors"
             >
-              Browse Verified Scholars &rarr;
+              {language === 'mr' ? 'विद्वान ज्योतिषी शोधा →' : 'Browse Verified Scholars →'}
             </Link>
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        serviceTitle={language === 'mr' ? 'ज्योतिषवेदा वॉलेट रिचार्ज' : 'JyotishVeda Wallet Recharge'}
+        amount={activeRechargeAmount}
+        serviceType="wallet_recharge"
+        referenceId="wallet"
+        onSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }

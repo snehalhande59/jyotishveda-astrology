@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Calendar, Sparkles, Clock, Sun, Moon, MapPin, ChevronRight, Filter } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface FestivalItem {
   id: string;
@@ -129,6 +130,7 @@ const VEDIC_FESTIVALS: FestivalItem[] = [
 ];
 
 export default function FestivalsPage() {
+  const { language } = useLanguage();
   const [selectedCat, setSelectedCat] = useState<string>('All');
 
   const filtered = selectedCat === 'All'
@@ -136,19 +138,21 @@ export default function FestivalsPage() {
     : VEDIC_FESTIVALS.filter((f) => f.category === selectedCat);
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
       {/* Banner */}
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] text-center">
         <div className="max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3.5 py-1 rounded-full text-xs text-[#F7DF94]">
-            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Vedic Calendar &amp; Celestial Muhurats 2026</span>
+          <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1 rounded-full text-xs font-semibold text-[#92400E]">
+            <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>{language === 'mr' ? 'वैदिक पंचांग आणि शुभ मुहूर्त २०२६' : 'Vedic Calendar & Celestial Muhurats 2026'}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FDFBF7]">
-            Sanatana Dharma Festivals &amp; Auspicious Tithis
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2D1810]">
+            {language === 'mr' ? 'सनातन धर्म सण आणि शुभ तिथी' : 'Sanatana Dharma Festivals & Auspicious Tithis'}
           </h1>
-          <p className="text-xs sm:text-sm text-[#D8C7A5] max-w-xl mx-auto">
-            Calculated with high-precision Chitrapaksha Lahiri ephemeris. Discover exact dates, puja muhurats, tithis, and authentic Vedic rituals.
+          <p className="text-xs sm:text-sm text-[#786C60] max-w-xl mx-auto leading-relaxed">
+            {language === 'mr'
+              ? 'चित्रापक्ष लाहिरी पंचांगानुसार अचूक गणना. प्रमुख सण, पूजा मुहूर्त, तिथी आणि पारंपरिक वैदिक विधी जाणून घ्या.'
+              : 'Calculated with high-precision Chitrapaksha Lahiri ephemeris. Discover exact dates, puja muhurats, tithis, and authentic Vedic rituals.'}
           </p>
         </div>
       </section>
@@ -156,19 +160,21 @@ export default function FestivalsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         {/* Category Filters */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-2">
-          <Filter className="w-4 h-4 text-[#8C6D1F] flex-shrink-0" />
-          <span className="text-xs font-semibold text-gray-700 mr-2">Filter:</span>
+          <Filter className="w-4 h-4 text-[#D97706] flex-shrink-0" />
+          <span className="text-xs font-semibold text-[#786C60] mr-2">
+            {language === 'mr' ? 'फिल्टर:' : 'Filter:'}
+          </span>
           {['All', 'Major', 'Vrat', 'Jayanti', 'Purnima'].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCat(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                 selectedCat === cat
-                  ? 'bg-[#150D2A] text-[#F7DF94] border border-[#D4AF37]'
-                  : 'bg-white text-gray-700 border border-[#D4AF37]/20 hover:border-[#D4AF37]'
+                  ? 'bg-[#D97706] text-white shadow-sm border border-[#D97706]'
+                  : 'bg-white text-[#5C4033] border border-[#EAE1D2] hover:border-[#D97706]'
               }`}
             >
-              {cat} Festivals
+              {cat === 'All' ? (language === 'mr' ? 'सर्व सण' : 'All Festivals') : `${cat} Festivals`}
             </button>
           ))}
         </div>
@@ -178,59 +184,61 @@ export default function FestivalsPage() {
           {filtered.map((fest) => (
             <div
               key={fest.id}
-              className="bg-white border border-[#D4AF37]/25 rounded-2xl p-6 shadow-sm hover:shadow-gold hover:border-[#D4AF37] transition-all flex flex-col justify-between"
+              className="bg-white border border-[#EAE1D2] rounded-2xl p-6 shadow-sm hover:border-[#D97706] transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FAF6F0] text-[#8C6D1F] border border-[#D4AF37]/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
                     {fest.category} Festival
                   </span>
-                  <span className="text-xs font-serif font-bold text-[#8C6D1F]">
+                  <span className="text-xs font-serif font-bold text-[#B45309]">
                     {fest.sanskritName}
                   </span>
                 </div>
 
-                <h3 className="font-serif text-xl font-bold text-[#150D2A] mt-1">
+                <h3 className="font-serif text-xl font-bold text-[#2D1810] mt-1">
                   {fest.name}
                 </h3>
 
-                <div className="mt-3 p-3 bg-[#FAF6F0] rounded-xl border border-[#D4AF37]/20 space-y-1.5 text-xs text-gray-700">
-                  <div className="flex items-center space-x-2 font-semibold text-[#150D2A]">
-                    <Calendar className="w-3.5 h-3.5 text-[#8C6D1F]" />
+                <div className="mt-3 p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] space-y-1.5 text-xs text-[#5C4033]">
+                  <div className="flex items-center space-x-2 font-semibold text-[#2D1810]">
+                    <Calendar className="w-3.5 h-3.5 text-[#D97706]" />
                     <span>{fest.date2026} ({fest.day})</span>
                   </div>
-                  <div className="flex items-start space-x-2 text-[11px] text-[#8C6D1F]">
+                  <div className="flex items-start space-x-2 text-[11px] text-[#B45309]">
                     <Clock className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                     <span>{fest.muhurat}</span>
                   </div>
-                  <div className="text-[11px] text-gray-600">
+                  <div className="text-[11px] text-[#786C60]">
                     <strong>Tithi:</strong> {fest.tithi}
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-600 mt-4 leading-relaxed">
+                <p className="text-xs text-[#786C60] mt-4 leading-relaxed">
                   {fest.significance}
                 </p>
 
-                <div className="mt-4 pt-3 border-t border-gray-100 text-[11px] text-gray-700">
-                  <strong className="text-gray-900 block mb-1">Recommended Vidhi:</strong>
+                <div className="mt-4 pt-3 border-t border-[#EAE1D2] text-[11px] text-[#5C4033]">
+                  <strong className="text-[#2D1810] block mb-1">
+                    {language === 'mr' ? 'पूजन विधी:' : 'Recommended Vidhi:'}
+                  </strong>
                   <span>{fest.pujaVidhi}</span>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-[#EAE1D2] flex items-center justify-between">
                 <Link
                   href="/panchang"
-                  className="text-xs font-semibold text-[#8C6D1F] hover:text-[#150D2A] flex items-center"
+                  className="text-xs font-bold text-[#D97706] hover:text-[#B45309] flex items-center"
                 >
-                  <span>Check Today&apos;s Panchang</span>
+                  <span>{language === 'mr' ? 'आजचे पंचांग पहा' : "Check Today's Panchang"}</span>
                   <ChevronRight className="w-3.5 h-3.5 ml-1" />
                 </Link>
                 <Link
                   href="/astrologers"
-                  className="px-3 py-1.5 bg-[#150D2A] text-[#FDFBF7] text-xs font-medium rounded-lg hover:bg-[#8C6D1F]"
+                  className="px-3 py-1.5 bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
                 >
-                  Consult Acharya
+                  {language === 'mr' ? 'सल्ला घ्या' : 'Consult Acharya'}
                 </Link>
               </div>
             </div>

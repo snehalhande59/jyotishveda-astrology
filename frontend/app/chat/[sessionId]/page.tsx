@@ -190,36 +190,36 @@ export default function ActiveChatSessionPage() {
   const isChatDisabled = isExpired || isMessageLimitReached || session?.status === 'completed';
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] flex flex-col font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] flex flex-col font-sans">
       {/* Astrologer & Session Top Bar */}
-      <header className="bg-[#150D2A] border-b border-[#D4AF37]/30 text-[#FDFBF7] px-4 py-3 sticky top-0 z-30 shadow-md">
+      <header className="bg-white border-b border-[#EAE1D2] text-[#2D1810] px-4 py-3 sticky top-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           {/* Astrologer Info */}
           <div className="flex items-center space-x-3">
             <Link
               href="/chat"
-              className="text-[#D8C7A5] hover:text-[#D4AF37] text-xs flex items-center space-x-1 pr-2 border-r border-[#D4AF37]/20"
+              className="text-[#786C60] hover:text-[#D97706] text-xs font-semibold flex items-center space-x-1 pr-3 border-r border-[#EAE1D2]"
             >
               <span>{t('room.backToAll')}</span>
             </Link>
 
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-[#25184B] border border-[#D4AF37] text-[#F7DF94] flex items-center justify-center font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] flex items-center justify-center font-serif font-bold text-sm">
                 {session?.astrologer?.name ? session.astrologer.name.charAt(0) : 'A'}
               </div>
-              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-[#150D2A]" />
+              <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white" />
             </div>
 
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="font-serif text-sm sm:text-base font-bold text-[#F7DF94]">
+                <h2 className="font-serif text-sm sm:text-base font-bold text-[#2D1810]">
                   {session?.astrologer?.name || (language === 'mr' ? 'वैदिक ज्योतिष आचार्य' : 'Vedic Jyotish Acharya')}
                 </h2>
-                <span className="text-[10px] bg-[#25184B] border border-[#D4AF37]/30 text-[#D4AF37] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] px-2 py-0.5 rounded-full font-bold">
                   {session?.sessionType === 'free_intro' ? t('room.freeIntroBadge') : t('room.paidBadge')}
                 </span>
               </div>
-              <p className="text-[11px] text-[#D8C7A5]/70">
+              <p className="text-[11px] text-[#786C60]">
                 {t('room.sessionNum')} #{session?.sessionNumber} • {t('room.scholarVerified')}
               </p>
             </div>
@@ -232,13 +232,13 @@ export default function ActiveChatSessionPage() {
               <div
                 className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-colors ${
                   timeLeftSeconds <= 60
-                    ? 'bg-red-950/80 border-red-500 text-red-200 animate-pulse'
+                    ? 'bg-rose-50 border-rose-300 text-rose-700 animate-pulse'
                     : timeLeftSeconds <= 180
-                    ? 'bg-amber-950/80 border-amber-500 text-amber-200'
-                    : 'bg-[#25184B] border-[#D4AF37]/50 text-[#F7DF94]'
+                    ? 'bg-amber-50 border-amber-300 text-amber-800'
+                    : 'bg-[#FFFBEB] border-[#FDE68A] text-[#92400E]'
                 }`}
               >
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="w-3.5 h-3.5 text-[#D97706]" />
                 <span>{formatTimer(timeLeftSeconds)}</span>
               </div>
             )}
@@ -246,17 +246,17 @@ export default function ActiveChatSessionPage() {
             {/* Chart toggle */}
             <button
               onClick={() => setShowChartDrawer(!showChartDrawer)}
-              className="px-2.5 py-1.5 bg-[#25184B] border border-[#D4AF37]/30 text-[11px] text-[#D8C7A5] rounded-lg hover:text-[#D4AF37] flex items-center space-x-1 cursor-pointer"
+              className="px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:border-[#F59E0B] flex items-center space-x-1 cursor-pointer"
             >
               <span>{language === 'mr' ? 'कुंडली' : 'Chart'}</span>
-              {showChartDrawer ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              {showChartDrawer ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
 
             {/* End session */}
             {session?.status === 'active' && (
               <button
                 onClick={handleEndSession}
-                className="text-xs text-rose-300 hover:text-rose-100 px-2 py-1 rounded border border-rose-500/30 hover:bg-rose-950/40 cursor-pointer"
+                className="text-xs text-rose-700 hover:text-rose-900 px-2.5 py-1.5 rounded-xl border border-rose-300 bg-rose-50 hover:bg-rose-100 cursor-pointer transition-colors"
                 title={language === 'mr' ? 'सल्लामसलत समाप्त करा' : 'End Consultation'}
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -268,33 +268,33 @@ export default function ActiveChatSessionPage() {
 
       {/* Chart Drawer (Collapsible) */}
       {showChartDrawer && session?.birthChartSummary && (
-        <div className="bg-[#1C1438] border-b border-[#D4AF37]/30 text-[#FDFBF7] p-4 text-xs animate-fadeIn">
+        <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] text-[#2D1810] p-4 text-xs animate-fadeIn shadow-xs">
           <div className="max-w-5xl mx-auto space-y-2">
-            <div className="flex items-center justify-between text-[#F7DF94] font-semibold">
+            <div className="flex items-center justify-between text-[#2D1810] font-bold">
               <span className="flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
                 <span>{t('room.chartDrawer')}: {session.birthChartSummary.fullName}</span>
               </span>
-              <span>{language === 'mr' ? 'लाहिरी अयनांश' : 'Lahiri Ephemeris'}</span>
+              <span className="text-[#D97706]">{language === 'mr' ? 'लाहिरी अयनांश' : 'Lahiri Ephemeris'}</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="bg-[#120B24] p-2 rounded border border-[#D4AF37]/20">
-                <span className="text-[10px] text-[#D8C7A5]/60 block">{t('kundli.lagna')}</span>
-                <strong className="text-white">{translateSign(session.birthChartSummary.ascendantSign)}</strong>
+              <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
+                <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.lagna')}</span>
+                <strong className="text-[#2D1810]">{translateSign(session.birthChartSummary.ascendantSign)}</strong>
               </div>
-              <div className="bg-[#120B24] p-2 rounded border border-[#D4AF37]/20">
-                <span className="text-[10px] text-[#D8C7A5]/60 block">{t('kundli.rashi')}</span>
-                <strong className="text-white">{translateSign(session.birthChartSummary.moonSign)}</strong>
+              <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
+                <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.rashi')}</span>
+                <strong className="text-[#2D1810]">{translateSign(session.birthChartSummary.moonSign)}</strong>
               </div>
-              <div className="bg-[#120B24] p-2 rounded border border-[#D4AF37]/20">
-                <span className="text-[10px] text-[#D8C7A5]/60 block">{t('kundli.nakshatra')}</span>
-                <strong className="text-white">
+              <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
+                <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.nakshatra')}</span>
+                <strong className="text-[#2D1810]">
                   {session.birthChartSummary.nakshatra} ({t('kundli.pada')} {formatNumber(session.birthChartSummary.pada)})
                 </strong>
               </div>
-              <div className="bg-[#120B24] p-2 rounded border border-[#D4AF37]/20">
-                <span className="text-[10px] text-[#D8C7A5]/60 block">{t('form.birthPlace')}</span>
-                <strong className="text-white truncate block">{session.birthChartSummary.placeOfBirth}</strong>
+              <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
+                <span className="text-[10px] text-[#786C60] block font-semibold">{t('form.birthPlace')}</span>
+                <strong className="text-[#2D1810] truncate block">{session.birthChartSummary.placeOfBirth}</strong>
               </div>
             </div>
           </div>
@@ -305,20 +305,20 @@ export default function ActiveChatSessionPage() {
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-4 overflow-y-auto">
         {/* Error message */}
         {errorBanner && (
-          <div className="p-3 bg-red-100 border border-red-300 text-red-800 text-xs rounded-xl flex items-center space-x-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+          <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{errorBanner}</span>
           </div>
         )}
 
         {/* Free message limit pill */}
         {session?.sessionType === 'free_intro' && (
-          <div className="bg-[#150D2A] border border-[#D4AF37]/30 text-[#D8C7A5] text-[11px] p-2.5 rounded-xl flex items-center justify-between">
-            <span className="flex items-center space-x-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-[11px] p-3 rounded-2xl flex items-center justify-between shadow-2xs">
+            <span className="flex items-center space-x-1.5 font-semibold">
+              <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
               <span>{t('room.freeLimitPill')}</span>
             </span>
-            <span className="font-bold text-[#F7DF94]">
+            <span className="font-bold text-[#B45309]">
               {t('room.usedQuestions', {
                 count: formatNumber(session.messageCount),
                 max: formatNumber(session.maxMessages || 10),
@@ -329,12 +329,12 @@ export default function ActiveChatSessionPage() {
 
         {/* Messages List */}
         {loading ? (
-          <div className="py-20 text-center text-gray-500">
-            <Sparkles className="w-6 h-6 text-[#D4AF37] animate-spin mx-auto mb-2" />
+          <div className="py-20 text-center text-[#786C60]">
+            <Sparkles className="w-6 h-6 text-[#D97706] animate-spin mx-auto mb-2" />
             <p className="text-xs">{t('chat.connecting')}</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className="py-16 text-center text-gray-400 text-xs">
+          <div className="py-16 text-center text-[#786C60] text-xs">
             {language === 'mr' ? 'अद्याप कोणतेही संदेश नाहीत. सुरू करण्यासाठी खाली आपला पहिला प्रश्न विचारा!' : 'No messages yet. Send your first question below to begin!'}
           </div>
         ) : (
@@ -345,17 +345,17 @@ export default function ActiveChatSessionPage() {
                 key={msg.id || idx}
                 className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1`}
               >
-                <div className="flex items-center space-x-1 text-[10px] text-gray-400 px-1">
-                  <span>{msg.senderName}</span>
+                <div className="flex items-center space-x-1 text-[10px] text-[#786C60] px-1">
+                  <span className="font-semibold">{msg.senderName}</span>
                   <span>•</span>
                   <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
 
                 <div
-                  className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                  className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs ${
                     isUser
-                      ? 'bg-gradient-to-r from-[#191033] to-[#25154B] text-[#FDFBF7] border border-[#D4AF37]/30 rounded-br-none'
-                      : 'bg-white text-gray-800 border border-[#D4AF37]/25 rounded-bl-none'
+                      ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white rounded-br-none'
+                      : 'bg-white text-[#2D1810] border border-[#EAE1D2] rounded-bl-none'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.message}</p>
@@ -368,8 +368,8 @@ export default function ActiveChatSessionPage() {
         {/* Typing / Thinking indicator */}
         {sending && (
           <div className="flex items-start space-y-1">
-            <div className="bg-white border border-[#D4AF37]/30 rounded-2xl rounded-bl-none p-3 shadow-sm flex items-center space-x-2 text-xs text-gray-500">
-              <Sparkles className="w-4 h-4 text-[#D4AF37] animate-spin" />
+            <div className="bg-white border border-[#EAE1D2] rounded-2xl rounded-bl-none p-3 shadow-xs flex items-center space-x-2 text-xs text-[#786C60]">
+              <Sparkles className="w-4 h-4 text-[#D97706] animate-spin" />
               <span>{t('room.thinking')}</span>
             </div>
           </div>
@@ -377,26 +377,26 @@ export default function ActiveChatSessionPage() {
 
         {/* Concluded / Expired State Banner */}
         {isChatDisabled && (
-          <div className="my-6 p-6 bg-[#150D2A] border-2 border-[#D4AF37] rounded-2xl text-center space-y-3 text-[#FDFBF7] shadow-cosmic animate-fadeIn">
-            <div className="w-10 h-10 rounded-full bg-[#25184B] border border-[#D4AF37] text-[#D4AF37] flex items-center justify-center mx-auto">
-              <Clock className="w-5 h-5" />
+          <div className="my-6 p-6 sm:p-8 bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7] border-2 border-[#FDE68A] rounded-3xl text-center space-y-3 text-[#2D1810] shadow-sm animate-fadeIn">
+            <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] flex items-center justify-center mx-auto shadow-2xs">
+              <Clock className="w-6 h-6" />
             </div>
-            <h3 className="font-serif text-lg font-bold text-[#F7DF94]">
+            <h3 className="font-serif text-lg font-bold text-[#2D1810]">
               {t('room.concludedTitle')}
             </h3>
-            <p className="text-xs text-[#D8C7A5] max-w-md mx-auto">
+            <p className="text-xs text-[#6B5A4E] max-w-md mx-auto leading-relaxed">
               {isExpired ? t('room.concludedDesc') : t('room.concludedQuestions')}
             </p>
             <div className="pt-2 flex flex-wrap justify-center gap-3">
               <Link
                 href="/chat"
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F3C64F] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs shadow-gold hover:opacity-95"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs shadow-xs hover:opacity-95"
               >
                 {t('room.bookPaidCta')}
               </Link>
               <Link
                 href="/kundli"
-                className="px-4 py-2.5 rounded-xl bg-[#25184B] border border-[#D4AF37]/40 text-[#D8C7A5] text-xs hover:text-white"
+                className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE1D2] text-[#4A2E18] text-xs font-bold hover:bg-[#FAF7F2]"
               >
                 {t('room.viewKundliCta')}
               </Link>
@@ -408,7 +408,7 @@ export default function ActiveChatSessionPage() {
       </main>
 
       {/* Message Input Footer */}
-      <footer className="bg-white border-t border-[#D4AF37]/25 p-3 sm:p-4 sticky bottom-0 z-20">
+      <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 sticky bottom-0 z-20 shadow-xs">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
             <input
@@ -417,18 +417,18 @@ export default function ActiveChatSessionPage() {
               disabled={isChatDisabled || sending}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder={isChatDisabled ? t('room.inputDisabled') : t('room.inputPlaceholder')}
-              className="flex-1 px-4 py-3 bg-[#FAF6F0] border border-[#D4AF37]/40 rounded-xl text-xs sm:text-sm text-gray-900 focus:outline-none focus:border-[#D4AF37] placeholder-gray-400 disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs sm:text-sm text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white placeholder-gray-400 disabled:opacity-50 transition-colors"
             />
             <button
               type="submit"
               disabled={!newMessage.trim() || isChatDisabled || sending}
-              className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F3C64F] to-[#A67C1E] text-[#0F0B1E] font-bold text-xs shadow hover:opacity-95 disabled:opacity-40 transition-all flex items-center space-x-1.5 cursor-pointer shrink-0"
+              className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold text-xs shadow-xs hover:opacity-95 disabled:opacity-40 transition-all flex items-center space-x-1.5 cursor-pointer shrink-0"
             >
               <span>{t('room.sendBtn')}</span>
               <Send className="w-3.5 h-3.5" />
             </button>
           </form>
-          <div className="mt-1.5 flex justify-between items-center text-[10px] text-gray-400 px-1">
+          <div className="mt-1.5 flex justify-between items-center text-[10px] text-[#786C60] px-1">
             <span>{t('room.encryptedNotice')}</span>
             <span>{language === 'mr' ? 'पराशर सिद्धान्तावर आधारित' : 'All responses grounded in Vedic principles'}</span>
           </div>

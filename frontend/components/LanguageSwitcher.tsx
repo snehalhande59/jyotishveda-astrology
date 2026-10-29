@@ -20,21 +20,21 @@ export default function LanguageSwitcher({ className = '', variant = 'pill' }: L
           onClick={() => setLanguage('en')}
           className={`px-1.5 py-0.5 rounded transition-all cursor-pointer font-medium ${
             language === 'en'
-              ? 'text-[#F7DF94] font-bold underline decoration-[#D4AF37]'
-              : 'text-[#D8C7A5]/70 hover:text-white'
+              ? 'text-[#B45309] font-bold underline decoration-[#F59E0B]'
+              : 'text-[#785D46] hover:text-[#2D1810]'
           }`}
           title="Switch to English"
         >
           EN
         </button>
-        <span className="text-[#D4AF37]/40">|</span>
+        <span className="text-[#D8C7A5]">|</span>
         <button
           type="button"
           onClick={() => setLanguage('mr')}
           className={`px-1.5 py-0.5 rounded transition-all cursor-pointer font-medium ${
             language === 'mr'
-              ? 'text-[#F7DF94] font-bold underline decoration-[#D4AF37]'
-              : 'text-[#D8C7A5]/70 hover:text-white'
+              ? 'text-[#B45309] font-bold underline decoration-[#F59E0B]'
+              : 'text-[#785D46] hover:text-[#2D1810]'
           }`}
           title="मराठी भाषेमध्ये बदला"
         >
@@ -46,11 +46,11 @@ export default function LanguageSwitcher({ className = '', variant = 'pill' }: L
 
   return (
     <div
-      className={`inline-flex items-center bg-[#150D2A] border border-[#D4AF37]/50 rounded-full p-0.5 shadow-sm ${className}`}
+      className={`inline-flex items-center bg-[#FFFBEB] border border-[#FDE68A] rounded-full p-0.5 shadow-sm ${className}`}
       role="group"
       aria-label="Language selection"
     >
-      <div className="pl-2 pr-1 text-[#D4AF37]">
+      <div className="pl-2 pr-1 text-[#D97706]">
         <Globe className="w-3.5 h-3.5" />
       </div>
 
@@ -59,8 +59,8 @@ export default function LanguageSwitcher({ className = '', variant = 'pill' }: L
         onClick={() => setLanguage('en')}
         className={`px-2.5 py-1 text-[11px] rounded-full transition-all cursor-pointer font-medium ${
           language === 'en'
-            ? 'bg-gradient-to-r from-[#D4AF37] to-[#B38728] text-[#0F0B1E] font-bold shadow-sm'
-            : 'text-[#D8C7A5] hover:text-[#FDFBF7]'
+            ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold shadow-sm'
+            : 'text-[#785D46] hover:text-[#2D1810]'
         }`}
         title="English"
       >
@@ -72,8 +72,8 @@ export default function LanguageSwitcher({ className = '', variant = 'pill' }: L
         onClick={() => setLanguage('mr')}
         className={`px-2.5 py-1 text-[11px] rounded-full transition-all cursor-pointer font-medium ${
           language === 'mr'
-            ? 'bg-gradient-to-r from-[#D4AF37] to-[#B38728] text-[#0F0B1E] font-bold shadow-sm'
-            : 'text-[#D8C7A5] hover:text-[#FDFBF7]'
+            ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold shadow-sm'
+            : 'text-[#785D46] hover:text-[#2D1810]'
         }`}
         title="मराठी (Marathi)"
       >

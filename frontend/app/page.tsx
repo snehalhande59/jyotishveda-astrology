@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { AstrologyService, Astrologer, FAQ, SiteSettings } from '@/lib/types';
@@ -13,18 +13,26 @@ import {
   Sparkles,
   Compass,
   Star,
-  Users,
   Award,
   ChevronRight,
+  ChevronLeft,
   Calendar,
   Heart,
   ArrowRight,
   PhoneCall,
+  Phone,
   Moon,
   Wallet,
   CheckCircle2,
   Flame,
   Shield,
+  ShieldCheck,
+  Lock,
+  Zap,
+  MessageCircle,
+  Clock,
+  Sun,
+  UserCheck,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -294,6 +302,42 @@ const FESTIVALS_LIST = [
   },
 ];
 
+const TESTIMONIALS = [
+  {
+    name: 'Anjali Deshmukh',
+    nameMr: 'अंजली देशमुख',
+    city: 'Pune, Maharashtra',
+    cityMr: 'पुणे, महाराष्ट्र',
+    rating: 5,
+    text: 'Acharya Vidyadhar’s career dasha prediction was astonishingly precise. His recommendation of Panna (Emerald) brought tangible clarity and a major promotion within 4 months.',
+    textMr: 'आचार्य विद्याधर शास्त्री यांचे करिअर दशा विश्लेषण अतिशय अचूक ठरले. त्यांच्या पन्ना रत्न सल्ल्यामुळे ४ महिन्यांत पदोन्नती व नवीन संधी मिळाली.',
+    role: 'Software Architect',
+    roleMr: 'सॉफ्टवेअर आर्किटेक्ट',
+  },
+  {
+    name: 'Rohit Kulkarni',
+    nameMr: 'रोहित कुलकर्णी',
+    city: 'Mumbai, Maharashtra',
+    cityMr: 'मुंबई, महाराष्ट्र',
+    rating: 5,
+    text: 'The 36-point Kundli Milan report gave us deep clarity on Nadi and Bhakoot doshas. The pandit ji gave very practical, non-fearful Vedic remedies that blessed our wedding.',
+    textMr: '३६ गुण गुणमेलन अहवालाने आम्हाला नाडी व भकूट दोषाविषयी पूर्ण स्पष्टता दिली. आचार्यांनी अतिशय साधे व शास्त्रीय तोडगे सुचवले.',
+    role: 'Financial Analyst',
+    roleMr: 'फायनान्शिअल अ‍ॅनालिस्ट',
+  },
+  {
+    name: 'Pooja Joshi',
+    nameMr: 'पूजा जोशी',
+    city: 'Nashik, Maharashtra',
+    cityMr: 'नाशिक, महाराष्ट्र',
+    rating: 5,
+    text: 'I used the First Free Chat feature and was so impressed by the astrologer’s patience and accuracy that I immediately booked a 30-minute detailed voice session. Highly recommended!',
+    textMr: 'मी मोफत चॅट सुविधेचा वापर केला आणि ज्योतिषांच्या अचूक मार्गदर्शनाने प्रभावित होऊन सविस्तर कॉल सत्र घेतले. अत्यंत विश्वासार्ह सेवा!',
+    role: 'Entrepreneur',
+    roleMr: 'उद्योजक',
+  },
+];
+
 export default function HomePage() {
   const router = useRouter();
   const { t, language, formatNumber, formatCurrency, translateSign } = useLanguage();
@@ -307,6 +351,8 @@ export default function HomePage() {
   const [previewChart, setPreviewChart] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [walletBal, setWalletBal] = useState<number>(500);
+
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setWalletBal(getWalletBalance());
@@ -343,72 +389,134 @@ export default function HomePage() {
     }
   };
 
-  const heroTitle = getLocalizedField(siteSettings, 'heroTitle', language) || (language === 'mr' ? 'आपली खरी ग्रहस्थिती आणि वैश्विक नशीब जाणून घ्या' : 'Discover Your True Celestial Blueprint');
-  const heroSubtitle = getLocalizedField(siteSettings, 'heroSubtitle', language) || (language === 'mr' ? 'अचूक वैदिक ग्रहगणित, लाहिरी अयनांश आणि सखोल ज्योतिषीय मार्गदर्शनाने आपले जीवन समृद्ध करा.' : 'Uncover your authentic karmic trajectory, planetary alignments, and profound Jyotish insights computed strictly with the Lahiri Sidereal ephemeris.');
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = direction === 'left' ? -340 : 340;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const heroTitle =
+    getLocalizedField(siteSettings, 'heroTitle', language) ||
+    (language === 'mr'
+      ? 'आपली खरी ग्रहस्थिती आणि वैश्विक नशीब जाणून घ्या'
+      : 'Discover Your True Celestial Destiny');
+  const heroSubtitle =
+    getLocalizedField(siteSettings, 'heroSubtitle', language) ||
+    (language === 'mr'
+      ? 'अचूक वैदिक ग्रहगणित, लाहिरी अयनांश आणि सखोल ज्योतिषीय मार्गदर्शनाने आपले जीवन समृद्ध करा.'
+      : 'Authentic karmic trajectory, planetary alignments, and profound Jyotish insights computed strictly with the Lahiri Sidereal ephemeris.');
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] font-sans">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans antialiased selection:bg-[#FDE68A] selection:text-[#78350F]">
+      
       {/* ========================================================
-          1. HERO BANNER SECTION (Dual-Column Portal Header)
+          1. LIVE ACTIVITY TICKER (Smooth Marquee with Pause on Hover)
          ======================================================== */}
-      <section className="relative bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] pt-12 pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/25 overflow-hidden">
-        {/* Subtle celestial stars background */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:28px_28px]" />
+      <div className="bg-[#FFFBEB] border-y border-[#FDE68A] py-2.5 overflow-hidden relative">
+        <div className="flex animate-marquee whitespace-nowrap hover:[animation-play-state:paused] gap-10 items-center text-xs font-medium text-[#92400E]">
+          <span className="flex items-center gap-1.5 font-semibold text-[#B45309]">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+            {t('ticker.msg1')}
+          </span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg2')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span className="font-semibold text-[#B45309]">{t('ticker.msg3')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg4')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg5')}</span>
+          <span className="text-[#D97706]">•</span>
+
+          {/* Seamless duplicate loop */}
+          <span className="flex items-center gap-1.5 font-semibold text-[#B45309]">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+            {t('ticker.msg1')}
+          </span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg2')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span className="font-semibold text-[#B45309]">{t('ticker.msg3')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg4')}</span>
+          <span className="text-[#D97706]">•</span>
+          <span>{t('ticker.msg5')}</span>
+        </div>
+      </div>
+
+      {/* ========================================================
+          2. HERO SECTION (Warm Ivory & Cream + Instant Birth Form)
+         ======================================================== */}
+      <section className="relative bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] pt-10 pb-16 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] overflow-hidden">
+        {/* Soft Golden Ambient Radial Glow */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#FEF3C7]/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-80 h-80 bg-[#FDE68A]/20 rounded-full blur-2xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-          {/* Left Column: Title & Fast CTAs */}
+          {/* Left Column: Headlines & Actions */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3.5 py-1.5 rounded-full text-xs text-[#F7DF94]">
-              <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="font-medium tracking-wide">{t('home.heroBadge')}</span>
+            <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-4 py-1.5 rounded-full text-xs font-semibold text-[#92400E] shadow-sm">
+              <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+              <span className="tracking-wide">{t('hero.badge')}</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#FDFBF7] leading-tight">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D1810] leading-tight">
               {heroTitle}
             </h1>
 
-            <p className="text-sm sm:text-base text-[#D8C7A5] leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base text-[#6B5A4E] leading-relaxed max-w-xl">
               {heroSubtitle}
             </p>
 
             <div className="flex flex-wrap gap-3 pt-2">
               <Link
                 href="/kundli"
-                className="px-5 py-3 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs sm:text-sm rounded-xl shadow-gold hover:opacity-95 transition-all flex items-center space-x-2"
+                className="px-6 py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all flex items-center space-x-2"
               >
                 <Compass className="w-4 h-4" />
-                <span>{t('home.btnKundli')}</span>
+                <span>{t('hero.ctaKundli')}</span>
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Link>
               <Link
-                href="/compatibility"
-                className="px-5 py-3 bg-[#25184B] border border-[#D4AF37]/40 text-[#FDFBF7] font-semibold text-xs sm:text-sm rounded-xl hover:border-[#D4AF37] transition-all flex items-center space-x-2"
+                href="/chat"
+                className="px-5 py-3.5 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-bold text-xs sm:text-sm rounded-xl hover:bg-[#FEF3C7] shadow-sm transition-all flex items-center space-x-2"
               >
-                <Heart className="w-4 h-4 text-[#D4AF37]" />
-                <span>{t('home.btnMilan')}</span>
+                <MessageCircle className="w-4 h-4 text-[#D97706]" />
+                <span>{t('hero.ctaChat')}</span>
               </Link>
               <Link
                 href="/astrologers"
-                className="px-4 py-3 bg-[#191233] border border-[#D4AF37]/30 text-xs font-semibold text-[#F7DF94] rounded-xl hover:border-[#D4AF37] transition-all flex items-center space-x-1.5"
+                className="px-5 py-3.5 bg-white border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:border-[#D97706] hover:text-[#92400E] shadow-sm transition-all flex items-center space-x-1.5"
               >
-                <PhoneCall className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <PhoneCall className="w-4 h-4 text-[#F59E0B]" />
                 <span>{t('home.btnConsult')}</span>
               </Link>
             </div>
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-4 pt-5 border-t border-[#D4AF37]/20 max-w-md">
-              <div>
-                <span className="block font-serif text-2xl font-bold text-[#F7DF94]">{formatNumber(27)}</span>
-                <span className="text-[11px] text-[#D8C7A5]/70">{t('home.metricNakshatras')}</span>
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#EAE1D2] max-w-md">
+              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-2xl font-bold text-[#B45309]">
+                  {formatNumber(27)}
+                </span>
+                <span className="text-[11px] text-[#786C60] font-medium">
+                  {t('home.metricNakshatras')}
+                </span>
               </div>
-              <div>
-                <span className="block font-serif text-2xl font-bold text-[#F7DF94]">100%</span>
-                <span className="text-[11px] text-[#D8C7A5]/70">{t('home.metricAccuracy')}</span>
+              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-2xl font-bold text-[#B45309]">100%</span>
+                <span className="text-[11px] text-[#786C60] font-medium">
+                  {t('home.metricAccuracy')}
+                </span>
               </div>
-              <div>
-                <span className="block font-serif text-2xl font-bold text-[#F7DF94]">{formatNumber(4.98)}★</span>
-                <span className="text-[11px] text-[#D8C7A5]/70">{t('home.metricRating')}</span>
+              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-2xl font-bold text-[#B45309]">
+                  {formatNumber(4.98)}★
+                </span>
+                <span className="text-[11px] text-[#786C60] font-medium">
+                  {t('home.metricRating')}
+                </span>
               </div>
             </div>
           </div>
@@ -425,34 +533,37 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================
-          2. INSTANT CHART PREVIEW SECTION (When Form Submitted)
+          3. INSTANT CHART PREVIEW SECTION (When Form Submitted)
          ======================================================== */}
       {previewChart && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20 mb-14">
-          <div className="bg-[#150D2A] border-2 border-[#D4AF37] rounded-3xl p-6 sm:p-8 shadow-cosmic text-[#FDFBF7]">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-5 border-b border-[#D4AF37]/20 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 mb-12">
+          <div className="bg-white border-2 border-[#F59E0B] rounded-3xl p-6 sm:p-8 shadow-xl text-[#2D1810]">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-5 border-b border-[#EAE1D2] gap-4">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#D4AF37] bg-[#25184B] px-2.5 py-0.5 rounded-full border border-[#D4AF37]/30">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#92400E] bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A]">
                   {language === 'mr' ? 'ग्रहगणित आधारित कुंडली' : 'Ephemeris Computed Kundli'}
                 </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#F7DF94] mt-1.5">
-                  {previewChart.meta?.fullName || 'User'}&apos;s {language === 'mr' ? 'वैदिक जन्मकुंडली' : 'Vedic Kundli'}
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810] mt-2">
+                  {previewChart.meta?.fullName || 'User'}&apos;s{' '}
+                  {language === 'mr' ? 'वैदिक जन्मकुंडली' : 'Vedic Kundli'}
                 </h2>
-                <p className="text-xs text-[#D8C7A5] mt-1">
-                  {language === 'mr' ? 'जन्म' : 'Born'}: {previewChart.meta?.dateOfBirth} {language === 'mr' ? 'वेळ' : 'at'} {previewChart.meta?.timeOfBirth} ({previewChart.meta?.placeOfBirth})
+                <p className="text-xs text-[#786C60] mt-1">
+                  {language === 'mr' ? 'जन्म' : 'Born'}: {previewChart.meta?.dateOfBirth}{' '}
+                  {language === 'mr' ? 'वेळ' : 'at'} {previewChart.meta?.timeOfBirth} (
+                  {previewChart.meta?.placeOfBirth})
                 </p>
               </div>
 
               <div className="flex gap-2">
                 <Link
                   href="/kundli"
-                  className="px-4 py-2 bg-[#D4AF37] text-[#0F0B1E] font-semibold text-xs rounded-lg hover:opacity-90 shadow-gold"
+                  className="px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-semibold text-xs rounded-lg hover:opacity-95 shadow-md"
                 >
                   {language === 'mr' ? '१२ भाव आणि महादशा पहा' : 'View 12 Bhavas & Dasha'}
                 </Link>
                 <button
                   onClick={() => setPreviewChart(null)}
-                  className="px-3 py-2 bg-[#25184B] text-xs rounded-lg text-[#D8C7A5] hover:text-white"
+                  className="px-3 py-2 bg-[#FAF7F2] border border-[#EAE1D2] text-xs font-medium rounded-lg text-[#6B5A4E] hover:text-[#2D1810]"
                 >
                   {t('common.close')}
                 </button>
@@ -464,39 +575,52 @@ export default function HomePage() {
                 <NorthIndianChart chartData={previewChart} />
               </div>
               <div className="lg:col-span-5 space-y-4">
-                <div className="bg-[#0F0B1E] p-5 rounded-2xl border border-[#D4AF37]/20 space-y-3">
-                  <h4 className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider">
+                <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-3">
+                  <h4 className="text-xs font-bold text-[#92400E] uppercase tracking-wider">
                     {language === 'mr' ? 'महत्त्वपूर्ण खगोलीय ग्रहस्थिती' : 'Core Astronomical Coordinates'}
                   </h4>
                   <ul className="space-y-2 text-xs">
-                    <li className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                      <span className="text-[#D8C7A5]">{t('kundli.pillarLagna')}:</span>
-                      <strong className="text-[#FDFBF7]">{translateSign(previewChart.ascendant?.signName)} ({previewChart.ascendant?.degreeFormatted})</strong>
+                    <li className="flex justify-between border-b border-[#EAE1D2] pb-1.5">
+                      <span className="text-[#786C60]">{t('kundli.pillarLagna')}:</span>
+                      <strong className="text-[#2D1810]">
+                        {translateSign(previewChart.ascendant?.signName)} ({previewChart.ascendant?.degreeFormatted})
+                      </strong>
                     </li>
-                    <li className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                      <span className="text-[#D8C7A5]">{t('kundli.pillarMoon')}:</span>
-                      <strong className="text-[#FDFBF7]">{translateSign(previewChart.moonSign?.signName)} ({previewChart.moonSign?.degreeFormatted})</strong>
+                    <li className="flex justify-between border-b border-[#EAE1D2] pb-1.5">
+                      <span className="text-[#786C60]">{t('kundli.pillarMoon')}:</span>
+                      <strong className="text-[#2D1810]">
+                        {translateSign(previewChart.moonSign?.signName)} ({previewChart.moonSign?.degreeFormatted})
+                      </strong>
                     </li>
-                    <li className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                      <span className="text-[#D8C7A5]">{t('kundli.pillarNakshatra')}:</span>
-                      <strong className="text-[#FDFBF7]">{previewChart.moonSign?.nakshatra} ({language === 'mr' ? 'चरण' : 'Pada'} {formatNumber(previewChart.moonSign?.pada)})</strong>
+                    <li className="flex justify-between border-b border-[#EAE1D2] pb-1.5">
+                      <span className="text-[#786C60]">{t('kundli.pillarNakshatra')}:</span>
+                      <strong className="text-[#2D1810]">
+                        {previewChart.moonSign?.nakshatra} ({language === 'mr' ? 'चरण' : 'Pada'}{' '}
+                        {formatNumber(previewChart.moonSign?.pada)})
+                      </strong>
                     </li>
-                    <li className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                      <span className="text-[#D8C7A5]">{t('kundli.pillarSun')}:</span>
-                      <strong className="text-[#FDFBF7]">{translateSign(previewChart.sunSign?.signName)} ({previewChart.sunSign?.degreeFormatted})</strong>
+                    <li className="flex justify-between border-b border-[#EAE1D2] pb-1.5">
+                      <span className="text-[#786C60]">{t('kundli.pillarSun')}:</span>
+                      <strong className="text-[#2D1810]">
+                        {translateSign(previewChart.sunSign?.signName)} ({previewChart.sunSign?.degreeFormatted})
+                      </strong>
                     </li>
                     <li className="flex justify-between">
-                      <span className="text-[#D8C7A5]">{language === 'mr' ? 'अयनांश पद्धती' : 'Ayanamsa Standard'}:</span>
-                      <strong className="text-[#D4AF37]">{previewChart.meta?.ayanamsa?.formatted || '24° (Lahiri)'}</strong>
+                      <span className="text-[#786C60]">
+                        {language === 'mr' ? 'अयनांश पद्धती' : 'Ayanamsa Standard'}:
+                      </span>
+                      <strong className="text-[#B45309]">
+                        {previewChart.meta?.ayanamsa?.formatted || '24° (Lahiri)'}
+                      </strong>
                     </li>
                   </ul>
                 </div>
 
-                <div className="bg-[#25184B]/60 p-4 rounded-xl border border-[#D4AF37]/20 text-xs">
-                  <h5 className="font-semibold text-[#F7DF94]">
+                <div className="bg-[#FFFBEB] p-4 rounded-xl border border-[#FDE68A] text-xs">
+                  <h5 className="font-bold text-[#92400E]">
                     {language === 'mr' ? 'सध्याचे महादशा चक्र' : 'Current Mahadasha Cycle'}
                   </h5>
-                  <p className="text-[#D8C7A5] mt-1 leading-relaxed">
+                  <p className="text-[#78350F] mt-1 leading-relaxed">
                     {language === 'mr'
                       ? `${previewChart.dasha?.balanceDashaPlanet || ''} महादशा शिल्लक: जन्मापासून ~${formatNumber(previewChart.dasha?.balanceYears || 'N/A')} वर्षे.`
                       : `Balance of ${previewChart.dasha?.balanceDashaPlanet || 'Governing'} Mahadasha for ~${previewChart.dasha?.balanceYears || 'N/A'} years from birth.`}
@@ -509,7 +633,305 @@ export default function HomePage() {
       )}
 
       {/* ========================================================
-          3. ASTROSAGE-INSPIRED 2-COLUMN PORTAL LAYOUT
+          4. FOUR PROMINENT SERVICE / CONSULTATION CARDS
+         ======================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {/* Card 1: Chat with Astrologer */}
+          <Link
+            href="/chat"
+            className="group bg-white rounded-2xl p-5 border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] flex-shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+              <MessageCircle className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
+                {t('cards.chatTitle')}
+              </h3>
+              <p className="text-xs text-[#786C60] mt-0.5">{t('cards.chatSub')}</p>
+              <span className="inline-flex items-center text-xs font-bold text-[#D97706] mt-2 group-hover:translate-x-1 transition-transform">
+                {language === 'mr' ? 'चॅट सुरू करा' : 'Chat Now'} &rarr;
+              </span>
+            </div>
+          </Link>
+
+          {/* Card 2: Call Astrologer */}
+          <Link
+            href="/booking"
+            className="group bg-white rounded-2xl p-5 border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] flex-shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+              <Phone className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
+                {t('cards.callTitle')}
+              </h3>
+              <p className="text-xs text-[#786C60] mt-0.5">{t('cards.callSub')}</p>
+              <span className="inline-flex items-center text-xs font-bold text-[#D97706] mt-2 group-hover:translate-x-1 transition-transform">
+                {language === 'mr' ? 'कॉल सुरू करा' : 'Call Now'} &rarr;
+              </span>
+            </div>
+          </Link>
+
+          {/* Card 3: Daily Horoscope */}
+          <Link
+            href="/horoscope"
+            className="group bg-white rounded-2xl p-5 border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] flex-shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+              <Sun className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
+                {t('cards.horoscopeTitle')}
+              </h3>
+              <p className="text-xs text-[#786C60] mt-0.5">{t('cards.horoscopeSub')}</p>
+              <span className="inline-flex items-center text-xs font-bold text-[#D97706] mt-2 group-hover:translate-x-1 transition-transform">
+                {language === 'mr' ? 'आजचे राशीभविष्य' : 'Read Today'} &rarr;
+              </span>
+            </div>
+          </Link>
+
+          {/* Card 4: Get Free Kundli */}
+          <Link
+            href="/kundli"
+            className="group bg-white rounded-2xl p-5 border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all duration-300 flex items-center space-x-4"
+          >
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] flex-shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+              <Compass className="w-7 h-7" />
+            </div>
+            <div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
+                {t('cards.kundliTitle')}
+              </h3>
+              <p className="text-xs text-[#786C60] mt-0.5">{t('cards.kundliSub')}</p>
+              <span className="inline-flex items-center text-xs font-bold text-[#D97706] mt-2 group-hover:translate-x-1 transition-transform">
+                {language === 'mr' ? 'मोफत पत्रिका' : 'Generate Free'} &rarr;
+              </span>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* ========================================================
+          5. ASTROLOGER LISTING CAROUSEL ("Talk to Our Expert Astrologers")
+         ======================================================== */}
+      <section className="bg-[#FFFDF9] py-12 border-y border-[#EAE1D2]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-6">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#D97706] mb-1">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{language === 'mr' ? 'प्रमाणित वैदिक तज्ज्ञ' : 'Verified Vedic Experts'}</span>
+              </div>
+              <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810]">
+                {t('carousel.title')}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#786C60] mt-1">
+                {t('carousel.subtitle')}
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => scrollCarousel('left')}
+                className="w-10 h-10 rounded-full border border-[#EAE1D2] bg-white text-[#4A2E18] hover:bg-[#FAF7F2] hover:border-[#D97706] flex items-center justify-center transition-colors shadow-xs"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => scrollCarousel('right')}
+                className="w-10 h-10 rounded-full border border-[#EAE1D2] bg-white text-[#4A2E18] hover:bg-[#FAF7F2] hover:border-[#D97706] flex items-center justify-center transition-colors shadow-xs"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <Link
+                href="/astrologers"
+                className="ml-2 text-xs font-bold text-[#D97706] hover:text-[#B45309] hover:underline flex items-center"
+              >
+                <span>{language === 'mr' ? 'सर्व ज्योतिषी पहा' : 'View All'}</span>
+                <ChevronRight className="w-4 h-4 ml-0.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Horizontal Scrollable Row */}
+          <div
+            ref={carouselRef}
+            className="flex gap-5 overflow-x-auto no-scrollbar scroll-smooth py-2 -mx-4 px-4 sm:mx-0 sm:px-0"
+          >
+            {(Array.isArray(astrologers) && astrologers.length > 0 ? astrologers : [
+              {
+                id: 1,
+                name: 'Acharya Vidyadhar Shastri',
+                title: 'Senior Jyotish Ratna',
+                avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200',
+                rating: 4.98,
+                reviewCount: 1450,
+                experienceYears: 28,
+                specialties: ['Vedic Kundli', 'Career', 'Gemstones'],
+                consultationFee: 1125,
+                isOnline: true,
+              },
+              {
+                id: 2,
+                name: 'Pt. Rameshwar Dwivedi',
+                title: 'Parashari & Vastu Specialist',
+                avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200',
+                rating: 4.92,
+                reviewCount: 980,
+                experienceYears: 19,
+                specialties: ['Kundli Milan', 'Marriage', 'Navamsha'],
+                consultationFee: 990,
+                isOnline: true,
+              },
+              {
+                id: 3,
+                name: 'Dr. Sunita Upadhyay',
+                title: 'Vedic Numerologist & KP Astro',
+                avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+                rating: 4.89,
+                reviewCount: 840,
+                experienceYears: 15,
+                specialties: ['Numerology', 'Health', 'Prashna'],
+                consultationFee: 900,
+                isOnline: true,
+              },
+              {
+                id: 4,
+                name: 'Acharya Brijesh Tiwari',
+                title: 'Jaimini & Remedial Jyotish',
+                avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200',
+                rating: 4.95,
+                reviewCount: 1120,
+                experienceYears: 22,
+                specialties: ['Dasha Bhukti', 'Sade Sati', 'Puja'],
+                consultationFee: 1350,
+                isOnline: true,
+              },
+            ]).map((astrologer: any) => {
+              const perMinute = Math.round(astrologer.consultationFee / 45) || 25;
+              return (
+                <div
+                  key={astrologer.id}
+                  className="w-[280px] sm:w-[310px] flex-shrink-0 bg-white border border-[#EAE1D2] rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Top Row: Photo with Green Border + Verified Badge */}
+                    <div className="flex items-start justify-between mb-3.5">
+                      <div className="relative">
+                        <img
+                          src={
+                            astrologer.avatarUrl ||
+                            'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200'
+                          }
+                          alt={astrologer.name}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-emerald-500 ring-offset-2 ring-offset-white shadow-xs"
+                        />
+                        {/* Green Online Dot */}
+                        <span className="w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0 shadow-xs" />
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          <span>{language === 'mr' ? 'प्रमाणित' : 'Verified'}</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                          <span>{t('carousel.online')}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Astrologer Info */}
+                    <h3 className="font-serif text-base font-bold text-[#2D1810] line-clamp-1">
+                      {astrologer.name}
+                    </h3>
+                    <p className="text-xs text-[#D97706] font-medium line-clamp-1">
+                      {astrologer.title}
+                    </p>
+
+                    {/* Rating & Reviews */}
+                    <div className="flex items-center space-x-2 mt-1.5 text-xs">
+                      <span className="text-amber-500 font-bold flex items-center">
+                        ★ {formatNumber(astrologer.rating || 4.9)}
+                      </span>
+                      <span className="text-[#786C60]">
+                        ({formatNumber(astrologer.reviewCount || 450)} {t('astrologers.reviews')})
+                      </span>
+                    </div>
+
+                    {/* Experience & Specialties */}
+                    <div className="mt-3 pt-2.5 border-t border-[#F5EFE6] space-y-2 text-xs text-[#6B5A4E]">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span>{t('carousel.exp')}:</span>
+                        <strong className="text-[#2D1810]">
+                          {formatNumber(astrologer.experienceYears || 15)}+ {t('common.years')}
+                        </strong>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {(Array.isArray(astrologer.specialties)
+                          ? astrologer.specialties.slice(0, 3)
+                          : ['Vedic', 'Kundli', 'Career']
+                        ).map((spec: string, sIdx: number) => (
+                          <span
+                            key={sIdx}
+                            className="text-[10px] bg-[#FAF7F2] text-[#4A2E18] px-2 py-0.5 rounded-md border border-[#EAE1D2]"
+                          >
+                            {spec}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rate & Green Outlined Action Buttons */}
+                  <div className="mt-4 pt-3 border-t border-[#F5EFE6]">
+                    <div className="flex items-baseline justify-between mb-3">
+                      <span className="text-[11px] text-[#786C60]">
+                        {language === 'mr' ? 'सल्ला दर:' : 'Rate:'}
+                      </span>
+                      <span className="font-serif text-base font-bold text-[#2D1810]">
+                        {formatCurrency(perMinute)}
+                        <span className="text-xs font-normal text-[#786C60]">{t('carousel.perMin')}</span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Outlined Green Chat Button */}
+                      <Link
+                        href={`/chat`}
+                        className="border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{t('carousel.chatBtn')}</span>
+                      </Link>
+
+                      {/* Outlined Green Call Button */}
+                      <Link
+                        href={`/booking?astrologerId=${astrologer.id}`}
+                        className="border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{t('carousel.callBtn')}</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          6. MAIN 2-COLUMN PORTAL SECTION
          ======================================================== */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -517,22 +939,22 @@ export default function HomePage() {
           {/* ====================================================
               LEFT / MAIN COLUMN (8 of 12 cols on desktop)
              ==================================================== */}
-          <main className="lg:col-span-8 space-y-14">
+          <main className="lg:col-span-8 space-y-12">
             
             {/* A. 12 ZODIAC DAILY HOROSCOPE MODULE (Aaj Ka Rashifal) */}
-            <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-4 border-b border-gray-100">
+            <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-4 border-b border-[#F5EFE6]">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6D1F]">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
                     {t('home.horoscopeTag')}
                   </span>
-                  <h2 className="font-serif text-2xl font-bold text-[#150D2A] mt-0.5">
+                  <h2 className="font-serif text-2xl font-bold text-[#2D1810] mt-0.5">
                     {t('home.horoscopeTitle')}
                   </h2>
                 </div>
                 <Link
                   href="/horoscope"
-                  className="text-xs font-semibold text-[#8C6D1F] hover:text-[#150D2A] flex items-center"
+                  className="text-xs font-bold text-[#D97706] hover:text-[#B45309] flex items-center"
                 >
                   <span>{t('home.viewAllSigns')}</span>
                   <ChevronRight className="w-4 h-4 ml-0.5" />
@@ -543,17 +965,18 @@ export default function HomePage() {
               <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                 {ZODIAC_OVERVIEW.map((z) => {
                   const signLabel = translateSign(z.name);
+                  const isSelected = selectedZodiac.name === z.name;
                   return (
                     <button
                       key={z.name}
                       onClick={() => setSelectedZodiac(z)}
                       className={`py-2 px-1 rounded-xl border text-center transition-all flex flex-col items-center justify-center ${
-                        selectedZodiac.name === z.name
-                          ? 'bg-[#150D2A] border-[#D4AF37] text-[#F7DF94] shadow-md scale-105'
-                          : 'bg-[#FAF6F0] border-[#D4AF37]/20 text-gray-700 hover:border-[#D4AF37]'
+                        isSelected
+                          ? 'bg-[#FFFBEB] border-2 border-[#F59E0B] text-[#92400E] shadow-sm scale-105 font-bold'
+                          : 'bg-[#FAF7F2] border-[#EAE1D2] text-[#4A2E18] hover:border-[#F59E0B]'
                       }`}
                     >
-                      <span className="text-base">{z.symbol}</span>
+                      <span className="text-lg">{z.symbol}</span>
                       <span className="text-[11px] font-semibold mt-0.5">{signLabel}</span>
                     </button>
                   );
@@ -561,41 +984,46 @@ export default function HomePage() {
               </div>
 
               {/* Selected Zodiac Card Preview */}
-              <div className="p-5 rounded-2xl bg-[#FAF6F0] border border-[#D4AF37]/20 space-y-3">
+              <div className="p-5 rounded-2xl bg-[#FFFDF9] border border-[#EAE1D2] space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl text-[#8C6D1F]">{selectedZodiac.symbol}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="text-3xl text-[#D97706]">{selectedZodiac.symbol}</span>
                     <div>
-                      <h3 className="font-serif text-lg font-bold text-[#150D2A]">
+                      <h3 className="font-serif text-lg font-bold text-[#2D1810]">
                         {translateSign(selectedZodiac.name)} ({selectedZodiac.sanskrit})
                       </h3>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-[#786C60]">
                         {language === 'mr' ? 'राशी स्वामी:' : 'Lord:'}{' '}
-                        <strong className="text-gray-900">{language === 'mr' ? selectedZodiac.lordMr : selectedZodiac.lord}</strong> •{' '}
-                        {language === 'mr' ? 'तत्त्व:' : 'Element:'}{' '}
-                        <strong className="text-gray-900">{language === 'mr' ? selectedZodiac.elementMr : selectedZodiac.element}</strong>
+                        <strong className="text-[#2D1810]">
+                          {language === 'mr' ? selectedZodiac.lordMr : selectedZodiac.lord}
+                        </strong>{' '}
+                        • {language === 'mr' ? 'तत्त्व:' : 'Element:'}{' '}
+                        <strong className="text-[#2D1810]">
+                          {language === 'mr' ? selectedZodiac.elementMr : selectedZodiac.element}
+                        </strong>
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 text-xs">
-                    <span className="bg-white px-3 py-1 rounded-full border border-[#D4AF37]/30 text-[#8C6D1F]">
-                      {t('home.luckyNo')} <strong>{formatNumber(selectedZodiac.luckyNumber)}</strong>
+                  <div className="flex items-center space-x-2 text-xs">
+                    <span className="bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] text-[#92400E] font-medium">
+                      {t('home.luckyNo')}: <strong>{formatNumber(selectedZodiac.luckyNumber)}</strong>
                     </span>
-                    <span className="bg-white px-3 py-1 rounded-full border border-[#D4AF37]/30 text-[#8C6D1F]">
-                      {t('home.luckyColor')} <strong>{language === 'mr' ? selectedZodiac.luckyColorMr : selectedZodiac.luckyColor}</strong>
+                    <span className="bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] text-[#92400E] font-medium">
+                      {t('home.luckyColor')}:{' '}
+                      <strong>{language === 'mr' ? selectedZodiac.luckyColorMr : selectedZodiac.luckyColor}</strong>
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs sm:text-sm text-gray-700 leading-relaxed pt-2 border-t border-[#D4AF37]/15">
+                <p className="text-xs sm:text-sm text-[#4A2E18] leading-relaxed pt-2 border-t border-[#F5EFE6]">
                   {language === 'mr' ? selectedZodiac.adviceMr : selectedZodiac.advice}
                 </p>
 
                 <div className="pt-2 flex items-center justify-end">
                   <Link
                     href={`/horoscope?sign=${selectedZodiac.name}`}
-                    className="px-4 py-2 bg-[#150D2A] text-[#FDFBF7] text-xs font-semibold rounded-lg hover:bg-[#8C6D1F] transition-colors flex items-center space-x-1"
+                    className="px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-semibold rounded-lg hover:opacity-95 shadow-xs flex items-center space-x-1"
                   >
                     <span>{t('home.readFullForecast', { sign: translateSign(selectedZodiac.name) })}</span>
                     <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -608,16 +1036,16 @@ export default function HomePage() {
             <section className="space-y-6">
               <div className="flex justify-between items-end">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6D1F]">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
                     {t('home.toolsTag')}
                   </span>
-                  <h2 className="font-serif text-2xl font-bold text-[#150D2A] mt-0.5">
+                  <h2 className="font-serif text-2xl font-bold text-[#2D1810] mt-0.5">
                     {t('home.toolsTitle')}
                   </h2>
                 </div>
                 <Link
                   href="/tools"
-                  className="text-xs font-semibold text-[#8C6D1F] hover:text-[#150D2A] flex items-center"
+                  className="text-xs font-bold text-[#D97706] hover:text-[#B45309] flex items-center"
                 >
                   <span>{t('home.allTools')}</span>
                   <ChevronRight className="w-4 h-4 ml-0.5" />
@@ -634,23 +1062,23 @@ export default function HomePage() {
                     <Link
                       key={idx}
                       href={tool.link}
-                      className="group bg-white p-5 rounded-2xl border border-[#D4AF37]/25 shadow-sm hover:shadow-gold hover:border-[#D4AF37] transition-all flex flex-col justify-between"
+                      className="group bg-white p-5 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex justify-between items-start mb-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#FAF6F0] border border-[#D4AF37]/30 flex items-center justify-center text-[#8C6D1F] group-hover:bg-[#150D2A] group-hover:text-[#F7DF94] transition-colors">
+                          <div className="w-10 h-10 rounded-xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-[#D97706] group-hover:bg-[#F59E0B] group-hover:text-white transition-colors">
                             <Icon className="w-5 h-5" />
                           </div>
-                          <span className="text-[9px] font-bold uppercase px-2 py-0.5 bg-[#FAF6F0] text-[#8C6D1F] border border-[#D4AF37]/30 rounded-full">
+                          <span className="text-[9px] font-bold uppercase px-2 py-0.5 bg-[#FAF7F2] text-[#92400E] border border-[#EAE1D2] rounded-full">
                             {tag}
                           </span>
                         </div>
-                        <h3 className="font-serif text-base font-bold text-[#150D2A] group-hover:text-[#8C6D1F] transition-colors">
+                        <h3 className="font-serif text-base font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
                           {title}
                         </h3>
-                        <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">{desc}</p>
+                        <p className="text-xs text-[#786C60] mt-1.5 leading-relaxed">{desc}</p>
                       </div>
-                      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-xs font-semibold text-[#8C6D1F] group-hover:translate-x-1 transition-transform">
+                      <div className="mt-4 pt-3 border-t border-[#F5EFE6] flex items-center text-xs font-bold text-[#D97706] group-hover:translate-x-1 transition-transform">
                         <span>{t('home.calculateNow')}</span>
                         <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </div>
@@ -661,19 +1089,19 @@ export default function HomePage() {
             </section>
 
             {/* C. COMPREHENSIVE VEDIC REPORTS (Connected to Strapi Services) */}
-            <section className="bg-[#150D2A] text-[#FDFBF7] p-6 sm:p-8 rounded-3xl border border-[#D4AF37]/30 shadow-cosmic space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 pb-4 border-b border-[#D4AF37]/20">
+            <section className="bg-[#FFFDF9] text-[#2D1810] p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 pb-4 border-b border-[#F5EFE6]">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D4AF37]">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
                     {t('home.reportsTag')}
                   </span>
-                  <h2 className="font-serif text-2xl font-bold text-[#F7DF94] mt-0.5">
+                  <h2 className="font-serif text-2xl font-bold text-[#2D1810] mt-0.5">
                     {t('home.reportsTitle')}
                   </h2>
                 </div>
                 <Link
                   href="/pricing"
-                  className="text-xs font-semibold text-[#D4AF37] hover:underline flex items-center"
+                  className="text-xs font-bold text-[#D97706] hover:underline flex items-center"
                 >
                   <span>{t('home.viewPricing')}</span>
                   <ChevronRight className="w-4 h-4 ml-0.5" />
@@ -683,45 +1111,46 @@ export default function HomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {(Array.isArray(services) ? services : []).slice(0, 3).map((service) => {
                   const sTitle = getLocalizedField(service, 'title', language) || service.title;
-                  const sDesc = getLocalizedField(service, 'shortDescription', language) || service.shortDescription;
+                  const sDesc =
+                    getLocalizedField(service, 'shortDescription', language) || service.shortDescription;
                   return (
                     <div
                       key={service.id}
-                      className="bg-[#191233] border border-[#D4AF37]/30 rounded-2xl p-5 flex flex-col justify-between hover:border-[#D4AF37] transition-all shadow-md"
+                      className="bg-white border border-[#EAE1D2] rounded-2xl p-5 flex flex-col justify-between hover:border-[#F59E0B] hover:shadow-md transition-all"
                     >
                       <div>
                         <div className="flex justify-between items-center mb-2">
-                          <span className="text-[9px] uppercase font-semibold text-[#D4AF37] bg-[#25184B] px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                          <span className="text-[9px] uppercase font-bold text-[#92400E] bg-[#FFFBEB] px-2 py-0.5 rounded-full border border-[#FDE68A]">
                             {service.category}
                           </span>
                           {service.badge && (
-                            <span className="text-[9px] font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                               {service.badge}
                             </span>
                           )}
                         </div>
 
-                        <h3 className="font-serif text-base font-bold text-[#FDFBF7]">{sTitle}</h3>
-                        <p className="text-xs text-[#D8C7A5]/80 mt-1.5 leading-relaxed line-clamp-2">
+                        <h3 className="font-serif text-base font-bold text-[#2D1810]">{sTitle}</h3>
+                        <p className="text-xs text-[#786C60] mt-1.5 leading-relaxed line-clamp-2">
                           {sDesc}
                         </p>
 
-                        <div className="mt-3 py-2 border-y border-[#D4AF37]/15 flex items-baseline space-x-2">
-                          <span className="font-serif text-xl font-bold text-[#F7DF94]">
+                        <div className="mt-3 py-2 border-y border-[#F5EFE6] flex items-baseline space-x-2">
+                          <span className="font-serif text-xl font-bold text-[#B45309]">
                             {formatCurrency(service.discountedPrice || service.price)}
                           </span>
                           {service.discountedPrice && (
-                            <span className="text-xs text-[#D8C7A5]/50 line-through">
+                            <span className="text-xs text-[#786C60]/60 line-through">
                               {formatCurrency(service.price)}
                             </span>
                           )}
-                          <span className="text-[10px] text-[#D8C7A5]/60 ml-auto">{t('home.oneTime')}</span>
+                          <span className="text-[10px] text-[#786C60] ml-auto">{t('home.oneTime')}</span>
                         </div>
 
-                        <ul className="mt-3 space-y-1.5 text-xs text-[#D8C7A5]">
+                        <ul className="mt-3 space-y-1.5 text-xs text-[#4A2E18]">
                           {(Array.isArray(service.features) ? service.features : []).slice(0, 3).map((feat, idx) => (
                             <li key={idx} className="flex items-center space-x-1.5">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-[#D4AF37] flex-shrink-0" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                               <span className="line-clamp-1">{feat}</span>
                             </li>
                           ))}
@@ -730,8 +1159,12 @@ export default function HomePage() {
 
                       <div className="mt-5 pt-3">
                         <Link
-                          href={service.slug === 'detailed-kundli' ? '/reports/premium-kundli' : `/reports/${service.slug}`}
-                          className="w-full block text-center py-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs tracking-wide shadow-gold hover:opacity-95"
+                          href={
+                            service.slug === 'detailed-kundli'
+                              ? '/reports/premium-kundli'
+                              : `/reports/${service.slug}`
+                          }
+                          className="w-full block text-center py-2.5 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs tracking-wide shadow-xs hover:opacity-95"
                         >
                           {t('home.viewReportPreview')}
                         </Link>
@@ -742,107 +1175,20 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* D. CONSULT CERTIFIED VEDIC ASTROLOGERS (from Strapi) */}
+            {/* D. VEDIC ARTICLES & EPHEMERIS RESEARCH */}
             <section className="space-y-6">
               <div className="flex justify-between items-end">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6D1F]">
-                    {t('home.astrologersTag')}
-                  </span>
-                  <h2 className="font-serif text-2xl font-bold text-[#150D2A] mt-0.5">
-                    {t('home.astrologersTitle')}
-                  </h2>
-                </div>
-                <Link
-                  href="/astrologers"
-                  className="text-xs font-semibold text-[#8C6D1F] hover:text-[#150D2A] flex items-center"
-                >
-                  <span>{t('home.allAstrologers')}</span>
-                  <ChevronRight className="w-4 h-4 ml-0.5" />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {(Array.isArray(astrologers) ? astrologers : []).slice(0, 4).map((astrologer) => (
-                  <div
-                    key={astrologer.id}
-                    className="bg-white border border-[#D4AF37]/25 rounded-2xl p-5 shadow-sm hover:shadow-gold hover:border-[#D4AF37] transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center space-x-3.5 mb-3">
-                        <img
-                          src={astrologer.avatarUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200'}
-                          alt={astrologer.name}
-                          className="w-14 h-14 rounded-full object-cover border-2 border-[#D4AF37] flex-shrink-0"
-                        />
-                        <div>
-                          <h3 className="font-serif text-base font-bold text-[#150D2A]">{astrologer.name}</h3>
-                          <p className="text-xs text-[#8C6D1F] font-medium">{astrologer.title}</p>
-                          <div className="flex items-center space-x-1.5 mt-0.5 text-[11px] text-gray-500">
-                            <span className="text-amber-500 font-bold">★ {formatNumber(astrologer.rating)}</span>
-                            <span>({formatNumber(astrologer.reviewCount)} {t('astrologers.reviews')})</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-3">
-                        {astrologer.bio}
-                      </p>
-
-                      <div className="text-[11px] space-y-1 py-2.5 border-t border-gray-100 text-gray-600">
-                        <div>
-                          <strong className="text-gray-900">{t('astrologers.experience')}:</strong> {formatNumber(astrologer.experienceYears)}+ {t('common.years')}
-                        </div>
-                        <div>
-                          <strong className="text-gray-900">{t('astrologers.specialties')}:</strong>{' '}
-                          {Array.isArray(astrologer.specialties)
-                            ? astrologer.specialties.join(', ')
-                            : String(astrologer.specialties || '')}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-gray-500 block">{t('astrologers.consultationFee')}</span>
-                        <span className="font-serif text-base font-bold text-[#150D2A]">
-                          {formatCurrency(astrologer.consultationFee)}
-                        </span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Link
-                          href={`/astrologers/${astrologer.id}`}
-                          className="px-3 py-1.5 border border-[#D4AF37]/40 text-xs font-semibold rounded-lg hover:border-[#D4AF37]"
-                        >
-                          {t('astrologers.profile')}
-                        </Link>
-                        <Link
-                          href={`/booking?astrologerId=${astrologer.id}`}
-                          className="px-3.5 py-1.5 bg-[#150D2A] hover:bg-[#8C6D1F] text-[#FDFBF7] text-xs font-semibold rounded-lg transition-colors"
-                        >
-                          {t('astrologers.bookSession')}
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* E. VEDIC ARTICLES & EPHEMERIS RESEARCH (from Strapi) */}
-            <section className="space-y-6">
-              <div className="flex justify-between items-end">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6D1F]">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
                     {t('home.articlesTag')}
                   </span>
-                  <h2 className="font-serif text-2xl font-bold text-[#150D2A] mt-0.5">
+                  <h2 className="font-serif text-2xl font-bold text-[#2D1810] mt-0.5">
                     {t('home.articlesTitle')}
                   </h2>
                 </div>
                 <Link
                   href="/blog"
-                  className="text-xs font-semibold text-[#8C6D1F] hover:text-[#150D2A] flex items-center"
+                  className="text-xs font-bold text-[#D97706] hover:text-[#B45309] flex items-center"
                 >
                   <span>{t('home.allArticles')}</span>
                   <ChevronRight className="w-4 h-4 ml-0.5" />
@@ -857,24 +1203,24 @@ export default function HomePage() {
                     <Link
                       key={art.id}
                       href={`/blog/${art.slug}`}
-                      className="group bg-white rounded-2xl border border-[#D4AF37]/25 overflow-hidden shadow-sm hover:shadow-gold hover:border-[#D4AF37] transition-all flex flex-col justify-between"
+                      className="group bg-white rounded-2xl border border-[#EAE1D2] overflow-hidden shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
                     >
                       <div className="p-6">
-                        <div className="flex items-center space-x-2 text-[10px] font-semibold text-[#8C6D1F] uppercase tracking-wider mb-2">
+                        <div className="flex items-center space-x-2 text-[10px] font-bold text-[#D97706] uppercase tracking-wider mb-2">
                           <span>{art.category}</span>
                           <span>•</span>
                           <span>{art.readTime}</span>
                         </div>
-                        <h3 className="font-serif text-lg font-bold text-[#150D2A] group-hover:text-[#8C6D1F] transition-colors leading-snug">
+                        <h3 className="font-serif text-lg font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors leading-snug">
                           {artTitle}
                         </h3>
-                        <p className="text-xs text-gray-600 mt-2 line-clamp-3 leading-relaxed">
+                        <p className="text-xs text-[#786C60] mt-2 line-clamp-3 leading-relaxed">
                           {artExcerpt}
                         </p>
                       </div>
-                      <div className="px-6 py-3 bg-[#FAF6F0] border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
+                      <div className="px-6 py-3 bg-[#FAF7F2] border-t border-[#F5EFE6] flex items-center justify-between text-xs text-[#6B5A4E]">
                         <span>{t('home.byAuthor', { author: art.author })}</span>
-                        <span className="font-semibold text-[#8C6D1F] group-hover:translate-x-1 transition-transform flex items-center">
+                        <span className="font-bold text-[#D97706] group-hover:translate-x-1 transition-transform flex items-center">
                           {t('home.readGuide')} &rarr;
                         </span>
                       </div>
@@ -884,13 +1230,13 @@ export default function HomePage() {
               </div>
             </section>
 
-            {/* F. FREQUENTLY ASKED QUESTIONS ACCORDION */}
-            <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-6">
+            {/* E. FREQUENTLY ASKED QUESTIONS ACCORDION */}
+            <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
               <div className="text-center max-w-xl mx-auto">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#8C6D1F]">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
                   {t('home.faqTag')}
                 </span>
-                <h2 className="font-serif text-2xl font-bold text-[#150D2A] mt-0.5">
+                <h2 className="font-serif text-2xl font-bold text-[#2D1810] mt-0.5">
                   {t('home.faqTitle')}
                 </h2>
               </div>
@@ -899,22 +1245,23 @@ export default function HomePage() {
                 {(Array.isArray(faqs) ? faqs : []).map((faq, index) => {
                   const q = getLocalizedField(faq, 'question', language) || faq.question;
                   const a = getLocalizedField(faq, 'answer', language) || faq.answer;
+                  const isOpen = activeFaq === index;
                   return (
                     <div
                       key={faq.id}
-                      className="border border-[#D4AF37]/25 rounded-xl overflow-hidden shadow-sm"
+                      className="border border-[#EAE1D2] rounded-xl overflow-hidden shadow-xs"
                     >
                       <button
-                        onClick={() => setActiveFaq(activeFaq === index ? null : index)}
-                        className="w-full p-4 text-left flex justify-between items-center text-xs sm:text-sm font-semibold text-[#150D2A] hover:text-[#8C6D1F]"
+                        onClick={() => setActiveFaq(isOpen ? null : index)}
+                        className="w-full p-4 text-left flex justify-between items-center text-xs sm:text-sm font-semibold text-[#2D1810] hover:text-[#D97706] bg-white transition-colors"
                       >
                         <span>{q}</span>
-                        <span className="text-base font-bold text-[#8C6D1F] ml-2">
-                          {activeFaq === index ? '−' : '+'}
+                        <span className="text-base font-bold text-[#D97706] ml-2">
+                          {isOpen ? '−' : '+'}
                         </span>
                       </button>
-                      {activeFaq === index && (
-                        <div className="px-4 pb-4 text-xs text-gray-600 leading-relaxed border-t border-gray-100 pt-3">
+                      {isOpen && (
+                        <div className="px-4 pb-4 text-xs text-[#6B5A4E] leading-relaxed border-t border-[#F5EFE6] bg-[#FAF7F2] pt-3">
                           {a}
                         </div>
                       )}
@@ -932,71 +1279,86 @@ export default function HomePage() {
           <aside className="lg:col-span-4 space-y-6">
             
             {/* 1. TODAY'S AUSPICIOUS PANCHANG WIDGET */}
-            <div className="bg-[#150D2A] text-[#FDFBF7] p-6 rounded-3xl border-2 border-[#D4AF37]/40 shadow-cosmic space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#D4AF37]/20">
+            <div className="bg-[#FFFDF9] text-[#2D1810] p-6 rounded-3xl border-2 border-[#FDE68A] shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#EAE1D2]">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-[#D4AF37]" />
-                  <h3 className="font-serif text-base font-bold text-[#F7DF94]">
+                  <Calendar className="w-5 h-5 text-[#D97706]" />
+                  <h3 className="font-serif text-base font-bold text-[#2D1810]">
                     {t('home.panchangTitle')}
                   </h3>
                 </div>
-                <span className="text-[10px] uppercase font-bold text-[#D4AF37] bg-[#25184B] px-2 py-0.5 rounded border border-[#D4AF37]/30">
+                <span className="text-[10px] uppercase font-bold text-[#92400E] bg-[#FFFBEB] px-2.5 py-0.5 rounded border border-[#FDE68A]">
                   {t('home.panchangCity')}
                 </span>
               </div>
 
               <div className="space-y-2.5 text-xs">
-                <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                  <span className="text-[#D8C7A5]">{t('home.auspiciousTithi')}</span>
-                  <strong className="text-[#FDFBF7]">{language === 'mr' ? 'शुक्ल द्वादशी' : 'Shukla Dwadashi'}</strong>
+                <div className="flex justify-between border-b border-[#F5EFE6] pb-1.5">
+                  <span className="text-[#786C60]">{t('home.auspiciousTithi')}</span>
+                  <strong className="text-[#2D1810]">
+                    {language === 'mr' ? 'शुक्ल द्वादशी' : 'Shukla Dwadashi'}
+                  </strong>
                 </div>
-                <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                  <span className="text-[#D8C7A5]">{t('home.governingNakshatra')}</span>
-                  <strong className="text-[#FDFBF7]">{language === 'mr' ? 'रेवती (चरण ३)' : 'Revati (Pada 3)'}</strong>
+                <div className="flex justify-between border-b border-[#F5EFE6] pb-1.5">
+                  <span className="text-[#786C60]">{t('home.governingNakshatra')}</span>
+                  <strong className="text-[#2D1810]">
+                    {language === 'mr' ? 'रेवती (चरण ३)' : 'Revati (Pada 3)'}
+                  </strong>
                 </div>
-                <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                  <span className="text-[#D8C7A5]">{t('home.abhijitMuhurat')}</span>
-                  <strong className="text-emerald-400">11:58 AM - 12:44 PM</strong>
+                <div className="flex justify-between border-b border-[#F5EFE6] pb-1.5">
+                  <span className="text-[#786C60]">{t('home.abhijitMuhurat')}</span>
+                  <strong className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold">
+                    11:58 AM - 12:44 PM
+                  </strong>
                 </div>
-                <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                  <span className="text-[#D8C7A5]">{t('home.rahuKaalam')}</span>
-                  <strong className="text-rose-400">04:22 PM - 05:46 PM</strong>
+                <div className="flex justify-between border-b border-[#F5EFE6] pb-1.5">
+                  <span className="text-[#786C60]">{t('home.rahuKaalam')}</span>
+                  <strong className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded font-bold">
+                    04:22 PM - 05:46 PM
+                  </strong>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#D8C7A5]">{t('home.sunMoonRashi')}</span>
-                  <strong className="text-[#D4AF37]">{language === 'mr' ? 'तूळ / मीन' : 'Libra / Pisces'}</strong>
+                  <span className="text-[#786C60]">{t('home.sunMoonRashi')}</span>
+                  <strong className="text-[#D97706]">
+                    {language === 'mr' ? 'तूळ / मीन' : 'Libra / Pisces'}
+                  </strong>
                 </div>
               </div>
 
               <Link
                 href="/panchang"
-                className="w-full block text-center py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs rounded-xl shadow-gold hover:opacity-95 transition-all"
+                className="w-full block text-center py-2.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs rounded-xl shadow-xs hover:opacity-95 transition-all"
               >
                 {t('home.openPanchang')}
               </Link>
             </div>
 
             {/* 2. SPOTLIGHT SCHOLAR OF THE DAY */}
-            <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-4">
-              <div className="flex items-center space-x-2 pb-3 border-b border-gray-100">
-                <Award className="w-4 h-4 text-[#8C6D1F]" />
-                <h3 className="font-serif text-base font-bold text-[#150D2A]">
+            <div className="bg-white p-6 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4">
+              <div className="flex items-center space-x-2 pb-3 border-b border-[#F5EFE6]">
+                <Award className="w-5 h-5 text-[#D97706]" />
+                <h3 className="font-serif text-base font-bold text-[#2D1810]">
                   {t('home.astrologerOfDay')}
                 </h3>
               </div>
 
               <div className="flex items-center space-x-3.5">
-                <img
-                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
-                  alt="Acharya Vidyadhar"
-                  className="w-14 h-14 rounded-full object-cover border-2 border-[#D4AF37] flex-shrink-0"
-                />
+                <div className="relative">
+                  <img
+                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200"
+                    alt="Acharya Vidyadhar"
+                    className="w-14 h-14 rounded-full object-cover ring-2 ring-emerald-500 ring-offset-2 flex-shrink-0"
+                  />
+                  <span className="w-3 h-3 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0" />
+                </div>
                 <div>
-                  <h4 className="font-serif text-sm font-bold text-[#150D2A]">
+                  <h4 className="font-serif text-sm font-bold text-[#2D1810]">
                     {language === 'mr' ? 'आचार्य विद्याधर शास्त्री' : 'Acharya Vidyadhar Shastri'}
                   </h4>
-                  <p className="text-[11px] text-[#8C6D1F] font-medium">
-                    {language === 'mr' ? `ज्येष्ठ ज्योतिषरत्न (${formatNumber(28)} वर्षे अनुभव)` : 'Senior Jyotish Ratna (28 Yrs Exp)'}
+                  <p className="text-[11px] text-[#D97706] font-medium">
+                    {language === 'mr'
+                      ? `ज्येष्ठ ज्योतिषरत्न (${formatNumber(28)} वर्षे अनुभव)`
+                      : 'Senior Jyotish Ratna (28 Yrs Exp)'}
                   </p>
                   <span className="text-amber-500 text-xs font-bold">
                     ★ {formatNumber(4.98)} ({formatNumber(1450)} {t('astrologers.reviews')})
@@ -1004,7 +1366,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-600 leading-relaxed">
+              <p className="text-xs text-[#6B5A4E] leading-relaxed">
                 {language === 'mr'
                   ? 'करिअर, विवाह गुणमेलन आणि रत्न सल्ल्यासाठी तातडीने उपलब्ध.'
                   : 'Available right now for confidential video & voice calls covering career promotions, marriage compatibility, and gemstone prescriptions.'}
@@ -1012,124 +1374,124 @@ export default function HomePage() {
 
               <div className="pt-2 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-gray-500 block">{t('home.sessionFee')}</span>
-                  <span className="font-serif text-base font-bold text-[#150D2A]">
+                  <span className="text-[10px] text-[#786C60] block">{t('home.sessionFee')}</span>
+                  <span className="font-serif text-base font-bold text-[#2D1810]">
                     {formatCurrency(1499)}
                   </span>
                 </div>
                 <Link
                   href="/booking?astrologerId=1"
-                  className="px-4 py-2 bg-[#150D2A] text-[#FDFBF7] text-xs font-semibold rounded-xl hover:bg-[#8C6D1F] transition-colors flex items-center space-x-1"
+                  className="px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-bold rounded-xl hover:opacity-95 transition-opacity flex items-center space-x-1 shadow-xs"
                 >
-                  <PhoneCall className="w-3 h-3 mr-1" />
+                  <PhoneCall className="w-3.5 h-3.5 mr-1" />
                   <span>{t('home.callChatNow')}</span>
                 </Link>
               </div>
             </div>
 
             {/* 3. ASTROPAY WALLET & CONSULTATION CREDITS */}
-            <div className="bg-[#191233] text-[#FDFBF7] p-6 rounded-3xl border border-[#D4AF37]/30 shadow-cosmic space-y-4">
+            <div className="bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7] text-[#2D1810] p-6 rounded-3xl border border-[#FDE68A] shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Wallet className="w-4 h-4 text-[#D4AF37]" />
-                  <h3 className="font-serif text-sm font-bold text-[#F7DF94]">
+                  <Wallet className="w-5 h-5 text-[#D97706]" />
+                  <h3 className="font-serif text-sm font-bold text-[#92400E]">
                     {t('home.walletTitle')}
                   </h3>
                 </div>
-                <span className="text-xs font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
                   {t('home.walletActive')}
                 </span>
               </div>
 
-              <div className="p-3.5 bg-[#0F0B1E] rounded-xl border border-[#D4AF37]/20 flex items-center justify-between">
+              <div className="p-3.5 bg-white rounded-xl border border-[#FDE68A] flex items-center justify-between shadow-xs">
                 <div>
-                  <span className="text-[10px] text-[#D8C7A5]/70 block">{t('home.availableCredits')}</span>
-                  <span className="font-serif text-2xl font-bold text-[#F7DF94]">
+                  <span className="text-[10px] text-[#786C60] block">{t('home.availableCredits')}</span>
+                  <span className="font-serif text-2xl font-bold text-[#B45309]">
                     {formatCurrency(walletBal)}
                   </span>
                 </div>
                 <Link
                   href="/wallet"
-                  className="px-3 py-1.5 bg-[#25184B] border border-[#D4AF37]/40 text-[#F7DF94] text-xs font-semibold rounded-lg hover:border-[#D4AF37]"
+                  className="px-3 py-1.5 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-xs font-bold rounded-lg hover:bg-[#FEF3C7] transition-colors"
                 >
                   {t('home.addFunds')}
                 </Link>
               </div>
 
-              <p className="text-[11px] text-[#D8C7A5]/70 leading-relaxed">
+              <p className="text-[11px] text-[#78350F] leading-relaxed">
                 {t('home.walletDesc')}
               </p>
             </div>
 
             {/* 4. VEDIC HEALING & REMEDIES CARD */}
-            <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-4">
-              <div className="flex items-center space-x-2 pb-3 border-b border-gray-100">
-                <Shield className="w-4 h-4 text-[#8C6D1F]" />
-                <h3 className="font-serif text-base font-bold text-[#150D2A]">
+            <div className="bg-white p-6 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4">
+              <div className="flex items-center space-x-2 pb-3 border-b border-[#F5EFE6]">
+                <Shield className="w-5 h-5 text-[#D97706]" />
+                <h3 className="font-serif text-base font-bold text-[#2D1810]">
                   {t('home.healingTitle')}
                 </h3>
               </div>
 
-              <ul className="space-y-2.5 text-xs text-gray-700">
-                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF6F0] hover:bg-gray-100 transition-colors">
+              <ul className="space-y-2 text-xs text-[#4A2E18]">
+                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF7F2] hover:bg-[#FFFBEB] transition-colors">
                   <span className="flex items-center space-x-2">
                     <span>💎</span>
                     <span className="font-medium">{t('home.gemstones')}</span>
                   </span>
-                  <Link href="/healing" className="text-[#8C6D1F] font-bold text-[11px]">&rarr;</Link>
+                  <Link href="/healing" className="text-[#D97706] font-bold text-[11px]">&rarr;</Link>
                 </li>
-                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF6F0] hover:bg-gray-100 transition-colors">
+                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF7F2] hover:bg-[#FFFBEB] transition-colors">
                   <span className="flex items-center space-x-2">
                     <span>📿</span>
                     <span className="font-medium">{t('home.rudraksha')}</span>
                   </span>
-                  <Link href="/healing" className="text-[#8C6D1F] font-bold text-[11px]">&rarr;</Link>
+                  <Link href="/healing" className="text-[#D97706] font-bold text-[11px]">&rarr;</Link>
                 </li>
-                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF6F0] hover:bg-gray-100 transition-colors">
+                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF7F2] hover:bg-[#FFFBEB] transition-colors">
                   <span className="flex items-center space-x-2">
                     <span>🕉️</span>
                     <span className="font-medium">{t('home.mantras')}</span>
                   </span>
-                  <Link href="/healing" className="text-[#8C6D1F] font-bold text-[11px]">&rarr;</Link>
+                  <Link href="/healing" className="text-[#D97706] font-bold text-[11px]">&rarr;</Link>
                 </li>
-                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF6F0] hover:bg-gray-100 transition-colors">
+                <li className="flex items-center justify-between p-2 rounded-lg bg-[#FAF7F2] hover:bg-[#FFFBEB] transition-colors">
                   <span className="flex items-center space-x-2">
                     <span>🔯</span>
                     <span className="font-medium">{t('home.yantras')}</span>
                   </span>
-                  <Link href="/healing" className="text-[#8C6D1F] font-bold text-[11px]">&rarr;</Link>
+                  <Link href="/healing" className="text-[#D97706] font-bold text-[11px]">&rarr;</Link>
                 </li>
               </ul>
 
               <Link
                 href="/healing"
-                className="w-full block text-center py-2 border border-[#D4AF37]/40 text-xs font-semibold text-[#8C6D1F] rounded-xl hover:border-[#D4AF37]"
+                className="w-full block text-center py-2 border border-[#EAE1D2] text-xs font-bold text-[#D97706] rounded-xl hover:border-[#D97706] hover:bg-[#FAF7F2] transition-colors"
               >
                 {t('home.exploreRemedies')}
               </Link>
             </div>
 
             {/* 5. UPCOMING AUSPICIOUS FESTIVALS */}
-            <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div className="bg-white p-6 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#F5EFE6]">
                 <div className="flex items-center space-x-2">
-                  <Flame className="w-4 h-4 text-[#8C6D1F]" />
-                  <h3 className="font-serif text-base font-bold text-[#150D2A]">
+                  <Flame className="w-5 h-5 text-[#D97706]" />
+                  <h3 className="font-serif text-base font-bold text-[#2D1810]">
                     {t('home.festivalsTitle')}
                   </h3>
                 </div>
-                <Link href="/festivals" className="text-[11px] text-[#8C6D1F] font-semibold hover:underline">
+                <Link href="/festivals" className="text-[11px] text-[#D97706] font-semibold hover:underline">
                   {t('home.viewAll')}
                 </Link>
               </div>
 
               <div className="space-y-2 text-xs">
                 {FESTIVALS_LIST.map((fest, idx) => (
-                  <div key={idx} className="p-2.5 rounded-xl bg-[#FAF6F0] border border-[#D4AF37]/15">
-                    <strong className="block text-[#150D2A]">
+                  <div key={idx} className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#EAE1D2]">
+                    <strong className="block text-[#2D1810]">
                       {language === 'mr' ? fest.titleMr : fest.titleEn}
                     </strong>
-                    <span className="text-[11px] text-gray-500">
+                    <span className="text-[11px] text-[#786C60]">
                       {language === 'mr' ? fest.metaMr : fest.metaEn}
                     </span>
                   </div>
@@ -1138,12 +1500,12 @@ export default function HomePage() {
             </div>
 
             {/* 6. SANATANA WISDOM COMMUNITY & SOCIAL */}
-            <div className="bg-[#150D2A] text-[#FDFBF7] p-6 rounded-3xl border border-[#D4AF37]/30 text-center space-y-3">
-              <Sparkles className="w-6 h-6 text-[#D4AF37] mx-auto" />
-              <h4 className="font-serif text-sm font-bold text-[#F7DF94]">
+            <div className="bg-[#FFFDF9] text-[#2D1810] p-6 rounded-3xl border border-[#EAE1D2] text-center space-y-3 shadow-xs">
+              <Sparkles className="w-7 h-7 text-[#D97706] mx-auto" />
+              <h4 className="font-serif text-sm font-bold text-[#2D1810]">
                 {t('home.communityTitle')}
               </h4>
-              <p className="text-xs text-[#D8C7A5]/80 leading-relaxed">
+              <p className="text-xs text-[#786C60] leading-relaxed">
                 {t('home.communityDesc')}
               </p>
               <div className="pt-2 flex justify-center space-x-2 text-xs">
@@ -1151,7 +1513,7 @@ export default function HomePage() {
                   href="https://t.me"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 bg-[#25184B] border border-[#D4AF37]/30 rounded-lg text-[#F7DF94] hover:border-[#D4AF37]"
+                  className="px-3 py-1.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-[#92400E] font-medium hover:bg-[#FEF3C7] transition-colors"
                 >
                   {t('home.telegram')}
                 </a>
@@ -1159,7 +1521,7 @@ export default function HomePage() {
                   href="https://youtube.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1.5 bg-[#25184B] border border-[#D4AF37]/30 rounded-lg text-[#F7DF94] hover:border-[#D4AF37]"
+                  className="px-3 py-1.5 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-[#92400E] font-medium hover:bg-[#FEF3C7] transition-colors"
                 >
                   {t('home.youtube')}
                 </a>
@@ -1169,6 +1531,181 @@ export default function HomePage() {
           </aside>
         </div>
       </div>
+
+      {/* ========================================================
+          7. WHY CHOOSE JYOTISHVEDA (Trust & Authority Pillars)
+         ======================================================== */}
+      <section className="bg-[#FFF9EB] py-16 px-4 sm:px-6 lg:px-8 border-y border-[#FDE68A]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
+              {language === 'mr' ? 'विश्वास आणि अचूकता' : 'Trust & Authenticity'}
+            </span>
+            <h2 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">
+              {t('why.title')}
+            </h2>
+            <p className="text-sm text-[#786C60] mt-2 leading-relaxed">
+              {t('why.subtitle')}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Pillar 1 */}
+            <div className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] mb-4">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] mb-2">
+                {t('why.card1Title')}
+              </h3>
+              <p className="text-xs text-[#786C60] leading-relaxed">
+                {t('why.card1Desc')}
+              </p>
+            </div>
+
+            {/* Pillar 2 */}
+            <div className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] mb-4">
+                <Compass className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] mb-2">
+                {t('why.card2Title')}
+              </h3>
+              <p className="text-xs text-[#786C60] leading-relaxed">
+                {t('why.card2Desc')}
+              </p>
+            </div>
+
+            {/* Pillar 3 */}
+            <div className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] mb-4">
+                <Lock className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] mb-2">
+                {t('why.card3Title')}
+              </h3>
+              <p className="text-xs text-[#786C60] leading-relaxed">
+                {t('why.card3Desc')}
+              </p>
+            </div>
+
+            {/* Pillar 4 */}
+            <div className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FEF3C7] to-[#FDE68A] border border-[#F59E0B]/30 flex items-center justify-center text-[#D97706] mb-4">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#2D1810] mb-2">
+                {t('why.card4Title')}
+              </h3>
+              <p className="text-xs text-[#786C60] leading-relaxed">
+                {t('why.card4Desc')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================
+          8. SEEKER TESTIMONIALS & EXPERIENCES
+         ======================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706]">
+            {language === 'mr' ? 'अनुभव व प्रतिक्रिया' : 'Testimonials & Reviews'}
+          </span>
+          <h2 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">
+            {t('testimonials.title')}
+          </h2>
+          <p className="text-sm text-[#786C60] mt-2 leading-relaxed">
+            {t('testimonials.subtitle')}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TESTIMONIALS.map((item, idx) => (
+            <div
+              key={idx}
+              className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
+            >
+              <div>
+                {/* 5 Stars */}
+                <div className="flex items-center space-x-1 text-amber-500 mb-3">
+                  {[...Array(5)].map((_, sIdx) => (
+                    <Star key={sIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+
+                <p className="text-xs text-[#4A2E18] leading-relaxed italic mb-4">
+                  &ldquo;{language === 'mr' ? item.textMr : item.text}&rdquo;
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-[#F5EFE6] flex items-center justify-between">
+                <div>
+                  <h4 className="font-serif text-xs font-bold text-[#2D1810]">
+                    {language === 'mr' ? item.nameMr : item.name}
+                  </h4>
+                  <span className="text-[10px] text-[#786C60] block">
+                    {language === 'mr' ? item.cityMr : item.city}
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <UserCheck className="w-3 h-3 text-emerald-600" />
+                  <span>{language === 'mr' ? 'पडताळणी' : 'Verified'}</span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================
+          9. FINAL CONSULTATION CTA BANNER
+         ======================================================== */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <div className="bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+          {/* Subtle celestial pattern */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:24px_24px]" />
+
+          <div className="relative z-10 max-w-2xl space-y-4">
+            <span className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3.5 py-1 rounded-full text-xs font-bold text-white border border-white/30">
+              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+              <span>{t('ticker.msg1')}</span>
+            </span>
+
+            <h2 className="font-serif text-3xl sm:text-4xl font-extrabold leading-tight">
+              {language === 'mr'
+                ? 'आपल्या ग्रहदशेचे रहस्य जाणून घेण्यासाठी तयार आहात?'
+                : 'Ready to Discover What the Stars Have in Store?'}
+            </h2>
+
+            <p className="text-xs sm:text-sm text-amber-100 leading-relaxed max-w-xl">
+              {language === 'mr'
+                ? 'आजच आपल्या जन्मकुंडलीचे सखोल विश्लेषण करा किंवा अनुभवी वैदिक ज्योतिषांशी थेट १-ऑन-१ संवाद साधा.'
+                : 'Connect with verified Vedic Acharyas today. First 5 minutes of consultation are completely free for all newly registered seekers.'}
+            </p>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Link
+                href="/chat"
+                className="px-6 py-3 bg-white text-[#92400E] font-serif font-bold text-xs sm:text-sm rounded-xl shadow-md hover:bg-amber-50 transition-all flex items-center space-x-2"
+              >
+                <MessageCircle className="w-4 h-4 text-[#D97706]" />
+                <span>{language === 'mr' ? 'पहिले चॅट मोफत सुरू करा' : 'Start Free First Chat'}</span>
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Link>
+              <Link
+                href="/astrologers"
+                className="px-5 py-3 bg-[#78350F]/50 border border-white/40 text-white font-bold text-xs sm:text-sm rounded-xl hover:bg-[#78350F]/70 transition-all flex items-center space-x-2"
+              >
+                <Phone className="w-4 h-4" />
+                <span>{language === 'mr' ? 'सर्व ज्योतिषी शोधा' : 'Explore Astrologers'}</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

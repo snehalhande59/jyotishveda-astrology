@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Moon } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 const NAKSHATRAS_DATA = [
   { id: 1, name: "Ashwini", lord: "Ketu", deity: "Ashwini Kumaras", symbol: "Horse's Head", degrees: "0°00' - 13°20' Aries", meaning: "The Swift Healers, initiative, courage, vital energy." },
@@ -33,27 +36,31 @@ const NAKSHATRAS_DATA = [
 ];
 
 export default function NakshatrasDirectoryPage() {
+  const { language } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-[#0F0B1E] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2D1810] py-16 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs font-semibold uppercase tracking-wider">
-            <Moon className="w-3.5 h-3.5" />
-            <span>The 27 Lunar Mansions</span>
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] text-xs font-semibold uppercase tracking-wider">
+            <Moon className="w-3.5 h-3.5 text-[#D97706]" />
+            <span>{language === 'mr' ? '२७ चंद्र नक्षत्रे' : 'The 27 Lunar Mansions'}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold bg-gradient-to-r from-[#F7DF94] via-[#D4AF37] to-[#E5C058] bg-clip-text text-transparent">
-            The 27 Vedic Nakshatras
+          <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#2D1810]">
+            {language === 'mr' ? '२७ वैदिक नक्षत्रे निर्देशिका' : 'The 27 Vedic Nakshatras'}
           </h1>
-          <p className="text-[#D8C7A5]/80 text-sm sm:text-base leading-relaxed">
-            In Vedic Astronomy, the Moon traverses 27 Nakshatras (each 13° 20&apos;), creating the subtle psychological and karmic texture of human consciousness.
+          <p className="text-[#786C60] text-sm sm:text-base leading-relaxed">
+            {language === 'mr'
+              ? 'वैदिक खगोलशास्त्रात चंद्र २७ नक्षत्रांमधून (प्रत्येक १३° २०′) प्रवास करतो, ज्यामुळे मानवी मनाची आणि कर्माची सूक्ष्म रचना तयार होते.'
+              : 'In Vedic Astronomy, the Moon traverses 27 Nakshatras (each 13° 20\'), creating the subtle psychological and karmic texture of human consciousness.'}
           </p>
           <div className="pt-2">
             <Link
               href="/nakshatra-finder"
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] text-xs font-bold hover:shadow-gold transition-all"
+              className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold shadow-md transition-all"
             >
-              <span>Calculate My Natal Nakshatra & Pada</span>
+              <span>{language === 'mr' ? 'माझे जन्म नक्षत्र व चरण शोधा' : 'Calculate My Natal Nakshatra & Pada'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -64,37 +71,37 @@ export default function NakshatrasDirectoryPage() {
           {NAKSHATRAS_DATA.map((nak) => (
             <div
               key={nak.id}
-              className="bg-[#191233]/70 border border-[#D4AF37]/25 rounded-2xl p-6 hover:border-[#D4AF37] transition-all hover:shadow-gold duration-300 flex flex-col justify-between group"
+              className="bg-white border border-[#EAE1D2] rounded-2xl p-6 hover:border-[#D97706] transition-all hover:shadow-md duration-300 flex flex-col justify-between group"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-[#D4AF37] uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-[#B45309] uppercase tracking-wider">
                       Nakshatra #{nak.id} • Lord: {nak.lord}
                     </span>
-                    <h3 className="font-serif text-xl font-bold text-[#FDFBF7] group-hover:text-[#F7DF94] transition-colors">
+                    <h3 className="font-serif text-xl font-bold text-[#2D1810] group-hover:text-[#D97706] transition-colors">
                       {nak.name}
                     </h3>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/30 flex items-center justify-center text-xs font-bold text-[#D4AF37]">
+                  <div className="w-10 h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-xs font-bold text-[#D97706]">
                     #{nak.id}
                   </div>
                 </div>
 
-                <div className="text-xs text-[#D8C7A5]/80 space-y-1.5 pt-2 border-t border-[#D4AF37]/10">
+                <div className="text-xs text-[#5C4033] space-y-1.5 pt-2 border-t border-[#EAE1D2]">
                   <div className="flex justify-between">
-                    <span className="text-[#D8C7A5]/60">Presiding Deity:</span>
-                    <strong className="text-[#FDFBF7]">{nak.deity}</strong>
+                    <span className="text-[#786C60]">{language === 'mr' ? 'प्रमुख देवता:' : 'Presiding Deity:'}</span>
+                    <strong className="text-[#2D1810]">{nak.deity}</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#D8C7A5]/60">Symbol:</span>
-                    <strong className="text-[#F7DF94]">{nak.symbol}</strong>
+                    <span className="text-[#786C60]">{language === 'mr' ? 'चिन्ह:' : 'Symbol:'}</span>
+                    <strong className="text-[#B45309]">{nak.symbol}</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#D8C7A5]/60">Arc Span:</span>
-                    <strong className="text-[#D4AF37] text-[11px]">{nak.degrees}</strong>
+                    <span className="text-[#786C60]">{language === 'mr' ? 'विस्तार:' : 'Arc Span:'}</span>
+                    <strong className="text-[#D97706] text-[11px] font-mono">{nak.degrees}</strong>
                   </div>
-                  <p className="pt-2 text-xs text-[#D8C7A5]/90 leading-relaxed italic">
+                  <p className="pt-2 text-xs text-[#786C60] leading-relaxed italic">
                     {nak.meaning}
                   </p>
                 </div>

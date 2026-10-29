@@ -328,9 +328,23 @@ export const api = {
 
   // Astrologer Chat Sessions
   async getChatEligibility() {
-    const res = await request<{ data: { eligibleForFreeIntro: boolean; reason: string; freeSessionUsed: boolean; hasKundli: boolean; latestKundli: any; user: any } }>(
-      '/api/chat/eligibility'
-    );
+    const res = await request<{
+      data: {
+        isEligible?: boolean;
+        eligibleForFreeIntro: boolean;
+        reason: string;
+        freeSessionUsed: boolean;
+        hasActiveSession?: boolean;
+        activeSession?: any;
+        remainingSeconds?: number;
+        freeMinutes?: number;
+        maxMessages?: number;
+        hasChart?: boolean;
+        hasKundli: boolean;
+        latestKundli?: any;
+        user?: any;
+      };
+    }>('/api/chat/eligibility');
     return res.data;
   },
 
@@ -345,12 +359,16 @@ export const api = {
     return res.data;
   },
 
-  async startPaidChatSession(bookingId: number) {
+  async startPaidChatSession(astrologerIdOrBookingId: number, durationMinutes?: number) {
     const res = await request<{ success: boolean; data: any; message: string }>(
       '/api/chat/start-paid-session',
       {
         method: 'POST',
-        body: JSON.stringify({ bookingId }),
+        body: JSON.stringify({
+          bookingId: astrologerIdOrBookingId,
+          astrologerId: astrologerIdOrBookingId,
+          durationMinutes: durationMinutes || 15,
+        }),
       }
     );
     return res.data;
@@ -362,13 +380,21 @@ export const api = {
   },
 
   async sendChatMessage(sessionId: string, message: string) {
-    const res = await request<{ data: { userMessage: any; astrologerResponse: any } }>(
-      `/api/chat/sessions/${sessionId}/messages`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ message }),
-      }
-    );
+    const res = await request<{
+      data: {
+        userMessage: any;
+        astrologerResponse: any;
+        astrologerReply?: any;
+        remainingSeconds?: number;
+        messageCount?: number;
+        maxMessages?: number;
+        isCompleted?: boolean;
+        status?: string;
+      };
+    }>(`/api/chat/sessions/${sessionId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    });
     return res.data;
   },
 

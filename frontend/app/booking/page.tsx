@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Astrologer } from '@/lib/types';
 import PaymentModal from '@/components/PaymentModal';
-import { Video, CheckCircle } from 'lucide-react';
+import { Video, CheckCircle, Phone, Calendar, Clock, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -23,6 +23,8 @@ function BookingContent() {
   const [loading, setLoading] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [confirmedBooking, setConfirmedBooking] = useState<any>(null);
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null);
+  const [pendingBooking, setPendingBooking] = useState<any>(null);
 
   useEffect(() => {
     async function load() {
@@ -42,13 +44,8 @@ function BookingContent() {
 
   const selectedAstrologer = astrologers.find((a) => a.id === selectedAstrologerId);
 
-  const handleStartBooking = (e: React.FormEvent) => {
+  const handleStartBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedAstrologer) return;
-    setShowPayment(true);
-  };
-
-  const handlePaymentSuccess = async () => {
     if (!selectedAstrologer) return;
     setLoading(true);
     try {
@@ -59,12 +56,26 @@ function BookingContent() {
         topic,
         clientNotes: notes,
       });
-      setConfirmedBooking(res);
+      setPendingBookingId(String(res.id));
+      setPendingBooking(res);
+      setShowPayment(true);
     } catch (err: any) {
-      alert(err.message || 'Error saving booking');
+      alert(err.message || 'Error initializing booking');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePaymentSuccess = async (paymentData?: any) => {
+    if (!selectedAstrologer) return;
+    setConfirmedBooking(pendingBooking || {
+      id: pendingBookingId || 'BK-CONFIRMED',
+      astrologer: selectedAstrologer,
+      date,
+      timeSlot,
+      topic,
+      payment: paymentData,
+    });
   };
 
   const topics = [
@@ -75,160 +86,187 @@ function BookingContent() {
   ];
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-16 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20 text-center">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2] text-center">
         <div className="max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center space-x-2 bg-[#25184B] border border-[#D4AF37]/40 px-3.5 py-1 rounded-full text-xs text-[#F7DF94]">
-            <Video className="w-3.5 h-3.5 text-[#D4AF37]" />
+          <div className="inline-flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1 rounded-full text-xs font-semibold text-[#92400E]">
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
             <span>{t('booking.badge')}</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#FDFBF7]">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#2D1810]">
             {t('booking.title')}
           </h1>
-          <p className="text-xs sm:text-sm text-[#D8C7A5] max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#786C60] max-w-xl mx-auto leading-relaxed">
             {t('booking.subtitle')}
           </p>
         </div>
       </section>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         {confirmedBooking ? (
-          <div className="bg-[#150D2A] text-[#FDFBF7] p-8 sm:p-10 rounded-3xl border-2 border-[#D4AF37] shadow-cosmic space-y-6 text-center animate-fadeIn">
-            <CheckCircle className="w-14 h-14 text-emerald-400 mx-auto" />
-            <span className="text-[10px] text-[#D4AF37] font-bold uppercase tracking-wider block">
-              {t('booking.confirmed')}
-            </span>
-            <h2 className="font-serif text-3xl font-bold text-[#F7DF94]">
-              {t('booking.appointment')} #{confirmedBooking.bookingNumber}
+          <div className="bg-white p-8 sm:p-12 rounded-3xl border-2 border-[#FDE68A] shadow-md text-center space-y-5">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center mx-auto text-emerald-600">
+              <CheckCircle2 className="w-9 h-9" />
+            </div>
+            <h2 className="font-serif text-2xl font-bold text-[#2D1810]">
+              {language === 'mr' ? 'सल्लामसलत सत्र यशस्वीरित्या बुक झाले!' : 'Consultation Session Confirmed!'}
             </h2>
-            <p className="text-xs text-[#D8C7A5]">
-              {t('booking.confirmedDesc')}{' '}
-              <strong className="text-[#FDFBF7]">{selectedAstrologer?.name}</strong>.
+            <p className="text-xs sm:text-sm text-[#786C60] max-w-md mx-auto">
+              {language === 'mr'
+                ? `आपले १-ऑन-१ खाजगी सत्र ${selectedAstrologer?.name} यांच्यासोबत ${date} रोजी ${timeSlot} वाजता निश्चित झाले आहे.`
+                : `Your confidential 1-on-1 consultation with ${selectedAstrologer?.name} is confirmed for ${date} at ${timeSlot}.`}
             </p>
 
-            <div className="max-w-md mx-auto bg-[#0F0B1E] p-4 rounded-xl border border-[#D4AF37]/20 text-xs text-left space-y-2">
-              <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                <span className="text-[#D8C7A5]">{t('booking.dateTime')}:</span>
-                <strong className="text-[#FDFBF7]">{confirmedBooking.date} at {confirmedBooking.timeSlot}</strong>
-              </div>
-              <div className="flex justify-between border-b border-[#D4AF37]/10 pb-1.5">
-                <span className="text-[#D8C7A5]">{t('booking.topic')}:</span>
-                <strong className="text-[#FDFBF7]">{confirmedBooking.topic}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-[#D8C7A5]">{t('booking.meetingLink')}:</span>
-                <a
-                  href={confirmedBooking.meetingLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[#D4AF37] underline font-semibold"
-                >
-                  {t('booking.joinCall')}
-                </a>
-              </div>
+            <div className="p-4 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-xs text-[#4A2E18] max-w-sm mx-auto space-y-1">
+              <div><strong>{language === 'mr' ? 'मार्गदर्शन विषय:' : 'Topic:'}</strong> {topic}</div>
+              <div><strong>{language === 'mr' ? 'सत्र प्रकार:' : 'Format:'}</strong> {language === 'mr' ? 'थेट व्हॉईस/व्हिडिओ कॉल' : 'Private Voice / Video'}</div>
             </div>
 
-            <div className="pt-4 flex justify-center space-x-4">
+            <div className="pt-4 flex justify-center space-x-3">
               <Link
                 href="/dashboard/bookings"
-                className="px-6 py-2.5 bg-[#D4AF37] text-[#0F0B1E] font-semibold text-xs rounded-xl shadow-gold hover:opacity-95"
+                className="px-5 py-2.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-bold rounded-xl shadow-xs"
               >
-                {t('booking.viewMyBookings')}
+                {language === 'mr' ? 'माझे बुकिंग्ज पहा' : 'View My Bookings'}
+              </Link>
+              <Link
+                href="/"
+                className="px-5 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:bg-[#FFFDF9]"
+              >
+                {language === 'mr' ? 'मुख्यपृष्ठावर जा' : 'Return Home'}
               </Link>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleStartBooking} className="bg-white p-8 sm:p-10 rounded-3xl border border-[#D4AF37]/25 shadow-sm space-y-6">
-            <div className="space-y-4">
-              <label className="block text-xs font-semibold text-gray-700">{t('booking.selectAstrologer')}</label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <form onSubmit={handleStartBooking} className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-8">
+            {/* Astrologer Selector */}
+            <div>
+              <label className="block text-xs font-bold text-[#4A2E18] mb-3">
+                {language === 'mr' ? '१. वैदिक ज्योतिषी निवडा:' : '1. Select Your Vedic Astrologer:'}
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {astrologers.map((a) => {
                   const isSelected = a.id === selectedAstrologerId;
                   return (
                     <div
                       key={a.id}
                       onClick={() => setSelectedAstrologerId(a.id)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center space-x-3.5 ${
                         isSelected
-                          ? 'bg-[#150D2A] text-[#FDFBF7] border-[#D4AF37] shadow-gold'
-                          : 'bg-[#FAF6F0] border-[#D4AF37]/20 hover:border-[#D4AF37] text-gray-800'
+                          ? 'bg-[#FFFBEB] border-2 border-[#F59E0B] shadow-xs'
+                          : 'bg-[#FAF7F2] border-[#EAE1D2] hover:border-[#F59E0B]'
                       }`}
                     >
-                      <img
-                        src={a.avatarUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150'}
-                        alt={a.name}
-                        className="w-12 h-12 rounded-full object-cover mb-2 border border-[#D4AF37]"
-                      />
-                      <strong className="font-serif text-sm block">{a.name}</strong>
-                      <span className="text-[10px] text-[#8C6D1F] block">{a.title}</span>
-                      <span className="text-xs font-bold block mt-2">{formatCurrency(a.consultationFee)}</span>
+                      <div className="relative">
+                        <img
+                          src={a.avatarUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200'}
+                          alt={a.name}
+                          className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500 ring-offset-2 flex-shrink-0"
+                        />
+                        <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white absolute bottom-0 right-0" />
+                      </div>
+                      <div>
+                        <h4 className="font-serif text-xs font-bold text-[#2D1810] line-clamp-1">{a.name}</h4>
+                        <p className="text-[10px] text-[#D97706] font-medium">{formatCurrency(a.consultationFee)}</p>
+                        <span className="text-[10px] text-amber-500 font-bold">★ {formatNumber(a.rating)}</span>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Date & Time Slot */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">{t('booking.selectDate')}</label>
+                <label className="block text-xs font-bold text-[#4A2E18] mb-2 flex items-center space-x-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>{language === 'mr' ? '२. तारीख निवडा:' : '2. Consultation Date:'}</span>
+                </label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FAF6F0] border border-gray-300 rounded-lg text-xs"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">{t('booking.selectSlot')}</label>
+                <label className="block text-xs font-bold text-[#4A2E18] mb-2 flex items-center space-x-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#D97706]" />
+                  <span>{language === 'mr' ? '३. वेळ निवडा:' : '3. Preferred Time Window:'}</span>
+                </label>
                 <select
                   value={timeSlot}
                   onChange={(e) => setTimeSlot(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FAF6F0] border border-gray-300 rounded-lg text-xs"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white"
                 >
                   <option value="10:00 AM">10:00 AM - 10:45 AM</option>
-                  <option value="11:30 AM">11:30 AM - 12:15 PM</option>
-                  <option value="03:00 PM">03:00 PM - 03:45 PM</option>
-                  <option value="05:00 PM">05:00 PM - 05:45 PM</option>
+                  <option value="11:00 AM">11:00 AM - 11:45 AM</option>
+                  <option value="02:00 PM">02:00 PM - 02:45 PM</option>
+                  <option value="04:30 PM">04:30 PM - 05:15 PM</option>
                   <option value="07:00 PM">07:00 PM - 07:45 PM</option>
                 </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">{t('booking.topic')}</label>
-              <select
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF6F0] border border-gray-300 rounded-lg text-xs"
+            {/* Topic & Notes */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#4A2E18] mb-2">
+                  {language === 'mr' ? '४. सल्लामसलत विषय:' : '4. Consultation Topic:'}
+                </label>
+                <select
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white"
+                >
+                  {topics.map((tItem) => (
+                    <option key={tItem.value} value={tItem.value}>
+                      {language === 'mr' ? tItem.mr : tItem.en}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#4A2E18] mb-2">
+                  {language === 'mr' ? '५. अतिरिक्त प्रश्न / नोंदी (ऐच्छिक):' : '5. Specific Questions or Notes (Optional):'}
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  placeholder={
+                    language === 'mr'
+                      ? 'उदा. मला माझ्या नवीन नोकरीच्या योगाबद्दल आणि विवाह वेळेबद्दल माहिती हवी आहे.'
+                      : 'e.g. Inquiring about overseas job transit, business partnerships, or specific dasha remedies.'
+                  }
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Price & Submit CTA */}
+            <div className="pt-4 border-t border-[#F5EFE6] flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div>
+                <span className="text-[10px] text-[#786C60] block font-bold uppercase">
+                  {language === 'mr' ? 'एकूण देय रक्कम' : 'Total Payable'}
+                </span>
+                <span className="font-serif text-2xl font-extrabold text-[#2D1810]">
+                  {formatCurrency(selectedAstrologer ? selectedAstrologer.consultationFee : 999)}
+                </span>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-sm rounded-xl shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all flex items-center justify-center space-x-2 cursor-pointer"
               >
-                {topics.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {language === 'mr' ? item.mr : item.en}
-                  </option>
-                ))}
-              </select>
+                <span>{language === 'mr' ? 'सत्र बुक करा आणि पुढे जा' : 'Proceed to Payment & Book'}</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">{t('booking.clientNotes')}</label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder={t('booking.clientNotesPlaceholder')}
-                rows={3}
-                className="w-full px-3 py-2 bg-[#FAF6F0] border border-gray-300 rounded-lg text-xs"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-sm rounded-xl shadow-gold hover:opacity-95 transition-all disabled:opacity-50"
-            >
-              {t('booking.confirmAndPay', { amount: formatNumber(selectedAstrologer?.consultationFee || 1999) })}
-            </button>
           </form>
         )}
       </div>
@@ -240,7 +278,7 @@ function BookingContent() {
           serviceTitle={`Consultation with ${selectedAstrologer.name}`}
           amount={selectedAstrologer.consultationFee}
           serviceType="consultation"
-          referenceId={String(selectedAstrologer.id)}
+          referenceId={pendingBookingId || String(selectedAstrologer.id)}
           onSuccess={handlePaymentSuccess}
         />
       )}
@@ -250,7 +288,7 @@ function BookingContent() {
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-[#D8C7A5]">Loading booking options...</div>}>
+    <Suspense fallback={<div className="bg-[#FAF7F2] min-h-screen flex items-center justify-center text-xs text-[#786C60]">Loading booking portal...</div>}>
       <BookingContent />
     </Suspense>
   );

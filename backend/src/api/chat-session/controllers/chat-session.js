@@ -2,30 +2,71 @@
 
 const vedicEngine = require('../../../services/vedic-engine');
 
-function generateAstrologerReply(userMessage, chartSummary, astrologerName = 'Acharya Vidyadhar') {
-  const msg = (userMessage || '').toLowerCase();
-  const asc = chartSummary?.ascendant?.signName || 'Lagna';
-  const moon = chartSummary?.moonSign?.signName || 'Chandra';
-  const nak = chartSummary?.moonSign?.nakshatra || 'Nakshatra';
-  const dasha = chartSummary?.dasha?.balanceDashaPlanet || 'Governing';
-
-  if (msg.includes('career') || msg.includes('job') || msg.includes('promotion') || msg.includes('business')) {
-    return `Observing your ${asc} Lagna and 10th House (Karma Bhava): You have favorable planetary currents under the ${dasha} Dasha influence. A significant career breakthrough or promotion window opens up when Jupiter transits your 10th or 11th house. Focus on consistent effort, and offer Arghya to Surya at sunrise for professional advancement.`;
+async function callGeminiAstrology({ message, chartSummary, history = [] }) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    return {
+      configured: false,
+      reply: null,
+      message: 'Google Gemini AI engine is not configured (GEMINI_API_KEY missing in backend/.env). Please configure the key for live astrological interpretations or consult our human Acharyas.',
+    };
   }
 
-  if (msg.includes('marriage') || msg.includes('love') || msg.includes('relationship') || msg.includes('spouse') || msg.includes('partner')) {
-    return `Looking at your 7th House (Kalatra Bhava) and Venus placements from ${moon} Rashi: Marital harmony is protected when mutual communication is clear. The ${dasha} Dasha indicates positive relationship events, especially during favorable Jupiter-Venus aspects. Reciting the Shukra Beej Mantra on Fridays will harmonize any minor discord.`;
+  const ascSign = chartSummary?.ascendant?.signName || 'Aries';
+  const moonSign = chartSummary?.moonSign?.signName || 'Taurus';
+  const nakshatra = chartSummary?.moonSign?.nakshatra || 'Rohini';
+  const dasha = chartSummary?.dasha?.balanceDashaPlanet || 'Jupiter';
+
+  const systemInstruction = `You are JyotishVeda AI, an authentic Classical Vedic Astrologer based on Maharishi Parashara's Brihat Parasara Hora Sastra (BPHS) and Jaimini Sutras.
+User's Authenticated Vedic Birth Coordinates:
+- Ascendant (Lagna): ${ascSign}
+- Moon Sign (Chandra Rashi): ${moonSign}
+- Birth Star (Nakshatra): ${nakshatra}
+- Current Mahadasha: ${dasha}
+
+Guidelines:
+1. Ground your answer in Classical Parashari and Jaimini Vedic Astrology.
+2. Address the user's query directly and provide practical, spiritually constructive Vedic remedies (Mantras, Daan, disciplined lifestyle).
+3. Do not invent contradictory astronomical data. Be compassionate, precise, and authentic.`;
+
+  const contents = [];
+  const recentHistory = Array.isArray(history) ? history.slice(-6) : [];
+  for (const h of recentHistory) {
+    contents.push({
+      role: h.senderType === 'user' ? 'user' : 'model',
+      parts: [{ text: h.message }],
+    });
+  }
+  contents.push({
+    role: 'user',
+    parts: [{ text: message }],
+  });
+
+  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  const res = await fetch(geminiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 800,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Gemini API error: ${res.statusText}`);
   }
 
-  if (msg.includes('money') || msg.includes('wealth') || msg.includes('finance') || msg.includes('investment') || msg.includes('debt')) {
-    return `Evaluating your 2nd House (Dhana Bhava) and 11th House (Labha Bhava): Your chart indicates sustained wealth accumulation capabilities. Periods of high planetary strength favor disciplined investments. Avoid speculative risks during Rahu Kaalam, and consider worshipping Mahalakshmi on Fridays for financial stability.`;
-  }
-
-  if (msg.includes('gemstone') || msg.includes('rudraksha') || msg.includes('remedy') || msg.includes('remedies') || msg.includes('mantra')) {
-    return `As per your ${asc} Lagna and birth constellation ${nak}: Your functional benefic planet is supportive. Wearing a consecrated 5-Mukhi Rudraksha or the gemstone of your 9th Lord (Bhagyesh) after proper Pran Pratishtha will strengthen your planetary vitality.`;
-  }
-
-  return `In Vedic astrology, your ${asc} Ascendant with Moon in ${moon} (${nak}) grants you keen spiritual intuition and resilience. Under the current ${dasha} planetary period, your karmic efforts will yield meaningful rewards. Keep your focus steady and maintain daily spiritual balance. Feel free to ask more specifics regarding any area of your life.`;
+  const data = await res.json();
+  const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  return {
+    configured: true,
+    reply: replyText,
+  };
 }
 
 async function findChatSession(sessionId, populate = ['astrologer', 'user']) {
@@ -50,18 +91,35 @@ module.exports = {
       return ctx.unauthorized('Authentication required to check free chat eligibility');
     }
 
-    // Check if user has already consumed any free intro chat session
+    const now = Date.now();
+
+    // Check all free intro sessions for this user
     const existingSessions = await strapi.entityService.findMany('api::chat-session.chat-session', {
       filters: {
         user: user.id,
         sessionType: 'free_intro',
       },
-      limit: 1,
+      populate: ['astrologer'],
+      sort: { createdAt: 'desc' },
     });
 
-    const isEligible = !existingSessions || existingSessions.length === 0;
+    // Check if an unexpired active session currently exists
+    let activeSession = null;
+    if (existingSessions && existingSessions.length > 0) {
+      for (const s of existingSessions) {
+        const expiresTime = new Date(s.expiresAt).getTime();
+        if (s.status === 'active' && expiresTime > now) {
+          activeSession = s;
+          break;
+        } else if (s.status === 'active' && expiresTime <= now) {
+          await strapi.entityService.update('api::chat-session.chat-session', s.id, {
+            data: { status: 'expired', endedAt: s.endedAt || s.expiresAt },
+          });
+        }
+      }
+    }
 
-    // Check if user has generated a birth chart
+    // Check user's chart existence
     const kundlis = await strapi.entityService.findMany('api::kundli.kundli', {
       filters: { user: user.id },
       sort: { createdAt: 'desc' },
@@ -76,20 +134,69 @@ module.exports = {
 
     const hasChart = Boolean((kundlis && kundlis.length > 0) || (birthProfiles && birthProfiles.length > 0));
 
+    // Case 1: Active session in progress -> allow resume across refreshes
+    if (activeSession) {
+      const remainingSeconds = Math.max(0, Math.floor((new Date(activeSession.expiresAt).getTime() - now) / 1000));
+      return {
+        data: {
+          isEligible: true,
+          eligibleForFreeIntro: true,
+          hasActiveSession: true,
+          activeSession: {
+            id: activeSession.id,
+            sessionNumber: activeSession.sessionNumber,
+            remainingSeconds,
+            durationMinutes: activeSession.durationMinutes || 5,
+            startedAt: activeSession.startedAt,
+            expiresAt: activeSession.expiresAt,
+            astrologer: activeSession.astrologer,
+          },
+          freeSessionUsed: false,
+          remainingSeconds,
+          freeMinutes: 5,
+          maxMessages: activeSession.maxMessages || 10,
+          reason: 'Active 5-minute complimentary consultation in progress.',
+          hasChart,
+          hasKundli: hasChart,
+          latestKundli: kundlis && kundlis.length > 0 ? kundlis[0] : null,
+        },
+      };
+    }
+
+    // Case 2: User already completed/expired their free session
+    const hasUsedIntro = existingSessions && existingSessions.length > 0;
+    if (hasUsedIntro) {
+      return {
+        data: {
+          isEligible: false,
+          eligibleForFreeIntro: false,
+          hasActiveSession: false,
+          freeSessionUsed: true,
+          remainingSeconds: 0,
+          freeMinutes: 0,
+          reason: 'First free introductory consultation has already been consumed on this account.',
+          hasChart,
+          hasKundli: hasChart,
+          latestKundli: kundlis && kundlis.length > 0 ? kundlis[0] : null,
+          consumedAt: existingSessions[0].startedAt,
+        },
+      };
+    }
+
+    // Case 3: Fresh user, eligible for 5-minute free intro
     return {
       data: {
-        isEligible,
-        eligibleForFreeIntro: isEligible,
-        freeSessionUsed: !isEligible,
-        reason: isEligible
-          ? 'Eligible for 5-minute complimentary introductory Vedic consultation'
-          : 'First free introductory consultation has already been consumed on this account.',
+        isEligible: true,
+        eligibleForFreeIntro: true,
+        hasActiveSession: false,
+        freeSessionUsed: false,
+        reason: 'Eligible for 5-minute complimentary introductory Vedic consultation',
         freeMinutes: 5,
+        remainingSeconds: 300,
         maxMessages: 10,
         hasChart,
         hasKundli: hasChart,
         latestKundli: kundlis && kundlis.length > 0 ? kundlis[0] : null,
-        consumedAt: !isEligible ? existingSessions[0].startedAt : null,
       },
     };
   },
@@ -100,16 +207,34 @@ module.exports = {
       return ctx.unauthorized('Authentication required');
     }
 
-    // 1. Strict backend eligibility verification (never rely on frontend)
+    const now = Date.now();
+
+    // 1. Check for existing sessions
     const existingSessions = await strapi.entityService.findMany('api::chat-session.chat-session', {
       filters: {
         user: user.id,
         sessionType: 'free_intro',
       },
-      limit: 1,
+      populate: ['astrologer'],
+      sort: { createdAt: 'desc' },
     });
 
     if (existingSessions && existingSessions.length > 0) {
+      // If there is an active session that has not expired yet, return it to resume!
+      const active = existingSessions.find(
+        (s) => s.status === 'active' && new Date(s.expiresAt).getTime() > now
+      );
+      if (active) {
+        const remainingSeconds = Math.max(0, Math.floor((new Date(active.expiresAt).getTime() - now) / 1000));
+        return {
+          data: {
+            ...active,
+            remainingSeconds,
+            resumed: true,
+          },
+        };
+      }
+
       return ctx.badRequest('Free introductory consultation has already been used on this account. Please select an Acharya for a paid consultation.');
     }
 
@@ -134,7 +259,6 @@ module.exports = {
       }
     }
 
-    // Default chart summary if not yet calculated
     if (!chartSummary) {
       chartSummary = {
         meta: { fullName: user.username },
@@ -144,10 +268,9 @@ module.exports = {
       };
     }
 
-    // 3. Select astrologer (prefer selected astrologer or online Acharya)
+    // 3. Select astrologer
     const body = ctx.request.body || {};
     let astrologerId = body.astrologerId;
-
     if (!astrologerId) {
       const astrologers = await strapi.entityService.findMany('api::astrologer.astrologer', { limit: 1 });
       if (astrologers && astrologers.length > 0) {
@@ -160,9 +283,9 @@ module.exports = {
       : null;
     const astrologerName = astrologer?.name || 'Acharya Vidyadhar Shastri';
 
-    const now = new Date();
+    const startDate = new Date();
     const durationMinutes = 5;
-    const expiresAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
+    const expiresAt = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
     const sessionNumber = `FREE-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
 
     const session = await strapi.entityService.create('api::chat-session.chat-session', {
@@ -173,7 +296,7 @@ module.exports = {
         durationMinutes,
         maxMessages: 10,
         messageCount: 1,
-        startedAt: now,
+        startedAt: startDate,
         expiresAt,
         birthChartSummary: chartSummary,
         user: user.id,
@@ -182,7 +305,7 @@ module.exports = {
       populate: ['astrologer', 'user'],
     });
 
-    // Create introductory opening message from astrologer
+    // Opening greeting message
     const ascSign = chartSummary?.ascendant?.signName || 'Lagna';
     const moonSign = chartSummary?.moonSign?.signName || 'Chandra';
     const nakshatra = chartSummary?.moonSign?.nakshatra || 'Nakshatra';
@@ -195,7 +318,7 @@ module.exports = {
         senderType: 'astrologer',
         senderName: astrologerName,
         message: welcomeMsg,
-        timestamp: now,
+        timestamp: startDate,
         metadata: {
           chartSummary: {
             ascendant: ascSign,
@@ -237,7 +360,6 @@ module.exports = {
       return ctx.forbidden('Access denied to this booking');
     }
 
-    // Verify booking is confirmed/paid
     if (booking.status !== 'confirmed') {
       return ctx.badRequest('Consultation booking has not been paid or confirmed yet. Please complete checkout.');
     }
@@ -314,7 +436,7 @@ module.exports = {
     }
 
     const { sessionId } = ctx.params;
-    const { message } = ctx.request.body || {};
+    const { message, mode = 'human' } = ctx.request.body || {};
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return ctx.badRequest('Message content is required');
@@ -362,27 +484,60 @@ module.exports = {
       },
     });
 
-    // 2. Generate and save personalized Astrologer reply
-    const astrologerName = session.astrologer?.name || 'Acharya Vidyadhar';
-    const replyText = generateAstrologerReply(message.trim(), session.birthChartSummary, astrologerName);
+    let astrologerReply = null;
+    let newCount = session.messageCount + 1;
 
-    const replyMsg = await strapi.entityService.create('api::chat-message.chat-message', {
-      data: {
-        session: session.id,
-        senderType: 'astrologer',
-        senderName: astrologerName,
-        message: replyText,
-        timestamp: new Date(Date.now() + 500),
-      },
-    });
+    // 2. Handle AI mode vs Real Human Astrologer mode
+    if (mode === 'ai') {
+      try {
+        const history = await strapi.entityService.findMany('api::chat-message.chat-message', {
+          filters: { session: session.id },
+          sort: { timestamp: 'desc' },
+          limit: 6,
+        });
 
-    // Update message count
-    const updatedCount = session.messageCount + 2;
-    const isCompleted = updatedCount >= session.maxMessages;
+        const aiResult = await callGeminiAstrology({
+          message: message.trim(),
+          chartSummary: session.birthChartSummary,
+          history: history.reverse(),
+        });
 
+        if (aiResult.configured && aiResult.reply) {
+          astrologerReply = await strapi.entityService.create('api::chat-message.chat-message', {
+            data: {
+              session: session.id,
+              senderType: 'astrologer',
+              senderName: 'JyotishVeda AI Assistant',
+              message: aiResult.reply,
+              timestamp: new Date(),
+            },
+          });
+          newCount += 1;
+        } else if (!aiResult.configured) {
+          // Provide authentic configuration notice without faking
+          astrologerReply = {
+            id: `notice-${Date.now()}`,
+            senderType: 'system',
+            senderName: 'System Notice',
+            message: aiResult.message,
+            timestamp: new Date().toISOString(),
+          };
+        }
+      } catch (aiErr) {
+        console.warn('AI astrology generation notice:', aiErr.message);
+      }
+    } else {
+      // Human consultation mode:
+      // Real astrologer session: do NOT generate fake simulated answers!
+      // The user message is persisted; the consultation is live.
+      astrologerReply = null;
+    }
+
+    // Update message count and check completion
+    const isCompleted = newCount >= session.maxMessages;
     await strapi.entityService.update('api::chat-session.chat-session', session.id, {
       data: {
-        messageCount: updatedCount,
+        messageCount: newCount,
         status: isCompleted ? 'completed' : 'active',
         endedAt: isCompleted ? new Date() : null,
       },
@@ -393,12 +548,14 @@ module.exports = {
     return {
       data: {
         userMessage: userMsg,
-        astrologerResponse: replyMsg,
-        astrologerReply: replyMsg,
+        astrologerResponse: astrologerReply,
+        astrologerReply,
         remainingSeconds,
-        messageCount: updatedCount,
+        messageCount: newCount,
         maxMessages: session.maxMessages,
         isCompleted,
+        status: 'delivered',
+        astrologerName: session.astrologer?.name || 'Acharya Vidyadhar',
       },
     };
   },

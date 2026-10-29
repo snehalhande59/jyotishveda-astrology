@@ -1,84 +1,95 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getCurrentUser, clearAuthSession, getWalletBalance } from '@/lib/auth';
+import { getCartTotals } from '@/lib/cart';
 import { User } from '@/lib/types';
 import SearchModal from '@/components/SearchModal';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
-import { MARATHI_ZODIAC } from '@/lib/translations/astrology-terms';
 import {
   Sparkles,
   Menu,
   X,
   Compass,
-  FileText,
-  Users,
-  CreditCard,
   User as UserIcon,
   LogOut,
   ChevronDown,
+  ChevronRight,
   Search,
   Wallet,
   Calendar,
   Heart,
   Star,
-  Sun,
-  Moon,
-  Clock,
-  Shield,
-  BookOpen,
-  HelpCircle,
   PhoneCall,
-  Flame,
+  MessageSquare,
+  ShoppingBag,
+  ShoppingCart,
+  BookOpen,
+  ArrowRight,
+  ShieldCheck,
+  Calculator,
 } from 'lucide-react';
 
-const ZODIAC_SIGNS = [
-  { name: 'Aries', sanskrit: 'Mesha', symbol: '♈', dates: 'Mar 21 - Apr 19' },
-  { name: 'Taurus', sanskrit: 'Vrishabha', symbol: '♉', dates: 'Apr 20 - May 20' },
-  { name: 'Gemini', sanskrit: 'Mithuna', symbol: '♊', dates: 'May 21 - Jun 20' },
-  { name: 'Cancer', sanskrit: 'Karka', symbol: '♋', dates: 'Jun 21 - Jul 22' },
-  { name: 'Leo', sanskrit: 'Simha', symbol: '♌', dates: 'Jul 23 - Aug 22' },
-  { name: 'Virgo', sanskrit: 'Kanya', symbol: '♍', dates: 'Aug 23 - Sep 22' },
-  { name: 'Libra', sanskrit: 'Tula', symbol: '♎', dates: 'Sep 23 - Oct 22' },
-  { name: 'Scorpio', sanskrit: 'Vrishchika', symbol: '♏', dates: 'Oct 23 - Nov 21' },
-  { name: 'Sagittarius', sanskrit: 'Dhanu', symbol: '♐', dates: 'Nov 22 - Dec 21' },
-  { name: 'Capricorn', sanskrit: 'Makara', symbol: '♑', dates: 'Dec 22 - Jan 19' },
-  { name: 'Aquarius', sanskrit: 'Kumbha', symbol: '♒', dates: 'Jan 20 - Feb 18' },
-  { name: 'Pisces', sanskrit: 'Meena', symbol: '♓', dates: 'Feb 19 - Mar 20' },
+const CALCULATORS_COL_1 = [
+  { href: '/calculators/love', label: 'Love Calculator', labelMr: 'लव्ह कॅल्क्युलेटर' },
+  { href: '/calculators/numerology', label: 'Numerology Calculator', labelMr: 'न्यूमरोलॉजी कॅल्क्युलेटर' },
+  { href: '/calculators/rising-sign', label: 'Rising Sign Calculator', labelMr: 'लग्न राशी कॅल्क्युलेटर' },
+  { href: '/calculators/dasha', label: 'Dasha Calculator', labelMr: 'विंशोत्तरी दशा कॅल्क्युलेटर' },
+  { href: '/calculators/mangal-dosha', label: 'Mangal Dosha Calculator', labelMr: 'मंगळ दोष कॅल्क्युलेटर' },
+  { href: '/calculators/moon-phase', label: 'Moon Phase Calculator', labelMr: 'चंद्र कला व तिथी कॅल्क्युलेटर' },
+  { href: '/calculators/flames', label: 'Flames Calculator', labelMr: 'फ्लेम्स (FLAMES) कॅल्क्युलेटर' },
+  { href: '/calculators/friendship', label: 'Friendship Calculator', labelMr: 'मैत्री सुसंगतता कॅल्क्युलेटर' },
+  { href: '/calculators/ishta-devata', label: 'Ishta Devata Calculator', labelMr: 'इष्ट देवता कॅल्क्युलेटर' },
+  { href: '/calculators/transit-chart', label: 'Transit Chart Calculator', labelMr: 'गोचर कुंडली कॅल्क्युलेटर' },
 ];
 
-const PLANETS = [
-  { name: 'Surya (Sun)', glyph: '☉', transit: 'Libra (Neecha)', status: 'Active' },
-  { name: 'Chandra (Moon)', glyph: '☽', transit: 'Pisces (Revati)', status: 'Waxing' },
-  { name: 'Mangal (Mars)', glyph: '♂', transit: 'Cancer (Debilitated)', status: 'Direct' },
-  { name: 'Budha (Mercury)', glyph: '☿', transit: 'Scorpio', status: 'Direct' },
-  { name: 'Guru (Jupiter)', glyph: '♃', transit: 'Taurus (Rohini)', status: 'Retrograde' },
-  { name: 'Shukra (Venus)', glyph: '♀', transit: 'Scorpio', status: 'Direct' },
-  { name: 'Shani (Saturn)', glyph: '♄', transit: 'Aquarius (Moolatrikona)', status: 'Direct' },
-  { name: 'Rahu', glyph: '☊', transit: 'Pisces', status: 'Retro' },
-  { name: 'Ketu', glyph: '☋', transit: 'Virgo', status: 'Retro' },
+const CALCULATORS_COL_2 = [
+  { href: '/calculators/atmakaraka-darakaraka', label: 'Atmakaraka & Darakaraka Calculator', labelMr: 'आत्मकारक व दारकारक कॅल्क्युलेटर' },
+  { href: '/calculators/sun-sign', label: 'Sun Sign Calculator', labelMr: 'सूर्य राशी कॅल्क्युलेटर' },
+  { href: '/calculators/rashi', label: 'Rashi Calculator', labelMr: 'चंद्र राशी कॅल्क्युलेटर' },
+  { href: '/calculators/nakshatra', label: 'Nakshatra Calculator', labelMr: 'नक्षत्र व चरण कॅल्क्युलेटर' },
+  { href: '/calculators/sade-sati', label: 'Shani Sade Sati Calculator', labelMr: 'शनि साडेसाती कॅल्क्युलेटर' },
+  { href: '/calculators/birth-chart', label: 'Birth/Natal Chart Calculator', labelMr: 'जन्म कुंडली कॅल्क्युलेटर' },
+  { href: '/calculators/lucky-vehicle-number', label: 'Lucky Vehicle Number Calculator', labelMr: 'शुभ वाहन क्रमांक कॅल्क्युलेटर' },
+  { href: '/calculators/kaal-sarp-dosh', label: 'Kaal Sarp Dosh Calculator', labelMr: 'कालसर्प दोष कॅल्क्युलेटर' },
+  { href: '/calculators/lo-shu-grid', label: 'Lo Shu Grid Calculator', labelMr: 'लो शू ग्रिड कॅल्क्युलेटर' },
+  { href: '/calculators/name-compatibility', label: 'Name Compatibility Calculator', labelMr: 'नाव सुसंगतता कॅल्क्युलेटर' },
 ];
 
 export default function Navbar() {
   const { language, t } = useLanguage();
   const [user, setUser] = useState<User | null>(null);
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [cartItemCount, setCartItemCount] = useState<number>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileCalculatorsOpen, setMobileCalculatorsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     setUser(getCurrentUser());
     setWalletBalance(getWalletBalance());
+    setCartItemCount(getCartTotals().totalItems);
 
     const handleWalletUpdate = () => setWalletBalance(getWalletBalance());
+    const handleAuthUpdate = () => setUser(getCurrentUser());
+    const handleCartUpdate = () => setCartItemCount(getCartTotals().totalItems);
+
     window.addEventListener('wallet-updated', handleWalletUpdate);
-    return () => window.removeEventListener('wallet-updated', handleWalletUpdate);
+    window.addEventListener('auth-updated', handleAuthUpdate);
+    window.addEventListener('cart-updated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('wallet-updated', handleWalletUpdate);
+      window.removeEventListener('auth-updated', handleAuthUpdate);
+      window.removeEventListener('cart-updated', handleCartUpdate);
+    };
   }, [pathname]);
 
   const handleLogout = () => {
@@ -87,734 +98,628 @@ export default function Navbar() {
     router.push('/');
   };
 
-  const closeDropdown = () => setActiveDropdown(null);
+  const handleMouseEnter = (menu: string) => {
+    if (dropdownTimeoutRef.current) clearTimeout(dropdownTimeoutRef.current);
+    setActiveDropdown(menu);
+  };
+
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 180);
+  };
+
+  const toggleDropdown = (menu: string) => {
+    setActiveDropdown((prev) => (prev === menu ? null : menu));
+  };
+
+  const closeMenu = () => {
+    setActiveDropdown(null);
+    setMobileMenuOpen(false);
+  };
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#0F0B1E] text-[#FDFBF7] shadow-xl border-b border-[#D4AF37]/30">
-        {/* 1. TOP UTILITY BAR (AstroSage Style) */}
-        <div className="bg-[#090614] border-b border-[#D4AF37]/20 text-[11px] py-1.5 px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-[#FFFDF9] border-b border-[#EAE1D2] shadow-sm">
+        {/* ========================================================
+            1. TOP SLIM UTILITY BAR (AstroTalk-Inspired)
+           ======================================================== */}
+        <div className="bg-[#FAF7F2] border-b border-[#EAE1D2] text-[11px] py-1.5 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-y-1">
-            {/* Left Quick Navigation Links */}
-            <div className="flex items-center space-x-3 sm:space-x-4 overflow-x-auto text-[#D8C7A5]">
-              <Link href="/horoscope" className="hover:text-[#F7DF94] flex items-center space-x-1 whitespace-nowrap">
-                <Star className="w-3 h-3 text-[#D4AF37]" />
+            {/* Quick Links */}
+            <div className="flex items-center space-x-3 sm:space-x-4 overflow-x-auto text-[#785D46]">
+              <Link href="/horoscope" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                <Star className="w-3 h-3 text-[#D97706]" />
                 <span>{t('nav.rashifal')}</span>
               </Link>
-              <span className="text-[#D4AF37]/30">|</span>
-              <Link href="/kundli" className="hover:text-[#F7DF94] flex items-center space-x-1 whitespace-nowrap">
-                <Compass className="w-3 h-3 text-[#D4AF37]" />
+              <span className="text-[#D8C7A5]">|</span>
+              <Link href="/kundli" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                <Compass className="w-3 h-3 text-[#D97706]" />
                 <span>{t('nav.kundli')}</span>
               </Link>
-              <span className="text-[#D4AF37]/30">|</span>
-              <Link href="/horoscope?period=yearly" className="hover:text-[#F7DF94] whitespace-nowrap">
-                <span>{t('nav.yearlyHoroscope')}</span>
+              <span className="text-[#D8C7A5]">|</span>
+              <Link href="/compatibility" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                <Heart className="w-3 h-3 text-[#D97706]" />
+                <span>{t('nav.compatibility')}</span>
               </Link>
-              <span className="text-[#D4AF37]/30 hidden sm:inline">|</span>
-              <Link href="/horoscope" className="hover:text-[#F7DF94] whitespace-nowrap hidden sm:inline">
-                <span>{t('nav.todaysHoroscope')}</span>
+              <span className="text-[#D8C7A5] hidden sm:inline">|</span>
+              <Link href="/panchang" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap hidden sm:inline-flex">
+                <Calendar className="w-3 h-3 text-[#D97706]" />
+                <span>{t('nav.panchang')}</span>
               </Link>
-              <span className="text-[#D4AF37]/30 hidden md:inline">|</span>
-              <Link href="/panchang" className="hover:text-[#F7DF94] flex items-center space-x-1 whitespace-nowrap hidden md:inline-flex">
-                <Calendar className="w-3 h-3 text-[#D4AF37]" />
-                <span>{t('nav.calendar')}</span>
-              </Link>
-              <span className="text-[#D4AF37]/30 hidden md:inline">|</span>
-              <Link href="/chat" className="text-[#F7DF94] hover:underline flex items-center space-x-1 whitespace-nowrap font-semibold">
-                <PhoneCall className="w-3 h-3 text-[#D4AF37]" />
-                <span>{t('nav.chatWithAstrologer')}</span>
+              <span className="text-[#D8C7A5] hidden md:inline">|</span>
+              <Link href="/astrologers" className="text-[#16A34A] hover:underline flex items-center space-x-1 whitespace-nowrap font-semibold hidden md:inline-flex">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                <span>24x7 Astrologers Online</span>
               </Link>
             </div>
 
-            {/* Right Account & Wallet Controls */}
+            {/* Right Side: Wallet, Cart, Search, Account, Language */}
             <div className="flex items-center space-x-3 ml-auto">
               {/* Wallet Button */}
               <Link
                 href="/wallet"
-                className="flex items-center space-x-1.5 bg-[#25184B] border border-[#D4AF37]/40 px-2.5 py-0.5 rounded-full hover:border-[#D4AF37] transition-all text-[#F7DF94]"
+                className="flex items-center space-x-1.5 bg-[#FFFBEB] border border-[#FDE68A] px-2.5 py-0.5 rounded-full hover:border-[#D97706] transition-all text-[#92400E]"
                 title="Manage Astro Credits & Balance"
               >
-                <Wallet className="w-3 h-3 text-[#D4AF37]" />
-                <span className="font-semibold">₹{walletBalance.toLocaleString('en-IN')}</span>
-                <span className="text-[9px] uppercase tracking-wider text-[#D8C7A5]/80 bg-[#150D2A] px-1 rounded ml-1">
-                  Add
+                <Wallet className="w-3 h-3 text-[#D97706]" />
+                <span className="font-semibold text-xs">₹{walletBalance.toLocaleString('en-IN')}</span>
+                <span className="text-[9px] uppercase tracking-wider text-[#B45309] bg-white px-1 rounded ml-1 font-bold">
+                  + Add
                 </span>
+              </Link>
+
+              {/* Shopping Cart Icon */}
+              <Link
+                href="/cart"
+                className="relative p-1 text-[#785D46] hover:text-[#D97706] transition-colors"
+                title="View Shopping Cart"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#D97706] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm">
+                    {cartItemCount}
+                  </span>
+                )}
               </Link>
 
               {/* Search Modal Trigger */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-1 text-[#D8C7A5] hover:text-[#F7DF94] transition-colors"
+                className="p-1 text-[#785D46] hover:text-[#D97706] transition-colors"
                 title="Search Tools & Forecasts"
+                aria-label="Open Search"
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
 
               {/* User Authentication Status */}
               {user ? (
-                <div className="flex items-center space-x-2 pl-1 border-l border-[#D4AF37]/20">
+                <div className="flex items-center space-x-2 pl-1 border-l border-[#EAE1D2]">
                   <Link
                     href="/dashboard"
-                    className="flex items-center space-x-1 text-[#F7DF94] hover:underline font-medium"
+                    className="flex items-center space-x-1 text-[#92400E] hover:underline font-semibold"
                   >
-                    <UserIcon className="w-3 h-3 text-[#D4AF37]" />
-                    <span className="max-w-[90px] truncate">{user.username}</span>
+                    <UserIcon className="w-3 h-3 text-[#D97706]" />
+                    <span className="max-w-[85px] truncate">{user.username}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
                     title={t('nav.logout')}
-                    className="text-red-400 hover:text-red-300 transition-colors p-0.5 cursor-pointer"
+                    className="text-red-500 hover:text-red-700 transition-colors p-0.5 cursor-pointer"
                   >
                     <LogOut className="w-3 h-3" />
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2 pl-1 border-l border-[#D4AF37]/20">
-                  <Link href="/login" className="hover:text-[#F7DF94]">
+                <div className="flex items-center space-x-1.5 pl-1 border-l border-[#EAE1D2]">
+                  <Link href="/login" className="hover:text-[#D97706] font-medium text-[#5C4535]">
                     {t('nav.signIn')}
                   </Link>
-                  <span className="text-[#D4AF37]/40">/</span>
+                  <span className="text-[#D8C7A5]">/</span>
                   <Link
                     href="/register"
-                    className="text-[#D4AF37] hover:text-[#F7DF94] font-semibold"
+                    className="text-[#D97706] hover:text-[#B45309] font-semibold"
                   >
                     {t('nav.signUp')}
                   </Link>
                 </div>
               )}
 
-              {/* Language Switcher (Visible in Top Bar) */}
-              <div className="pl-1 border-l border-[#D4AF37]/20">
+              {/* Language Switcher */}
+              <div className="pl-1 border-l border-[#EAE1D2]">
                 <LanguageSwitcher />
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2. MIDDLE BRANDING & 12 ZODIAC SIGN GRID */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
-          {/* Logo */}
+        {/* ========================================================
+            2. MAIN NAVIGATION BAR (AstroTalk Brand & Menu Structure)
+           ======================================================== */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          {/* Logo & Brand Name */}
           <Link href="/" className="flex items-center space-x-3 group flex-shrink-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] via-[#F3C64F] to-[#A67C1E] flex items-center justify-center shadow-gold group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-[#0F0B1E]" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B] flex items-center justify-center shadow-sm border border-[#FCD34D] group-hover:scale-105 transition-transform">
+              <Sparkles className="w-5 h-5 text-[#92400E]" />
             </div>
             <div>
-              <span className="font-serif text-2xl font-extrabold tracking-wide bg-gradient-to-r from-[#F7DF94] via-[#D4AF37] to-[#E5C058] bg-clip-text text-transparent block leading-tight">
-                JyotishVeda
+              <span className="font-serif text-2xl font-extrabold tracking-wide text-[#2D1810] block leading-tight">
+                Jyotish<span className="text-[#D97706]">Veda</span>
               </span>
-              <span className="block text-[9px] tracking-widest uppercase text-[#D8C7A5]/80 font-sans">
-                Authentic Sidereal Ephemeris
+              <span className="block text-[9px] tracking-widest uppercase text-[#8C6D1F] font-sans font-medium">
+                Vedic Astrology &amp; Ephemeris
               </span>
             </div>
           </Link>
 
-          {/* 12 Zodiac Sign Grid (Desktop) */}
-          <div className="hidden xl:grid grid-cols-12 gap-1.5 flex-1 max-w-3xl mx-4">
-            {ZODIAC_SIGNS.map((sign) => (
-              <Link
-                key={sign.name}
-                href={`/horoscope?sign=${sign.name}`}
-                className="group flex flex-col items-center justify-center py-1 px-1 rounded-lg bg-[#150D2A] border border-[#D4AF37]/20 hover:border-[#D4AF37] hover:bg-[#25184B] transition-all text-center"
-                title={`${sign.name} (${sign.sanskrit}) - ${sign.dates}`}
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 text-xs font-semibold text-[#4A2E18]">
+            {/* Consultations Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('consultations')}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => toggleDropdown('consultations')}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors ${
+                  pathname.startsWith('/chat') || pathname.startsWith('/astrologers') || pathname.startsWith('/booking')
+                    ? 'text-[#D97706] bg-[#FFF9EB]'
+                    : ''
+                }`}
+                aria-expanded={activeDropdown === 'consultations'}
               >
-                <span className="text-sm text-[#F7DF94] group-hover:scale-110 transition-transform leading-none">
-                  {sign.symbol}
-                </span>
-                <span className="text-[9px] font-semibold text-[#D8C7A5] group-hover:text-white truncate w-full mt-0.5">
-                  {language === 'mr' ? (MARATHI_ZODIAC[sign.name]?.mr || sign.name) : sign.name.slice(0, 3)}
-                </span>
-              </Link>
-            ))}
-          </div>
+                <span>{t('nav.consultations')}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'consultations' ? 'rotate-180' : ''}`} />
+              </button>
 
-          {/* Fast CTA Buttons & Mobile Hamburger */}
-          <div className="flex items-center space-x-2">
-            <Link
-              href="/kundli"
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs shadow-gold hover:opacity-95 transition-all"
+              {activeDropdown === 'consultations' && (
+                <div className="absolute top-full left-0 w-64 bg-white border border-[#EAE1D2] rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
+                  <Link
+                    href="/chat"
+                    onClick={closeMenu}
+                    className="flex items-center space-x-2.5 px-4 py-2.5 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 text-[#16A34A] flex-shrink-0" />
+                    <div>
+                      <strong className="block text-xs">Chat with Astrologer</strong>
+                      <span className="text-[10px] text-gray-500">Live text consultation with verified Acharyas</span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/booking"
+                    onClick={closeMenu}
+                    className="flex items-center space-x-2.5 px-4 py-2.5 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] transition-colors"
+                  >
+                    <PhoneCall className="w-4 h-4 text-[#D97706] flex-shrink-0" />
+                    <div>
+                      <strong className="block text-xs">Call Astrologer (Schedule)</strong>
+                      <span className="text-[10px] text-gray-500">Private 1-on-1 audio/video appointments</span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/astrologers"
+                    onClick={closeMenu}
+                    className="flex items-center space-x-2.5 px-4 py-2.5 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] transition-colors border-t border-[#F3ECE1]"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-[#16A34A] flex-shrink-0" />
+                    <div>
+                      <strong className="block text-xs">Verified Astrologers Directory</strong>
+                      <span className="text-[10px] text-gray-500">Explore scholars by experience and rating</span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/pricing"
+                    onClick={closeMenu}
+                    className="flex items-center space-x-2.5 px-4 py-2.5 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] transition-colors"
+                  >
+                    <Sparkles className="w-4 h-4 text-[#D97706] flex-shrink-0" />
+                    <div>
+                      <strong className="block text-xs">Consultation Plans &amp; Pricing</strong>
+                      <span className="text-[10px] text-gray-500">Transparent rates &amp; express report packages</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Horoscope Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('horoscope')}
+              onMouseLeave={handleMouseLeave}
             >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Free Kundli</span>
+              <button
+                onClick={() => toggleDropdown('horoscope')}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors ${
+                  pathname.startsWith('/horoscope') || pathname.startsWith('/zodiac-signs')
+                    ? 'text-[#D97706] bg-[#FFF9EB]'
+                    : ''
+                }`}
+                aria-expanded={activeDropdown === 'horoscope'}
+              >
+                <span>{t('nav.horoscope')}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'horoscope' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'horoscope' && (
+                <div className="absolute top-full left-0 w-60 bg-white border border-[#EAE1D2] rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
+                  <Link
+                    href="/horoscope"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
+                  >
+                    ☀️ Daily Horoscope (Aaj Ka Rashifal)
+                  </Link>
+                  <Link
+                    href="/horoscope?period=weekly"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    📅 Weekly Horoscope
+                  </Link>
+                  <Link
+                    href="/horoscope?period=yearly"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    ✨ Yearly Predictions 2026
+                  </Link>
+                  <Link
+                    href="/zodiac-signs"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706] border-t border-[#F3ECE1]"
+                  >
+                    ♈ 12 Zodiac Signs (Rashis) Guide
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Free Services Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('freeServices')}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => toggleDropdown('freeServices')}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors ${
+                  pathname === '/kundli' || pathname === '/compatibility'
+                    ? 'text-[#D97706] bg-[#FFF9EB]'
+                    : ''
+                }`}
+                aria-expanded={activeDropdown === 'freeServices'}
+              >
+                <span>{t('nav.freeServices')}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'freeServices' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'freeServices' && (
+                <div className="absolute top-full left-0 w-64 bg-white border border-[#EAE1D2] rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
+                  <Link
+                    href="/kundli"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
+                  >
+                    📜 Free Janam Kundli / Birth Chart
+                  </Link>
+                  <Link
+                    href="/compatibility"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    💑 Kundli Milan (36 Guna Match)
+                  </Link>
+                  <Link
+                    href="/panchang"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    📅 Today Vedic Panchang
+                  </Link>
+                  <Link
+                    href="/free-chat"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#16A34A] font-bold border-t border-[#F3ECE1]"
+                  >
+                    🎁 Free 5-Min First Astrologer Chat
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* PART 1 — CALCULATORS MEGA-MENU IN NAVBAR */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('calculators')}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => toggleDropdown('calculators')}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors ${
+                  pathname.startsWith('/calculators') ? 'text-[#D97706] bg-[#FFF9EB]' : ''
+                }`}
+                aria-expanded={activeDropdown === 'calculators'}
+              >
+                <span>{t('nav.calculators')}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'calculators' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'calculators' && (
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-[560px] md:w-[620px] bg-white border border-[#EAE1D2] rounded-2xl shadow-2xl p-4 z-50 animate-fadeIn"
+                  role="menu"
+                  aria-label="Calculators Dropdown Menu"
+                >
+                  <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#F3ECE1] px-1">
+                    <span className="font-serif font-bold text-sm text-[#2D1810] flex items-center space-x-1.5">
+                      <Calculator className="w-4 h-4 text-[#D97706]" />
+                      <span>{language === 'mr' ? 'अचूक वैदिक व संख्याशास्त्र कॅल्क्युलेटर' : 'Vedic & Numerology Calculators'}</span>
+                    </span>
+                    <Link
+                      href="/calculators"
+                      onClick={closeMenu}
+                      className="text-[11px] font-bold text-[#D97706] hover:underline flex items-center space-x-0.5"
+                    >
+                      <span>{language === 'mr' ? 'सर्व २०+ कॅल्क्युलेटर पहा' : 'View All 20+ Calculators'}</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+
+                  {/* Two-Column Scrollable Mega-Menu */}
+                  <div className="max-h-[65vh] overflow-y-auto pr-1 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                    {/* Column 1 */}
+                    <div className="space-y-1">
+                      {CALCULATORS_COL_1.map((item, idx) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={closeMenu}
+                          className="flex items-center justify-between px-2.5 py-2 rounded-xl text-[#2D1810] hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors group"
+                        >
+                          <span className="font-medium truncate pr-1">
+                            {idx + 1}. {language === 'mr' ? item.labelMr : item.label}
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-[#D97706] opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                        </Link>
+                      ))}
+                    </div>
+
+                    {/* Column 2 */}
+                    <div className="space-y-1 border-l border-[#F5EFE6] pl-3">
+                      {CALCULATORS_COL_2.map((item, idx) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={closeMenu}
+                          className="flex items-center justify-between px-2.5 py-2 rounded-xl text-[#2D1810] hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors group"
+                        >
+                          <span className="font-medium truncate pr-1">
+                            {idx + 11}. {language === 'mr' ? item.labelMr : item.label}
+                          </span>
+                          <ChevronRight className="w-3.5 h-3.5 text-[#D97706] opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Panchang Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => handleMouseEnter('panchang')}
+              onMouseLeave={handleMouseLeave}
+            >
+              <button
+                onClick={() => toggleDropdown('panchang')}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors ${
+                  pathname.startsWith('/panchang') || pathname.startsWith('/festivals')
+                    ? 'text-[#D97706] bg-[#FFF9EB]'
+                    : ''
+                }`}
+                aria-expanded={activeDropdown === 'panchang'}
+              >
+                <span>{t('nav.panchang')}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'panchang' ? 'rotate-180' : ''}`} />
+              </button>
+
+              {activeDropdown === 'panchang' && (
+                <div className="absolute top-full left-0 w-56 bg-white border border-[#EAE1D2] rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
+                  <Link
+                    href="/panchang"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
+                  >
+                    📅 Today Vedic Panchang
+                  </Link>
+                  <Link
+                    href="/festivals"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    🪔 2026 Festival Calendar
+                  </Link>
+                  <Link
+                    href="/panchang#muhurat"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    ⏰ Auspicious Muhurats
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* PART 2 — COMPLETE ASTROLOGY SHOP LINK */}
+            <Link
+              href="/shop"
+              className={`px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors flex items-center space-x-1 ${
+                pathname.startsWith('/shop') || pathname.startsWith('/cart') ? 'text-[#D97706] bg-[#FFF9EB]' : ''
+              }`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5 text-[#D97706]" />
+              <span>{t('nav.shop')}</span>
             </Link>
 
+            {/* Blog Link */}
             <Link
-              href="/compatibility"
-              className="hidden md:inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#25184B] border border-[#D4AF37]/40 text-xs font-semibold text-[#F7DF94] hover:border-[#D4AF37] transition-all"
+              href="/blog"
+              className={`px-3 py-2 rounded-lg hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors flex items-center space-x-1 ${
+                pathname.startsWith('/blog') ? 'text-[#D97706] bg-[#FFF9EB]' : ''
+              }`}
             >
-              <Heart className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Kundli Milan</span>
+              <BookOpen className="w-3.5 h-3.5 text-[#D97706]" />
+              <span>{t('nav.blog')}</span>
+            </Link>
+          </nav>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center space-x-3">
+            {/* User Profile / Dashboard Icon */}
+            <Link
+              href={user ? '/dashboard' : '/login'}
+              className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] hover:border-[#D97706] hover:bg-[#FEF3C7] transition-all"
+              title={user ? `Logged in as ${user.username}` : 'Sign In to Portal'}
+            >
+              <UserIcon className="w-4 h-4" />
             </Link>
 
-            {/* Mobile Hamburger Toggle */}
+            {/* PROMINENT ASTROTALK-STYLE "FIRST CHAT FREE" BUTTON (Points to /free-chat) */}
+            <Link
+              href="/free-chat"
+              className="inline-flex items-center space-x-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] text-[#2D1810] font-serif font-bold text-xs sm:text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping inline-block" />
+              <span>{t('nav.firstChatFree')}</span>
+              <ArrowRight className="w-4 h-4 ml-0.5" />
+            </Link>
+
+            {/* Mobile Menu Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-[#FDFBF7] hover:bg-[#25184B]"
+              className="lg:hidden p-2 rounded-xl text-[#2D1810] hover:bg-[#FAF7F2] border border-[#EAE1D2]"
+              aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* 3. PLANETARY SYMBOLS STRIP (Navagraha Transit Bar) */}
-        <div className="bg-[#120B24] border-y border-[#D4AF37]/15 py-1 px-4 sm:px-6 lg:px-8 overflow-x-auto text-[10px]">
-          <div className="max-w-7xl mx-auto flex items-center space-x-4 min-w-max text-[#D8C7A5]/80">
-            <span className="font-serif font-bold text-[#F7DF94] flex items-center space-x-1">
-              <Sun className="w-3 h-3 text-[#D4AF37]" />
-              <span>Navagraha Positions (Lahiri):</span>
-            </span>
-            {PLANETS.map((p, idx) => (
-              <Link
-                key={idx}
-                href="/panchang"
-                className="flex items-center space-x-1 hover:text-[#F7DF94] transition-colors"
-                title={`${p.name} transit in ${p.transit} (${p.status})`}
-              >
-                <span className="text-[#D4AF37] font-bold">{p.glyph}</span>
-                <span className="font-medium text-[#FDFBF7]">{p.name.split(' ')[0]}:</span>
-                <span className="text-[#D8C7A5]/70">{p.transit.split(' ')[0]}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. MAIN NAVIGATION MENU WITH DROPDOWNS (11 Mega-Dropdowns) */}
-        <nav className="hidden lg:block bg-[#150D2A] border-b border-[#D4AF37]/25 text-xs font-medium">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <div className="flex items-center space-x-1">
-              {/* Home */}
-              <Link
-                href="/"
-                className={`px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                  pathname === '/' ? 'text-[#D4AF37] font-bold border-b-2 border-[#D4AF37]' : 'text-[#FDFBF7]'
-                }`}
-              >
-                Home
-              </Link>
-
-              {/* Horoscope Dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('horoscope')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname.startsWith('/horoscope') ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Horoscope</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'horoscope' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/horoscope" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      ☀️ Daily Horoscope (Aaj Ka Rashifal)
-                    </Link>
-                    <Link href="/horoscope?period=weekly" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      📅 Weekly Horoscope
-                    </Link>
-                    <Link href="/horoscope?period=monthly" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🌙 Monthly Horoscope
-                    </Link>
-                    <Link href="/horoscope?period=yearly" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ✨ Yearly Horoscope 2026
-                    </Link>
-                    <Link href="/zodiac-signs" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] border-t border-[#D4AF37]/15">
-                      ♈ 12 Zodiac Signs (Rashis) Guide
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Astrology Dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('astrology')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/kundli' || pathname === '/birth-profile' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Astrology</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'astrology' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/kundli" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      📜 Free Janam Kundli / Birth Chart
-                    </Link>
-                    <Link href="/birth-profile" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      👤 Create Sacred Birth Profile
-                    </Link>
-                    <Link href="/kundli" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🏛️ 12 Bhavas (Houses) Analysis
-                    </Link>
-                    <Link href="/kundli" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ⏳ Vimshottari Mahadasha Timeline
-                    </Link>
-                    <Link href="/reports/premium-kundli" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] border-t border-[#D4AF37]/15 text-[#D4AF37]">
-                      ⭐ 50-Page Life Kundli Report
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Yearly Predictions */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('yearly')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/reports/yearly' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Yearly Predictions</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'yearly' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/horoscope?period=yearly" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      🌟 2026 Complete Rashi Forecast
-                    </Link>
-                    <Link href="/reports/career" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💼 2026 Career &amp; Business Transits
-                    </Link>
-                    <Link href="/reports/finance" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💰 Dhana Yoga &amp; Wealth Cycles
-                    </Link>
-                    <Link href="/pricing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🪐 Shani Sade Sati Transit Guide
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Free Reports */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('reports')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname.startsWith('/reports') ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Free Reports</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'reports' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/reports/career" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💼 Career &amp; Education Report
-                    </Link>
-                    <Link href="/reports/marriage" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💍 Marriage &amp; Compatibility Report
-                    </Link>
-                    <Link href="/reports/finance" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💰 Finance &amp; Wealth Report
-                    </Link>
-                    <Link href="/reports/premium-kundli" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] text-[#D4AF37] font-semibold border-t border-[#D4AF37]/15">
-                      📜 Detailed 50-Page Kundli Report
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Healing & Remedies */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('healing')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/healing' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Healing</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'healing' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/healing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      💎 Jyotish Gemstones (Ratna)
-                    </Link>
-                    <Link href="/healing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      📿 Sacred Rudraksha Recommendations
-                    </Link>
-                    <Link href="/healing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🕉️ Vedic Beej Mantras &amp; Japa
-                    </Link>
-                    <Link href="/healing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🔯 Sacred Yantras for Vastu
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Panchang */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('panchang')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/panchang' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Panchang</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'panchang' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/panchang" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      📅 Today&apos;s Vedic Panchang (5 Limbs)
-                    </Link>
-                    <Link href="/panchang" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ⏱️ Rahu Kaal &amp; Yamaganda Timings
-                    </Link>
-                    <Link href="/panchang" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ✨ Abhijit Muhurat &amp; Shubh Kaal
-                    </Link>
-                    <Link href="/panchang" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🌓 Tithi, Vara, Nakshatra, Yoga, Karana
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Compatibility */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('compatibility')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/compatibility' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Compatibility</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'compatibility' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/compatibility" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      💑 Kundli Milan (36 Guna Match)
-                    </Link>
-                    <Link href="/compatibility" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🔥 Manglik Dosha Analysis &amp; Remedies
-                    </Link>
-                    <Link href="/compatibility" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ❤️ Ashta Kuta Harmony Breakdown
-                    </Link>
-                    <Link href="/reports/marriage" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] border-t border-[#D4AF37]/15">
-                      💍 Deep Marriage Guidance Report
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Calculators */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('calculators')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/numerology' || pathname === '/nakshatra-finder' || pathname === '/zodiac-finder'
-                      ? 'text-[#D4AF37] font-bold'
-                      : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Calculators</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'calculators' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/numerology" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      🔢 Numerology (Life Path &amp; Destiny)
-                    </Link>
-                    <Link href="/nakshatra-finder" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🌙 Nakshatra &amp; Pada Finder
-                    </Link>
-                    <Link href="/zodiac-finder" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ♈ Moon Sign (Chandra Rashi) Finder
-                    </Link>
-                    <Link href="/tools" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] border-t border-[#D4AF37]/15 text-[#D4AF37]">
-                      🌟 All Free Calculators Directory
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Festivals */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('festivals')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/festivals' ? 'text-[#D4AF37] font-bold' : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>Festivals</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'festivals' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37] font-semibold text-[#F7DF94]">
-                      🪔 Complete 2026 Festival Calendar
-                    </Link>
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🌟 Makar Sankranti &amp; Uttarayana
-                    </Link>
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🔱 Maha Shivratri Nishita Puja
-                    </Link>
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🎨 Holi &amp; Holika Dahan
-                    </Link>
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🌸 Chaitra &amp; Sharad Navratri
-                    </Link>
-                    <Link href="/festivals" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ✨ Diwali &amp; Lakshmi Puja
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Miscellaneous */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('misc')}
-                onMouseLeave={closeDropdown}
-              >
-                <button
-                  className={`flex items-center space-x-1 px-3 py-2.5 hover:text-[#D4AF37] transition-colors ${
-                    pathname === '/about' || pathname === '/blog' || pathname === '/pricing' || pathname === '/faq'
-                      ? 'text-[#D4AF37] font-bold'
-                      : 'text-[#FDFBF7]'
-                  }`}
-                >
-                  <span>More</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </button>
-                {activeDropdown === 'misc' && (
-                  <div className="absolute top-full left-0 w-64 bg-[#191233] border border-[#D4AF37]/40 rounded-b-xl shadow-cosmic py-2 z-50">
-                    <Link href="/blog" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      📖 Articles &amp; Ephemeris Wisdom
-                    </Link>
-                    <Link href="/astrologers" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      👥 Certified Astrologers Directory
-                    </Link>
-                    <Link href="/pricing" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      💳 Pricing &amp; Consultation Plans
-                    </Link>
-                    <Link href="/faq" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      ❓ Frequently Asked Questions
-                    </Link>
-                    <Link href="/about" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      🏛️ About JyotishVeda Foundation
-                    </Link>
-                    <Link href="/contact" onClick={closeDropdown} className="block px-4 py-2 hover:bg-[#25184B] hover:text-[#D4AF37]">
-                      📬 Contact Support
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Search Shortcut */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="flex items-center space-x-2 text-[11px] text-[#D8C7A5]/80 bg-[#0F0B1E] px-3 py-1.5 rounded-lg border border-[#D4AF37]/30 hover:border-[#D4AF37] hover:text-white transition-all"
-            >
-              <Search className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span>Search JyotishVeda...</span>
-              <kbd className="text-[9px] bg-[#25184B] px-1 py-0.5 rounded text-[#D4AF37] border border-[#D4AF37]/30">
-                Ctrl+K
-              </kbd>
-            </button>
-          </div>
-        </nav>
-
-        {/* 5. SECONDARY NAVIGATION STRIP FOR UPCOMING FESTIVALS */}
-        <div className="bg-[#1C1236] border-b border-[#D4AF37]/20 py-1.5 px-4 sm:px-6 lg:px-8 text-xs text-[#F7DF94]">
-          <div className="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto gap-4">
-            <div className="flex items-center space-x-2 min-w-max">
-              <span className="font-bold text-[#D4AF37] uppercase tracking-wider text-[10px] bg-[#0F0B1E] px-2 py-0.5 rounded border border-[#D4AF37]/30 flex items-center space-x-1">
-                <Flame className="w-3 h-3 text-[#D4AF37]" />
-                <span>Upcoming Muhurats:</span>
-              </span>
-              <Link href="/festivals" className="hover:underline text-[#FDFBF7]">
-                🌟 Makar Sankranti (Jan 14)
-              </Link>
-              <span className="text-[#D4AF37]/40">•</span>
-              <Link href="/festivals" className="hover:underline text-[#FDFBF7]">
-                🔱 Maha Shivratri (Feb 15)
-              </Link>
-              <span className="text-[#D4AF37]/40">•</span>
-              <Link href="/festivals" className="hover:underline text-[#FDFBF7]">
-                🎨 Holi Dahan (Mar 03)
-              </Link>
-              <span className="text-[#D4AF37]/40">•</span>
-              <Link href="/festivals" className="hover:underline text-[#FDFBF7]">
-                🌸 Chaitra Navratri (Mar 19)
-              </Link>
-              <span className="text-[#D4AF37]/40">•</span>
-              <Link href="/festivals" className="hover:underline text-[#FDFBF7]">
-                🪔 Deepawali (Nov 08)
-              </Link>
-            </div>
-
-            <Link
-              href="/festivals"
-              className="text-[11px] font-semibold text-[#D4AF37] hover:underline min-w-max hidden sm:inline"
-            >
-              View Full 2026 Calendar &rarr;
-            </Link>
-          </div>
-        </div>
-
-        {/* 6. MOBILE NAVIGATION DRAWER */}
+        {/* ========================================================
+            3. MOBILE SLIDING DRAWER MENU
+           ======================================================== */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#150D2A] border-b border-[#D4AF37]/30 max-h-[80vh] overflow-y-auto px-4 pt-3 pb-8 space-y-4 text-xs">
-            {/* Quick Search */}
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setSearchOpen(true);
-                }}
-                placeholder="Search Kundli, Horoscope, Tools..."
-                className="w-full bg-[#0F0B1E] border border-[#D4AF37]/40 rounded-xl px-4 py-2.5 text-xs text-[#FDFBF7] cursor-pointer"
-              />
-              <Search className="w-4 h-4 text-[#D4AF37] absolute right-3 top-3 pointer-events-none" />
-            </div>
-
-            {/* Mobile Language Switcher */}
-            <div className="flex items-center justify-between p-2.5 bg-[#0F0B1E] border border-[#D4AF37]/30 rounded-xl">
-              <span className="text-[#D8C7A5] font-semibold text-xs">
-                {language === 'mr' ? 'भाषा (Language):' : 'Select Language:'}
+          <div className="lg:hidden bg-[#FFFDF9] border-t border-[#EAE1D2] px-4 py-5 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl animate-fadeIn">
+            {/* Mobile Language Switcher Row */}
+            <div className="flex items-center justify-between p-3 bg-[#FAF7F2] border border-[#EAE1D2] rounded-2xl">
+              <span className="text-xs text-[#5C4535] font-semibold">
+                {language === 'mr' ? 'भाषा निवडा:' : 'Select Language:'}
               </span>
               <LanguageSwitcher />
             </div>
 
-            {/* Zodiac Sign Grid on Mobile */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#D4AF37] mb-2">
-                12 Zodiac Signs (Rashifal)
-              </p>
-              <div className="grid grid-cols-4 gap-1.5">
-                {ZODIAC_SIGNS.map((sign) => (
-                  <Link
-                    key={sign.name}
-                    href={`/horoscope?sign=${sign.name}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="p-1.5 bg-[#0F0B1E] border border-[#D4AF37]/30 rounded-lg text-center hover:bg-[#25184B]"
-                  >
-                    <span className="text-sm block">{sign.symbol}</span>
-                    <span className="text-[9px] block text-[#D8C7A5]">{sign.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Core Links */}
-            <div className="space-y-2 pt-2 border-t border-[#D4AF37]/15">
+            {/* Quick Actions Grid */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <Link
-                href="/kundli"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 bg-[#25184B] rounded-xl text-[#F7DF94] font-semibold"
+                href="/free-chat"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-3 bg-gradient-to-r from-[#FEF3C7] to-[#FDE68A] text-[#92400E] font-bold rounded-xl border border-[#FCD34D]"
               >
-                <span>📜 Free Janam Kundli Calculator</span>
+                <span>💬 {t('nav.firstChatFree')}</span>
                 <span>&rarr;</span>
               </Link>
               <Link
-                href="/compatibility"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 bg-[#25184B] rounded-xl text-[#F7DF94] font-semibold"
+                href="/shop"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-3 bg-[#FAF7F2] text-[#2D1810] font-semibold rounded-xl border border-[#EAE1D2]"
               >
-                <span>💑 Kundli Milan (36 Guna Match)</span>
+                <span>🛍️ {t('nav.shop')} ({cartItemCount})</span>
                 <span>&rarr;</span>
-              </Link>
-              <Link
-                href="/panchang"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 bg-[#25184B] rounded-xl text-[#F7DF94] font-semibold"
-              >
-                <span>📅 Today&apos;s Vedic Panchang</span>
-                <span>&rarr;</span>
-              </Link>
-              <Link
-                href="/wallet"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between p-2.5 bg-[#191233] border border-[#D4AF37]/40 rounded-xl text-[#D4AF37] font-semibold"
-              >
-                <span>💰 Wallet (Balance: ₹{walletBalance})</span>
-                <span>Add &rarr;</span>
               </Link>
             </div>
 
-            {/* Navigation Sections */}
-            <div className="space-y-3 pt-2 border-t border-[#D4AF37]/15">
+            {/* Categorized Menu Links */}
+            <div className="space-y-4 pt-2 text-xs text-[#4A2E18]">
+              {/* Calculators Accordion in Mobile */}
               <div>
-                <p className="font-bold text-[#D4AF37] uppercase text-[10px] mb-1">Astrology Reports</p>
-                <div className="pl-2 space-y-1 text-[#D8C7A5]">
-                  <Link href="/reports/career" onClick={() => setMobileMenuOpen(false)} className="block py-1">Career &amp; Business Report</Link>
-                  <Link href="/reports/marriage" onClick={() => setMobileMenuOpen(false)} className="block py-1">Marriage &amp; Compatibility Report</Link>
-                  <Link href="/reports/finance" onClick={() => setMobileMenuOpen(false)} className="block py-1">Finance &amp; Wealth Report</Link>
-                  <Link href="/reports/premium-kundli" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-[#F7DF94]">Detailed 50-Page Kundli Report</Link>
+                <button
+                  onClick={() => setMobileCalculatorsOpen(!mobileCalculatorsOpen)}
+                  className="w-full flex items-center justify-between font-bold text-[#D97706] uppercase text-[10px] tracking-wider mb-2"
+                >
+                  <span>🧮 {t('nav.calculators')} (20+)</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${mobileCalculatorsOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {mobileCalculatorsOpen && (
+                  <div className="space-y-1 pl-2 max-h-60 overflow-y-auto border-l-2 border-[#D97706]/30">
+                    {[...CALCULATORS_COL_1, ...CALCULATORS_COL_2].map((item, idx) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={closeMenu}
+                        className="block py-1 hover:text-[#D97706] text-[#2D1810]"
+                      >
+                        {idx + 1}. {language === 'mr' ? item.labelMr : item.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <p className="font-bold text-[#D97706] uppercase text-[10px] tracking-wider mb-2">
+                  {t('nav.consultations')}
+                </p>
+                <div className="space-y-1.5 pl-2">
+                  <Link href="/free-chat" onClick={closeMenu} className="block py-1 text-[#16A34A] font-bold">🎁 Free 5-Min First Astrologer Chat</Link>
+                  <Link href="/chat" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Chat with Astrologer</Link>
+                  <Link href="/booking" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Call Astrologer (Appointments)</Link>
+                  <Link href="/astrologers" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Verified Astrologers Directory</Link>
+                  <Link href="/pricing" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Consultation Plans &amp; Pricing</Link>
                 </div>
               </div>
 
               <div>
-                <p className="font-bold text-[#D4AF37] uppercase text-[10px] mb-1">Calculators &amp; Healing</p>
-                <div className="pl-2 space-y-1 text-[#D8C7A5]">
-                  <Link href="/numerology" onClick={() => setMobileMenuOpen(false)} className="block py-1">Numerology Calculator</Link>
-                  <Link href="/nakshatra-finder" onClick={() => setMobileMenuOpen(false)} className="block py-1">Nakshatra &amp; Pada Finder</Link>
-                  <Link href="/zodiac-finder" onClick={() => setMobileMenuOpen(false)} className="block py-1">Moon Sign Finder</Link>
-                  <Link href="/healing" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-[#F7DF94]">Vedic Gemstones &amp; Remedies</Link>
-                  <Link href="/festivals" onClick={() => setMobileMenuOpen(false)} className="block py-1 text-[#F7DF94]">2026 Vedic Festival Calendar</Link>
+                <p className="font-bold text-[#D97706] uppercase text-[10px] tracking-wider mb-2">
+                  {t('nav.horoscope')} &amp; {t('nav.panchang')}
+                </p>
+                <div className="space-y-1.5 pl-2">
+                  <Link href="/horoscope" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Daily Horoscope (Aaj Ka Rashifal)</Link>
+                  <Link href="/horoscope?period=yearly" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Yearly Predictions 2026</Link>
+                  <Link href="/zodiac-signs" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">12 Zodiac Signs Guide</Link>
+                  <Link href="/panchang" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Today Vedic Panchang</Link>
+                  <Link href="/festivals" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">2026 Festival Calendar</Link>
                 </div>
               </div>
 
               <div>
-                <p className="font-bold text-[#D4AF37] uppercase text-[10px] mb-1">Consultations &amp; Support</p>
-                <div className="pl-2 space-y-1 text-[#D8C7A5]">
-                  <Link href="/astrologers" onClick={() => setMobileMenuOpen(false)} className="block py-1">Verified Astrologers Directory</Link>
-                  <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="block py-1">Pricing &amp; Consultation Plans</Link>
-                  <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="block py-1">Articles &amp; Wisdom</Link>
-                  <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="block py-1">About JyotishVeda</Link>
-                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="block py-1">Contact Us</Link>
+                <p className="font-bold text-[#D97706] uppercase text-[10px] tracking-wider mb-2">
+                  {t('nav.freeServices')} &amp; Store
+                </p>
+                <div className="space-y-1.5 pl-2">
+                  <Link href="/kundli" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Free Janam Kundli</Link>
+                  <Link href="/compatibility" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Kundli Milan (36 Guna Match)</Link>
+                  <Link href="/shop" onClick={closeMenu} className="block py-1 hover:text-[#D97706] font-semibold">Astrology Shop (Crystals &amp; Rudraksha)</Link>
+                  <Link href="/cart" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Shopping Cart</Link>
+                  <Link href="/blog" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Vedic Astrology Blog</Link>
                 </div>
               </div>
             </div>
 
-            {/* Auth Buttons */}
-            <div className="pt-3 border-t border-[#D4AF37]/15">
+            {/* Mobile Auth Buttons */}
+            <div className="pt-3 border-t border-[#EAE1D2]">
               {user ? (
-                <div className="flex items-center justify-between">
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="font-semibold text-[#F7DF94]"
-                  >
-                    My Dashboard ({user.username})
+                <div className="flex items-center justify-between p-2 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2]">
+                  <Link href="/dashboard" onClick={closeMenu} className="font-bold text-[#2D1810] text-xs">
+                    My Account ({user.username})
                   </Link>
-                  <button onClick={handleLogout} className="text-red-400">
+                  <button onClick={handleLogout} className="text-red-600 font-semibold text-xs">
                     Sign Out
                   </button>
                 </div>
@@ -822,15 +727,15 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="py-2 text-center rounded-lg border border-[#D4AF37]/40 text-[#FDFBF7]"
+                    onClick={closeMenu}
+                    className="py-2.5 text-center rounded-xl border border-[#EAE1D2] text-[#2D1810] font-semibold text-xs bg-white"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="py-2 text-center rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-bold"
+                    onClick={closeMenu}
+                    className="py-2.5 text-center rounded-xl bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] text-[#2D1810] font-bold text-xs"
                   >
                     Sign Up
                   </Link>

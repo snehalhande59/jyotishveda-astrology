@@ -62,6 +62,7 @@ export function setAuthSession(token: string, user: User): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 
   document.cookie = `vedic_token=${encodeURIComponent(token)}; path=/; max-age=2592000; SameSite=Lax`;
+  window.dispatchEvent(new Event("auth-updated"));
 }
 
 export function clearAuthSession(): void {
@@ -71,4 +72,5 @@ export function clearAuthSession(): void {
   localStorage.removeItem(USER_KEY);
 
   document.cookie = "vedic_token=; path=/; max-age=0; SameSite=Lax";
+  window.dispatchEvent(new Event("auth-updated"));
 }

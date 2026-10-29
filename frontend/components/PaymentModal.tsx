@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { api } from '@/lib/api';
 import { openRazorpayModal } from '@/lib/razorpay';
 import { useLanguage } from '@/context/LanguageContext';
-import { ShieldCheck, CreditCard, Sparkles, X, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, CreditCard, Sparkles, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -40,11 +40,11 @@ export default function PaymentModal({
       const order = await api.createPaymentOrder(amount, serviceType, referenceId);
       setOrderData(order);
 
-      // Try opening official Razorpay checkout modal
+      // Try opening official Razorpay checkout modal (amount must be in paise: ₹1 = 100 paise)
       try {
         await openRazorpayModal({
           key: order.keyId,
-          amount: order.amount,
+          amount: Math.round(order.amount * 100),
           currency: order.currency || 'INR',
           name: language === 'mr' ? 'ज्योतिषवेदा सुरक्षित देयक' : 'JyotishVeda Astrology',
           description: serviceTitle,
@@ -73,6 +73,13 @@ export default function PaymentModal({
               setStep('failed');
               setErrorMsg(vErr.message || (language === 'mr' ? 'पडताळणी अयशस्वी' : 'Verification failed'));
             }
+          },
+          onFailure: (failedResp: any) => {
+            setStep('failed');
+            setErrorMsg(
+              failedResp?.error?.description ||
+              (language === 'mr' ? 'पेमेंट गेटवेवर अयशस्वी झाले' : 'Payment failed on Razorpay checkout')
+            );
           },
           modal: {
             ondismiss: () => {
@@ -110,7 +117,7 @@ export default function PaymentModal({
         setTimeout(() => {
           onSuccess(verificationResult.data);
           onClose();
-        }, 1500);
+        }, 1200);
       } else {
         setStep('failed');
         setErrorMsg(language === 'mr' ? 'सर्व्हरवर स्वाक्षरी पडताळणी अयशस्वी झाली' : 'Cryptographic signature verification failed on backend');
@@ -122,41 +129,41 @@ export default function PaymentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#150D2A] border border-[#D4AF37]/40 w-full max-w-md rounded-2xl p-6 text-[#FDFBF7] shadow-cosmic relative space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn font-sans">
+      <div className="bg-white border-2 border-[#FDE68A] w-full max-w-md rounded-3xl p-6 sm:p-8 text-[#2D1810] shadow-xl relative space-y-5">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#D8C7A5]/60 hover:text-[#FDFBF7] cursor-pointer"
+          className="absolute top-5 right-5 text-[#786C60] hover:text-[#2D1810] cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center space-x-2 text-[#D4AF37] border-b border-[#D4AF37]/20 pb-3">
+        <div className="flex items-center space-x-2.5 text-[#D97706] border-b border-[#F5EFE6] pb-3">
           <CreditCard className="w-5 h-5" />
-          <h3 className="font-serif text-lg font-bold">{t('payment.title')}</h3>
+          <h3 className="font-serif text-lg font-bold text-[#2D1810]">{t('payment.title')}</h3>
         </div>
 
         {/* Step 1: Initial Summary */}
         {step === 'init' && (
           <div className="space-y-4">
-            <div className="bg-[#0F0B1E] p-4 rounded-xl border border-[#D4AF37]/20">
-              <span className="text-xs text-[#D8C7A5]/70">{t('payment.selectedService')}</span>
-              <p className="font-serif text-base font-semibold text-[#F7DF94] mt-0.5">{serviceTitle}</p>
-              <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#D4AF37]/10">
-                <span className="text-xs text-[#D8C7A5]">{t('payment.totalPayable')}:</span>
-                <span className="text-xl font-bold text-[#FDFBF7]">{formatCurrency(amount)}</span>
+            <div className="bg-[#FFFDF9] p-4 rounded-2xl border border-[#EAE1D2]">
+              <span className="text-[11px] text-[#786C60] font-semibold block">{t('payment.selectedService')}</span>
+              <p className="font-serif text-base font-bold text-[#2D1810] mt-0.5">{serviceTitle}</p>
+              <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#F5EFE6]">
+                <span className="text-xs text-[#786C60]">{t('payment.totalPayable')}:</span>
+                <span className="text-xl font-extrabold text-[#B45309]">{formatCurrency(amount)}</span>
               </div>
             </div>
 
-            <div className="text-xs text-[#D8C7A5]/80 flex items-start space-x-2 bg-[#25184B]/60 p-3 rounded-lg border border-[#D4AF37]/20">
-              <ShieldCheck className="w-4 h-4 text-[#D4AF37] flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-[#78350F] flex items-start space-x-2 bg-[#FFFBEB] p-3 rounded-xl border border-[#FDE68A]">
+              <ShieldCheck className="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" />
               <span>{t('payment.testNotice')}</span>
             </div>
 
             <button
               onClick={handleStartPayment}
               disabled={isCreatingOrder}
-              className="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-sm rounded-xl shadow-gold hover:opacity-95 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs rounded-xl shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all cursor-pointer disabled:opacity-50"
             >
               {isCreatingOrder ? t('payment.generatingOrder') : t('payment.proceed')}
             </button>
@@ -166,23 +173,22 @@ export default function PaymentModal({
         {/* Step 2: Order Created, Ready for Verification */}
         {step === 'orderCreated' && orderData && (
           <div className="space-y-4">
-            <div className="bg-[#0F0B1E] p-4 rounded-xl border border-green-500/30 text-xs space-y-2">
-              <div className="flex items-center space-x-1.5 text-green-400 font-semibold">
-                <CheckCircle className="w-4 h-4" />
+            <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-300 text-xs space-y-2">
+              <div className="flex items-center space-x-1.5 text-emerald-800 font-bold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span>{t('payment.orderCreated')}</span>
               </div>
-              <p><span className="text-[#D8C7A5]/60">{t('payment.orderId')}:</span> <code className="text-[#F7DF94] font-mono">{orderData.orderId}</code></p>
-              <p><span className="text-[#D8C7A5]/60">{t('payment.totalPayable')}:</span> {formatCurrency(orderData.amount)} {orderData.currency}</p>
-              <p><span className="text-[#D8C7A5]/60">{t('payment.merchantKey')}:</span> <code className="text-gray-300 font-mono text-[11px]">{orderData.keyId}</code></p>
+              <p><span className="text-emerald-900/70">{t('payment.orderId')}:</span> <code className="text-emerald-950 font-mono font-bold">{orderData.orderId}</code></p>
+              <p><span className="text-emerald-900/70">{t('payment.totalPayable')}:</span> {formatCurrency(orderData.amount)} {orderData.currency}</p>
             </div>
 
-            <p className="text-xs text-[#D8C7A5]/80 leading-relaxed">
+            <p className="text-xs text-[#6B5A4E] leading-relaxed">
               {language === 'mr' ? 'टेस्ट पेमेंट पूर्ण करण्यासाठी व स्ट्रॅपी ५ बॅकएंडवर सुरक्षित स्वाक्षरी तपासण्यासाठी खाली क्लिक करा.' : 'Click below to complete the test payment transaction and verify the cryptographic signature with Strapi 5.'}
             </p>
 
             <button
               onClick={handleVerifySimulatedPayment}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-700 text-[#FDFBF7] font-semibold text-sm rounded-xl shadow-md hover:opacity-95 transition-all cursor-pointer"
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition-all cursor-pointer"
             >
               {t('payment.authorizeTest')}
             </button>
@@ -192,30 +198,30 @@ export default function PaymentModal({
         {/* Step 3: Processing */}
         {step === 'processing' && (
           <div className="py-8 text-center space-y-3">
-            <div className="w-10 h-10 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm font-semibold text-[#F7DF94]">{t('payment.verifying')}</p>
-            <p className="text-xs text-[#D8C7A5]/60">{t('payment.verifyingDesc')}</p>
+            <div className="w-10 h-10 border-4 border-[#F59E0B] border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm font-bold text-[#2D1810]">{t('payment.verifying')}</p>
+            <p className="text-xs text-[#786C60]">{t('payment.verifyingDesc')}</p>
           </div>
         )}
 
         {/* Step 4: Success */}
         {step === 'success' && (
           <div className="py-6 text-center space-y-3">
-            <CheckCircle className="w-12 h-12 text-green-400 mx-auto" />
-            <h4 className="font-serif text-lg font-bold text-green-300">{t('payment.successTitle')}</h4>
-            <p className="text-xs text-[#D8C7A5]">{t('payment.successDesc')}</p>
+            <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+            <h4 className="font-serif text-lg font-bold text-emerald-900">{t('payment.successTitle')}</h4>
+            <p className="text-xs text-emerald-700">{t('payment.successDesc')}</p>
           </div>
         )}
 
         {/* Step 5: Failed */}
         {step === 'failed' && (
           <div className="py-4 space-y-3 text-center">
-            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-            <h4 className="font-serif text-base font-bold text-red-400">{t('payment.failedTitle')}</h4>
-            <p className="text-xs text-red-300/80">{errorMsg}</p>
+            <AlertTriangle className="w-10 h-10 text-rose-500 mx-auto" />
+            <h4 className="font-serif text-base font-bold text-rose-800">{t('payment.failedTitle')}</h4>
+            <p className="text-xs text-rose-600">{errorMsg}</p>
             <button
               onClick={() => setStep('init')}
-              className="px-4 py-2 bg-[#25184B] border border-[#D4AF37]/30 text-xs rounded-lg hover:border-[#D4AF37] cursor-pointer"
+              className="px-4 py-2 bg-[#FAF7F2] border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:bg-[#FFFDF9] cursor-pointer"
             >
               {t('payment.tryAgain')}
             </button>

@@ -34,23 +34,23 @@ export default function AccountSettingsPage() {
   };
 
   return (
-    <div className="bg-[#FAF6F0] min-h-screen text-[#1A1423] pb-24 font-sans">
-      <section className="bg-gradient-to-b from-[#0F0B1E] via-[#150D2A] to-[#1E1138] text-[#FDFBF7] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#D4AF37]/20">
+    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans">
+      <section className="bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] py-14 px-4 sm:px-6 lg:px-8 border-b border-[#EAE1D2]">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <Link
               href="/dashboard"
-              className="text-xs text-[#D8C7A5] hover:text-[#FDFBF7] flex items-center space-x-1 mb-2"
+              className="text-xs text-[#786C60] hover:text-[#2D1810] flex items-center space-x-1 mb-2 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>{t('settings.back')}</span>
             </Link>
-            <h1 className="font-serif text-3xl font-bold text-[#FDFBF7]">{t('settings.title')}</h1>
+            <h1 className="font-serif text-3xl font-extrabold text-[#2D1810]">{t('settings.title')}</h1>
           </div>
 
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-1.5 px-3.5 py-2 bg-red-950/80 border border-red-500/40 text-red-200 text-xs font-semibold rounded-xl hover:bg-red-900"
+            className="flex items-center space-x-1.5 px-3.5 py-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl hover:bg-rose-100 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>{t('nav.logout')}</span>
@@ -60,34 +60,34 @@ export default function AccountSettingsPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         {/* Account Info */}
-        <div className="bg-white p-8 rounded-3xl border border-[#D4AF37]/25 shadow-sm space-y-4">
-          <h3 className="font-serif text-xl font-bold text-[#150D2A]">{t('settings.credentials')}</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-gray-700">
-            <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#D4AF37]/20">
-              <span className="text-gray-500 block mb-0.5">{t('auth.username')}</span>
-              <strong className="text-base text-[#150D2A]">{user?.username}</strong>
+        <div className="bg-white p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
+          <h3 className="font-serif text-xl font-bold text-[#2D1810]">{t('settings.credentials')}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-[#5C4033]">
+            <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2]">
+              <span className="text-[#786C60] block mb-0.5">{t('auth.username')}</span>
+              <strong className="text-base text-[#2D1810]">{user?.username}</strong>
             </div>
-            <div className="p-4 bg-[#FAF6F0] rounded-xl border border-[#D4AF37]/20">
-              <span className="text-gray-500 block mb-0.5">{t('auth.email')}</span>
-              <strong className="text-base text-[#150D2A]">{user?.email}</strong>
+            <div className="p-4 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2]">
+              <span className="text-[#786C60] block mb-0.5">{t('auth.email')}</span>
+              <strong className="text-base text-[#2D1810]">{user?.email}</strong>
             </div>
           </div>
         </div>
 
         {/* Calculation Preferences */}
-        <form onSubmit={handleSavePreferences} className="bg-white p-8 rounded-3xl border border-[#D4AF37]/25 shadow-sm space-y-5">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+        <form onSubmit={handleSavePreferences} className="bg-white p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-5">
+          <div className="flex items-center justify-between border-b border-[#EAE1D2] pb-3">
             <div>
-              <h3 className="font-serif text-xl font-bold text-[#150D2A]">{t('settings.astrologySettings')}</h3>
-              <p className="text-xs text-gray-500">{t('settings.astrologySettingsDesc')}</p>
+              <h3 className="font-serif text-xl font-bold text-[#2D1810]">{t('settings.astrologySettings')}</h3>
+              <p className="text-xs text-[#786C60]">{t('settings.astrologySettingsDesc')}</p>
             </div>
-            <Sparkles className="w-5 h-5 text-[#8C6D1F]" />
+            <Sparkles className="w-5 h-5 text-[#D97706]" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="block font-semibold text-gray-700 mb-1">{t('settings.ayanamsaModel')}</label>
-              <select className="w-full bg-[#FAF6F0] border border-[#D4AF37]/30 rounded-xl px-3 py-2 text-xs text-[#150D2A] focus:outline-none">
+              <label className="block font-semibold text-[#5C4033] mb-1">{t('settings.ayanamsaModel')}</label>
+              <select className="w-full bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl px-3 py-2 text-xs text-[#2D1810] focus:outline-none focus:border-[#D97706]">
                 <option value="Lahiri">
                   {language === 'mr' ? 'चित्रापक्ष / लाहिरी (भारत सरकार प्रमाणक)' : 'Chitrapaksha / Lahiri (National Standard)'}
                 </option>
@@ -97,8 +97,8 @@ export default function AccountSettingsPage() {
             </div>
 
             <div>
-              <label className="block font-semibold text-gray-700 mb-1">{t('settings.chartStyle')}</label>
-              <select className="w-full bg-[#FAF6F0] border border-[#D4AF37]/30 rounded-xl px-3 py-2 text-xs text-[#150D2A] focus:outline-none">
+              <label className="block font-semibold text-[#5C4033] mb-1">{t('settings.chartStyle')}</label>
+              <select className="w-full bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl px-3 py-2 text-xs text-[#2D1810] focus:outline-none focus:border-[#D97706]">
                 <option value="North">
                   {language === 'mr' ? 'उत्तर भारतीय (चौकोनी / स्थिर भाव)' : 'North Indian (Diamond / Fixed Houses)'}
                 </option>
@@ -119,7 +119,7 @@ export default function AccountSettingsPage() {
           <div className="pt-2">
             <button
               type="submit"
-              className="px-6 py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#A67C1E] text-[#0F0B1E] font-serif font-bold text-xs rounded-xl shadow-gold hover:opacity-95"
+              className="px-6 py-2.5 bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs rounded-xl shadow-md transition-all"
             >
               {t('settings.saveBtn')}
             </button>
