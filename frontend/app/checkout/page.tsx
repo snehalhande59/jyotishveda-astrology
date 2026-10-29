@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getCart, clearCart, getCartTotals, CartItem } from '@/lib/cart';
 import { getCurrentUser } from '@/lib/auth';
+import { openRazorpayModal } from '@/lib/razorpay';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   ShieldCheck,
@@ -100,13 +101,15 @@ export default function CheckoutPage() {
 
       const { order } = data;
 
-      // 2. Handle Razorpay Gateway
-      if (typeof window !== 'undefined' && window.Razorpay && order.keyId && !order.isTestMode) {
-        const options = {
+      // 2. Open Razorpay Gateway with graceful fallback
+      let modalCompleted = false;
+
+      try {
+        await openRazorpayModal({
           key: order.keyId,
-          amount: order.amount * 100,
+          amount: Math.round(order.amount * 100),
           currency: 'INR',
-          name: 'JyotishVeda Astrology Store',
+          name: isMr ? 'ज्योतिषवेदा वैदिक स्टोअर' : 'JyotishVeda Astrology Store',
           description: `Vedic Shop Order (${order.receipt})`,
           order_id: order.orderId,
           prefill: {
@@ -117,37 +120,44 @@ export default function CheckoutPage() {
           theme: {
             color: '#D97706',
           },
-          handler: async function (response: any) {
-            // Verify payment on server
-            const verifyRes = await fetch('/api/shop/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-                orderDetails: order,
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              clearCart();
-              setConfirmedOrder(verifyData.confirmedOrder);
-            } else {
-              setErrorMsg('Payment verification failed on server.');
+          handler: async (response: any) => {
+            modalCompleted = true;
+            try {
+              const verifyRes = await fetch('/api/shop/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: response.razorpay_order_id,
+                  paymentId: response.razorpay_payment_id,
+                  signature: response.razorpay_signature,
+                  orderDetails: order,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                clearCart();
+                setConfirmedOrder(verifyData.confirmedOrder);
+              } else {
+                setErrorMsg(isMr ? 'सर्व्हरवर पेमेंट पडताळणी अयशस्वी झाली.' : 'Payment verification failed on server.');
+              }
+            } catch (vErr: any) {
+              setErrorMsg(vErr.message || (isMr ? 'पडताळणी अयशस्वी' : 'Payment verification failed'));
+            } finally {
+              setLoading(false);
             }
+          },
+          onFailure: (failedResp: any) => {
+            setErrorMsg(failedResp?.error?.description || (isMr ? 'पेमेंट अयशस्वी झाले.' : 'Payment failed.'));
+            setLoading(false);
           },
           modal: {
             ondismiss: function () {
               setLoading(false);
             },
           },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } else {
-        // Fallback for simulated development / test mode
+        });
+      } catch (modalErr) {
+        // Fallback for simulated development / test key environments
         const mockVerifyRes = await fetch('/api/shop/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -160,15 +170,12 @@ export default function CheckoutPage() {
         });
 
         const verifyData = await mockVerifyRes.json();
-        clearCart();
-        setConfirmedOrder(verifyData.confirmedOrder || {
-          orderId: order.orderId,
-          paymentId: `pay_test_${Date.now()}`,
-          total: order.amount,
-          items: order.validatedItems,
-          shippingAddress: order.shippingAddress,
-          status: 'confirmed (Test Mode)',
-        });
+        if (verifyData.success) {
+          clearCart();
+          setConfirmedOrder(verifyData.confirmedOrder);
+        } else {
+          setErrorMsg(verifyData.message || (isMr ? 'पडताळणी अयशस्वी.' : 'Payment verification failed.'));
+        }
       }
     } catch (err: any) {
       console.error('Order error:', err);

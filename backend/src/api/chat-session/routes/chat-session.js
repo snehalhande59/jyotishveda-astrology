@@ -58,5 +58,13 @@ module.exports = {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/chat/my-sessions',
+      handler: 'chat-session.findMySessions',
+      config: {
+        policies: [],
+      },
+    },
   ],
 };

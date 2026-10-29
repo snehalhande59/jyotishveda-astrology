@@ -143,10 +143,22 @@ export default function FreeChatPage() {
         setSecondsRemaining((res.durationMinutes || 5) * 60);
 
         // Fetch initial messages from session
-        const sessDetails = await api.getChatSession(res.sessionNumber || String(res.id));
-        if (sessDetails?.messages) {
-          setMessages(sessDetails.messages);
-        } else {
+        try {
+          const msgs = await api.getChatMessages(res.sessionNumber || String(res.id));
+          if (msgs && msgs.length > 0) {
+            setMessages(msgs);
+          } else {
+            setMessages([
+              {
+                id: 'init-1',
+                senderType: 'astrologer',
+                senderName: selectedAstrologer?.name || 'Acharya Vidyadhar',
+                message: `Namaste ${user?.username}! Pranam. I have your Vedic birth details ready. You have 5 minutes of complimentary consultation. What guidance are you seeking today?`,
+                timestamp: new Date().toISOString(),
+              },
+            ]);
+          }
+        } catch {
           setMessages([
             {
               id: 'init-1',

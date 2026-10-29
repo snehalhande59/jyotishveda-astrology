@@ -99,32 +99,58 @@ export default function PaymentModal({
     }
   };
 
-  const handleVerifySimulatedPayment = async () => {
+  const handleReopenCheckout = async () => {
     if (!orderData) return;
-    setStep('processing');
+    setErrorMsg('');
     try {
-      const simulatedPaymentId = `pay_rzp_${Date.now()}`;
-      const verificationResult = await api.verifyPayment({
-        orderId: orderData.orderId,
-        paymentId: simulatedPaymentId,
-        signature: 'test_signature_valid',
-        serviceType,
-        referenceId,
+      await openRazorpayModal({
+        key: orderData.keyId,
+        amount: Math.round(orderData.amount * 100),
+        currency: orderData.currency || 'INR',
+        name: language === 'mr' ? 'ज्योतिषवेदा सुरक्षित देयक' : 'JyotishVeda Astrology',
+        description: serviceTitle,
+        order_id: orderData.orderId,
+        handler: async (response) => {
+          setStep('processing');
+          try {
+            const res = await api.verifyPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              serviceType,
+              referenceId,
+            });
+            if (res.success) {
+              setStep('success');
+              setTimeout(() => {
+                onSuccess(res.data);
+                onClose();
+              }, 1200);
+            } else {
+              setStep('failed');
+              setErrorMsg(language === 'mr' ? 'बॅकएंडवर स्वाक्षरी पडताळणी अयशस्वी झाली' : 'Signature verification rejected by backend');
+            }
+          } catch (vErr: any) {
+            setStep('failed');
+            setErrorMsg(vErr.message || (language === 'mr' ? 'पडताळणी अयशस्वी' : 'Verification failed'));
+          }
+        },
+        onFailure: (failedResp: any) => {
+          setStep('failed');
+          setErrorMsg(
+            failedResp?.error?.description ||
+            (language === 'mr' ? 'पेमेंट गेटवेवर अयशस्वी झाले' : 'Payment failed on Razorpay checkout')
+          );
+        },
+        modal: {
+          ondismiss: () => {
+            setStep('orderCreated');
+          },
+        },
       });
-
-      if (verificationResult.success) {
-        setStep('success');
-        setTimeout(() => {
-          onSuccess(verificationResult.data);
-          onClose();
-        }, 1200);
-      } else {
-        setStep('failed');
-        setErrorMsg(language === 'mr' ? 'सर्व्हरवर स्वाक्षरी पडताळणी अयशस्वी झाली' : 'Cryptographic signature verification failed on backend');
-      }
     } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to open Razorpay modal');
       setStep('failed');
-      setErrorMsg(err.message || (language === 'mr' ? 'बॅकएंडद्वारे पडताळणी नाकारली गेली' : 'Verification rejected by backend'));
     }
   };
 
@@ -183,14 +209,16 @@ export default function PaymentModal({
             </div>
 
             <p className="text-xs text-[#6B5A4E] leading-relaxed">
-              {language === 'mr' ? 'टेस्ट पेमेंट पूर्ण करण्यासाठी व स्ट्रॅपी ५ बॅकएंडवर सुरक्षित स्वाक्षरी तपासण्यासाठी खाली क्लिक करा.' : 'Click below to complete the test payment transaction and verify the cryptographic signature with Strapi 5.'}
+              {language === 'mr'
+                ? 'रेझरपे चेकआउट विंडो पुन्हा उघडण्यासाठी आणि सुरक्षित पेमेंट पूर्ण करण्यासाठी खाली क्लिक करा.'
+                : 'Click below to re-open the official Razorpay Checkout modal and complete the test payment.'}
             </p>
 
             <button
-              onClick={handleVerifySimulatedPayment}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition-all cursor-pointer"
+              onClick={handleReopenCheckout}
+              className="w-full py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold text-xs rounded-xl shadow-md hover:from-[#D97706] hover:to-[#B45309] transition-all cursor-pointer"
             >
-              {t('payment.authorizeTest')}
+              {language === 'mr' ? 'रेझरपे चेकआउट उघडा' : 'Open Razorpay Checkout'}
             </button>
           </div>
         )}

@@ -343,73 +343,117 @@ module.exports = {
       return ctx.unauthorized('Authentication required');
     }
 
-    const { bookingId, astrologerId } = ctx.request.body || {};
-    if (!bookingId) {
-      return ctx.badRequest('bookingId is required to start a paid consultation session');
+    const { bookingId, astrologerId, durationMinutes } = ctx.request.body || {};
+
+    let booking = null;
+    let astrologer = null;
+    let resolvedAstrologerId = astrologerId;
+    let resolvedDuration = parseInt(durationMinutes, 10) || 15;
+
+    // 1. Check if bookingId refers to an existing consultation-booking
+    if (bookingId && !isNaN(Number(bookingId))) {
+      booking = await strapi.entityService.findOne('api::consultation-booking.consultation-booking', Number(bookingId), {
+        populate: ['astrologer', 'user', 'payment'],
+      });
     }
 
-    const booking = await strapi.entityService.findOne('api::consultation-booking.consultation-booking', bookingId, {
-      populate: ['astrologer', 'user', 'payment'],
-    });
-
-    if (!booking) {
-      return ctx.notFound('Booking not found');
+    if (booking) {
+      if (booking.user && booking.user.id !== user.id) {
+        return ctx.forbidden('Access denied to this booking');
+      }
+      if (booking.status !== 'confirmed') {
+        return ctx.badRequest('Consultation booking has not been paid or confirmed yet. Please complete checkout.');
+      }
+      resolvedAstrologerId = booking.astrologer?.id || resolvedAstrologerId;
+      resolvedDuration = booking.durationMinutes || resolvedDuration;
+      astrologer = booking.astrologer;
+    } else {
+      // Direct live chat consultation with astrologer
+      const targetAstroId = astrologerId || bookingId;
+      if (targetAstroId && !isNaN(Number(targetAstroId))) {
+        astrologer = await strapi.entityService.findOne('api::astrologer.astrologer', Number(targetAstroId));
+        if (astrologer) {
+          resolvedAstrologerId = astrologer.id;
+        }
+      }
+      if (!astrologer) {
+        return ctx.badRequest('Valid astrologerId or bookingId is required to start a paid consultation session');
+      }
     }
 
-    if (booking.user && booking.user.id !== user.id) {
-      return ctx.forbidden('Access denied to this booking');
-    }
+    // 2. Check if an unexpired active session already exists (idempotency / resume across reloads)
+    const filterQuery = booking
+      ? { booking: booking.id, status: 'active' }
+      : { user: user.id, astrologer: resolvedAstrologerId, sessionType: 'paid_consultation', status: 'active' };
 
-    if (booking.status !== 'confirmed') {
-      return ctx.badRequest('Consultation booking has not been paid or confirmed yet. Please complete checkout.');
-    }
-
-    // Check if session already active for this booking
     const existing = await strapi.entityService.findMany('api::chat-session.chat-session', {
-      filters: { booking: booking.id },
+      filters: filterQuery,
       populate: ['astrologer', 'user'],
+      sort: { createdAt: 'desc' },
       limit: 1,
     });
 
+    const now = Date.now();
     if (existing && existing.length > 0) {
       const sess = existing[0];
-      const now = Date.now();
       const expiresAt = new Date(sess.expiresAt).getTime();
-      const remainingSeconds = Math.max(0, Math.floor((expiresAt - now) / 1000));
-      return {
-        data: {
-          ...sess,
-          remainingSeconds,
-        },
-      };
+      if (expiresAt > now) {
+        const remainingSeconds = Math.max(0, Math.floor((expiresAt - now) / 1000));
+        return {
+          data: {
+            ...sess,
+            remainingSeconds,
+          },
+        };
+      }
     }
 
-    const now = new Date();
-    const duration = booking.durationMinutes || 30;
-    const expiresAt = new Date(now.getTime() + duration * 60 * 1000);
-    const sessionNumber = `PAID-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+    // 3. Load user's latest birth chart summary for astrologer context
+    let chartSummary = null;
+    const kundlis = await strapi.entityService.findMany('api::kundli.kundli', {
+      filters: { user: user.id },
+      sort: { createdAt: 'desc' },
+      limit: 1,
+    });
 
-    const astrologerName = booking.astrologer?.name || 'Senior Acharya';
+    if (kundlis && kundlis.length > 0) {
+      chartSummary = kundlis[0].chartData;
+    } else {
+      const profiles = await strapi.entityService.findMany('api::birth-profile.birth-profile', {
+        filters: { user: user.id },
+        sort: { createdAt: 'desc' },
+        limit: 1,
+      });
+      if (profiles && profiles.length > 0 && profiles[0].chartData) {
+        chartSummary = profiles[0].chartData;
+      }
+    }
+
+    const startDate = new Date();
+    const expiresAt = new Date(startDate.getTime() + resolvedDuration * 60 * 1000);
+    const sessionNumber = `PAID-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+    const astrologerName = astrologer?.name || 'Senior Acharya';
 
     const session = await strapi.entityService.create('api::chat-session.chat-session', {
       data: {
         sessionNumber,
         sessionType: 'paid_consultation',
         status: 'active',
-        durationMinutes: duration,
+        durationMinutes: resolvedDuration,
         maxMessages: 100,
         messageCount: 1,
-        startedAt: now,
+        startedAt: startDate,
         expiresAt,
-        booking: booking.id,
-        payment: booking.payment ? booking.payment.id : null,
+        booking: booking ? booking.id : null,
+        payment: booking?.payment ? booking.payment.id : null,
         user: user.id,
-        astrologer: booking.astrologer ? booking.astrologer.id : astrologerId || null,
+        astrologer: resolvedAstrologerId,
+        birthChartSummary: chartSummary,
       },
       populate: ['astrologer', 'user'],
     });
 
-    const welcomeMsg = `Pranam ${user.username}. I am ${astrologerName}. Your paid ${duration}-minute private consultation has commenced. I have your complete birth chart and questions ready. What guidance are you seeking today?`;
+    const welcomeMsg = `Pranam ${user.username}. I am ${astrologerName}. Your paid ${resolvedDuration}-minute private consultation has commenced. I have your complete birth chart and questions ready. What guidance are you seeking today?`;
 
     await strapi.entityService.create('api::chat-message.chat-message', {
       data: {
@@ -417,14 +461,14 @@ module.exports = {
         senderType: 'astrologer',
         senderName: astrologerName,
         message: welcomeMsg,
-        timestamp: now,
+        timestamp: startDate,
       },
     });
 
     return {
       data: {
         ...session,
-        remainingSeconds: duration * 60,
+        remainingSeconds: resolvedDuration * 60,
       },
     };
   },
@@ -648,5 +692,21 @@ module.exports = {
     });
 
     return { data: updated };
+  },
+
+  async findMySessions(ctx) {
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized('Authentication required');
+    }
+
+    const sessions = await strapi.entityService.findMany('api::chat-session.chat-session', {
+      filters: { user: user.id },
+      populate: ['astrologer'],
+      sort: { createdAt: 'desc' },
+      limit: 20,
+    });
+
+    return { data: sessions || [] };
   },
 };

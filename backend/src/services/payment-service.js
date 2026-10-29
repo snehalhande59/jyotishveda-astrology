@@ -53,14 +53,19 @@ class PaymentService {
     };
   }
 
+  generateSignature({ orderId, paymentId }) {
+    if (!orderId || !paymentId || !this.keySecret) {
+      throw new Error('orderId, paymentId and keySecret required to compute signature');
+    }
+    return crypto
+      .createHmac('sha256', this.keySecret)
+      .update(`${orderId}|${paymentId}`)
+      .digest('hex');
+  }
+
   verifySignature({ orderId, paymentId, signature }) {
     if (!orderId || !paymentId || !signature) {
       return false;
-    }
-
-    // In local test mode testing
-    if (signature === 'test_signature_valid' || signature.startsWith('mock_sig_')) {
-      return true;
     }
 
     try {

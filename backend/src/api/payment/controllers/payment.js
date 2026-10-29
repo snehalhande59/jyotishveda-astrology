@@ -27,23 +27,49 @@ module.exports = {
           validatedAmount = STANDARD_REPORT_PRICES.default;
         }
       } else if (serviceType === 'consultation') {
-        if (referenceId && !isNaN(Number(referenceId))) {
-          // Look up booking or astrologer
+        let feeFound = false;
+        if (referenceId) {
           try {
-            const booking = await strapi.entityService.findOne('api::consultation-booking.consultation-booking', Number(referenceId), {
-              populate: ['astrologer'],
-            });
-            if (booking && booking.consultationFee) {
-              validatedAmount = parseFloat(booking.consultationFee);
-            } else if (booking && booking.astrologer && booking.astrologer.consultationFee) {
-              validatedAmount = parseFloat(booking.astrologer.consultationFee);
+            if (!isNaN(Number(referenceId))) {
+              const booking = await strapi.entityService.findOne('api::consultation-booking.consultation-booking', Number(referenceId), {
+                populate: ['astrologer'],
+              });
+              if (booking && booking.consultationFee) {
+                validatedAmount = parseFloat(booking.consultationFee);
+                feeFound = true;
+              } else if (booking && booking.astrologer && booking.astrologer.consultationFee) {
+                validatedAmount = parseFloat(booking.astrologer.consultationFee);
+                feeFound = true;
+              }
             }
-          } catch (e) {
-            // If booking not yet persisted by ID, fall back to astrologer check
+          } catch (e) {}
+
+          if (!feeFound) {
+            try {
+              let astro = null;
+              if (!isNaN(Number(referenceId))) {
+                astro = await strapi.entityService.findOne('api::astrologer.astrologer', Number(referenceId));
+              } else {
+                const astros = await strapi.entityService.findMany('api::astrologer.astrologer', {
+                  filters: { documentId: String(referenceId) },
+                  limit: 1,
+                });
+                if (astros && astros.length > 0) astro = astros[0];
+              }
+              if (astro && astro.consultationFee) {
+                validatedAmount = parseFloat(astro.consultationFee);
+                feeFound = true;
+              }
+            } catch (e) {}
           }
         }
-        if (!validatedAmount || validatedAmount < 100) {
+        if (!feeFound && (!validatedAmount || validatedAmount < 100)) {
           validatedAmount = 999; // Standard 30-min consultation baseline
+        }
+      } else if (serviceType === 'chat_consultation') {
+        // Enforce valid consultation pricing
+        if (!validatedAmount || isNaN(validatedAmount) || validatedAmount <= 0) {
+          validatedAmount = 375; // Standard 15-minute consultation baseline
         }
       } else if (serviceType === 'wallet_recharge') {
         // Enforce recharge limits (min ₹50, max ₹50,000)
@@ -215,6 +241,12 @@ module.exports = {
         });
       } catch (e) {
         console.warn('Consultation booking fulfillment notice:', e.message);
+      }
+    } else if (sType === 'chat_consultation') {
+      try {
+        console.log(`Live chat consultation payment fulfilled for user ${user?.id || 'guest'}, reference: ${refId}`);
+      } catch (e) {
+        console.warn('Chat consultation fulfillment notice:', e.message);
       }
     } else if (sType === 'wallet_recharge' && user) {
       try {

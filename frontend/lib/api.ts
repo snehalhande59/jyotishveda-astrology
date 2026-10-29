@@ -1,4 +1,4 @@
-import { getAuthToken } from './auth';
+import { getAuthToken, clearAuthSession } from './auth';
 import {
   Astrologer,
   AstrologyService,
@@ -26,10 +26,23 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   const url = `${STRAPI_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers,
   });
+
+  // If unauthorized due to an expired/invalid token, clear dead session and retry without token for public endpoints
+  if (response.status === 401 && token) {
+    if (typeof window !== 'undefined') {
+      clearAuthSession();
+    }
+    const retryHeaders = { ...headers };
+    delete retryHeaders['Authorization'];
+    response = await fetch(url, {
+      ...options,
+      headers: retryHeaders,
+    });
+  }
 
   if (!response.ok) {
     let errorMsg = `API request failed (${response.status})`;
@@ -408,5 +421,14 @@ export const api = {
       method: 'POST',
     });
     return res.data;
+  },
+
+  async getMyChatSessions() {
+    try {
+      const res = await request<{ data: any[] }>('/api/chat/my-sessions');
+      return Array.isArray(res?.data) ? res.data : [];
+    } catch (e) {
+      return [];
+    }
   },
 };

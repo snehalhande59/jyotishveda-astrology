@@ -10,44 +10,45 @@ module.exports = {
       const publicRole = roles.find((r) => r.type === 'public');
       const authRole = roles.find((r) => r.type === 'authenticated');
 
-      if (publicRole) {
-        const publicPermissions = [
-          'api::astrologer.astrologer.find',
-          'api::astrologer.astrologer.findOne',
-          'api::astrology-service.astrology-service.find',
-          'api::astrology-service.astrology-service.findOne',
-          'api::pricing-plan.pricing-plan.find',
-          'api::pricing-plan.pricing-plan.findOne',
-          'api::horoscope.horoscope.find',
-          'api::horoscope.horoscope.findOne',
-          'api::zodiac-sign.zodiac-sign.find',
-          'api::zodiac-sign.zodiac-sign.findOne',
-          'api::nakshatra.nakshatra.find',
-          'api::nakshatra.nakshatra.findOne',
-          'api::astrology-article.astrology-article.find',
-          'api::astrology-article.astrology-article.findOne',
-          'api::faq.faq.find',
-          'api::faq.faq.findOne',
-          'api::site-setting.site-setting.find',
-          'api::contact-message.contact-message.create',
-          'api::kundli.kundli.generate',
-          'api::kundli.kundli.calculatePanchang',
-          'api::kundli.kundli.calculateCompatibility',
-          'api::kundli.kundli.findOne',
-          'api::payment.payment.createOrder',
-          'api::payment.payment.verify',
-          'api::payment.payment.findMyOrders',
-          'api::payment.payment.webhook',
-          'api::birth-profile.birth-profile.create',
-          'api::birth-profile.birth-profile.findOne',
-          'api::astrology-report.astrology-report.generate',
-          'api::astrology-report.astrology-report.findOne',
-          'api::location.location.search',
-          'api::kundli.kundli.find',
-        ];
+      const publicPermissions = [
+        'api::astrologer.astrologer.find',
+        'api::astrologer.astrologer.findOne',
+        'api::astrology-service.astrology-service.find',
+        'api::astrology-service.astrology-service.findOne',
+        'api::pricing-plan.pricing-plan.find',
+        'api::pricing-plan.pricing-plan.findOne',
+        'api::horoscope.horoscope.find',
+        'api::horoscope.horoscope.findOne',
+        'api::zodiac-sign.zodiac-sign.find',
+        'api::zodiac-sign.zodiac-sign.findOne',
+        'api::nakshatra.nakshatra.find',
+        'api::nakshatra.nakshatra.findOne',
+        'api::astrology-article.astrology-article.find',
+        'api::astrology-article.astrology-article.findOne',
+        'api::faq.faq.find',
+        'api::faq.faq.findOne',
+        'api::site-setting.site-setting.find',
+        'api::contact-message.contact-message.create',
+        'api::kundli.kundli.generate',
+        'api::kundli.kundli.calculatePanchang',
+        'api::kundli.kundli.calculateCompatibility',
+        'api::kundli.kundli.findOne',
+        'api::payment.payment.createOrder',
+        'api::payment.payment.verify',
+        'api::payment.payment.findMyOrders',
+        'api::payment.payment.webhook',
+        'api::birth-profile.birth-profile.create',
+        'api::birth-profile.birth-profile.findOne',
+        'api::astrology-report.astrology-report.generate',
+        'api::astrology-report.astrology-report.findOne',
+        'api::consultation-booking.consultation-booking.create',
+        'api::consultation-booking.consultation-booking.findOne',
+        'api::location.location.search',
+        'api::kundli.kundli.find',
+      ];
 
+      if (publicRole) {
         for (const action of publicPermissions) {
-          const [api, controller, actionName] = action.split('.').slice(-3);
           const permissionExists = await strapi.query('plugin::users-permissions.permission').findOne({
             where: { role: publicRole.id, action },
           });
@@ -60,7 +61,11 @@ module.exports = {
       }
 
       if (authRole) {
+        // Authenticated users inherit all public catalog read actions plus personal user actions
         const authPermissions = [
+          ...publicPermissions,
+          'plugin::users-permissions.user.me',
+          'plugin::users-permissions.auth.changePassword',
           'api::birth-profile.birth-profile.findMe',
           'api::birth-profile.birth-profile.create',
           'api::birth-profile.birth-profile.findOne',
@@ -86,6 +91,7 @@ module.exports = {
           'api::chat-session.chat-session.sendMessage',
           'api::chat-session.chat-session.getMessages',
           'api::chat-session.chat-session.endSession',
+          'api::chat-session.chat-session.findMySessions',
         ];
 
         for (const action of authPermissions) {

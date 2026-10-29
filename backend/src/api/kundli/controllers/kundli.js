@@ -52,66 +52,120 @@ module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
   },
 
   async calculateCompatibility(ctx) {
-    const { boyBirth, girlBirth } = ctx.request.body;
-    if (!boyBirth || !girlBirth) {
-      return ctx.badRequest('Both boyBirth and girlBirth are required');
+    const body = ctx.request?.body || {};
+    const query = ctx.query || {};
+
+    let boyBirth = body.boyBirth;
+    let girlBirth = body.girlBirth;
+
+    // Support JSON objects passed in query string or flat query params
+    if (!boyBirth && query.boyBirth) {
+      try {
+        boyBirth = typeof query.boyBirth === 'string' ? JSON.parse(query.boyBirth) : query.boyBirth;
+      } catch {}
+    }
+    if (!girlBirth && query.girlBirth) {
+      try {
+        girlBirth = typeof query.girlBirth === 'string' ? JSON.parse(query.girlBirth) : query.girlBirth;
+      } catch {}
     }
 
-    const boyChart = vedicEngine.calculateKundli({
-      fullName: boyBirth.fullName || 'Boy',
-      dateOfBirth: boyBirth.dateOfBirth,
-      timeOfBirth: boyBirth.timeOfBirth,
-      placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
-      latitude: parseFloat(boyBirth.latitude) || 28.6139,
-      longitude: parseFloat(boyBirth.longitude) || 77.2090,
-    });
+    if (!boyBirth && (query.boyDate || query.boyDob)) {
+      boyBirth = {
+        fullName: query.boyName || 'Boy',
+        dateOfBirth: query.boyDate || query.boyDob,
+        timeOfBirth: query.boyTime || '12:00',
+        placeOfBirth: query.boyPlace || 'New Delhi',
+        latitude: parseFloat(query.boyLat) || 28.6139,
+        longitude: parseFloat(query.boyLon) || 77.2090,
+      };
+    }
 
-    const girlChart = vedicEngine.calculateKundli({
-      fullName: girlBirth.fullName || 'Girl',
-      dateOfBirth: girlBirth.dateOfBirth,
-      timeOfBirth: girlBirth.timeOfBirth,
-      placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
-      latitude: parseFloat(girlBirth.latitude) || 28.6139,
-      longitude: parseFloat(girlBirth.longitude) || 77.2090,
-    });
+    if (!girlBirth && (query.girlDate || query.girlDob)) {
+      girlBirth = {
+        fullName: query.girlName || 'Girl',
+        dateOfBirth: query.girlDate || query.girlDob,
+        timeOfBirth: query.girlTime || '12:00',
+        placeOfBirth: query.girlPlace || 'New Delhi',
+        latitude: parseFloat(query.girlLat) || 28.6139,
+        longitude: parseFloat(query.girlLon) || 77.2090,
+      };
+    }
 
-    const matching = vedicEngine.calculateGunaMilan(
-      boyChart.planets[1].longitude,
-      girlChart.planets[1].longitude
-    );
+    if (!boyBirth || !girlBirth) {
+      return ctx.badRequest('Both boyBirth and girlBirth details are required (with dateOfBirth)');
+    }
 
-    return {
-      data: {
-        boyChart: {
-          ascendant: boyChart.ascendant,
-          moonSign: boyChart.moonSign,
+    if (!boyBirth.dateOfBirth || !girlBirth.dateOfBirth) {
+      return ctx.badRequest('Valid dateOfBirth (YYYY-MM-DD) is required for both boy and girl');
+    }
+
+    try {
+      const boyChart = vedicEngine.calculateKundli({
+        fullName: boyBirth.fullName || 'Boy',
+        dateOfBirth: boyBirth.dateOfBirth,
+        timeOfBirth: boyBirth.timeOfBirth || '12:00',
+        placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
+        latitude: parseFloat(boyBirth.latitude) || 28.6139,
+        longitude: parseFloat(boyBirth.longitude) || 77.2090,
+      });
+
+      const girlChart = vedicEngine.calculateKundli({
+        fullName: girlBirth.fullName || 'Girl',
+        dateOfBirth: girlBirth.dateOfBirth,
+        timeOfBirth: girlBirth.timeOfBirth || '12:00',
+        placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
+        latitude: parseFloat(girlBirth.latitude) || 28.6139,
+        longitude: parseFloat(girlBirth.longitude) || 77.2090,
+      });
+
+      const matching = vedicEngine.calculateGunaMilan(
+        boyChart.planets[1].longitude,
+        girlChart.planets[1].longitude
+      );
+
+      return {
+        data: {
+          boyChart: {
+            ascendant: boyChart.ascendant,
+            moonSign: boyChart.moonSign,
+          },
+          girlChart: {
+            ascendant: girlChart.ascendant,
+            moonSign: girlChart.moonSign,
+          },
+          gunaMilan: matching,
         },
-        girlChart: {
-          ascendant: girlChart.ascendant,
-          moonSign: girlChart.moonSign,
-        },
-        gunaMilan: matching,
-      },
-    };
+      };
+    } catch (err) {
+      return ctx.badRequest('Failed to calculate compatibility: ' + (err.message || 'Invalid parameters'));
+    }
   },
 
   async calculatePanchang(ctx) {
-    const body = ctx.request.body || {};
-    const date = body.date || new Date().toISOString().split('T')[0];
-    const time = body.time || '06:00';
-    const latitude = parseFloat(body.latitude) || 28.6139;
-    const longitude = parseFloat(body.longitude) || 77.2090;
-    const timezoneOffsetHours = parseFloat(body.timezoneOffset) || 5.5;
+    const input = {
+      ...(ctx.query || {}),
+      ...(ctx.request?.body || {}),
+    };
+    const date = input.date || new Date().toISOString().split('T')[0];
+    const time = input.time || '06:00';
+    const latitude = parseFloat(input.latitude) || 28.6139;
+    const longitude = parseFloat(input.longitude) || 77.2090;
+    const timezoneOffsetHours = parseFloat(input.timezoneOffset ?? input.timezoneOffsetHours) || 5.5;
 
-    const panchang = vedicEngine.calculatePanchang({
-      date,
-      time,
-      latitude,
-      longitude,
-      timezoneOffsetHours,
-    });
+    try {
+      const panchang = vedicEngine.calculatePanchang({
+        date,
+        time,
+        latitude,
+        longitude,
+        timezoneOffsetHours,
+      });
 
-    return { data: panchang };
+      return { data: panchang };
+    } catch (err) {
+      return ctx.badRequest('Failed to calculate Panchang: ' + (err.message || 'Invalid parameters'));
+    }
   },
 
   async findOne(ctx) {

@@ -9,9 +9,25 @@ module.exports = {
       },
     },
     {
+      method: 'GET',
+      path: '/kundli/panchang',
+      handler: 'kundli.calculatePanchang',
+      config: {
+        policies: [],
+      },
+    },
+    {
       method: 'POST',
       path: '/kundli/panchang',
       handler: 'kundli.calculatePanchang',
+      config: {
+        policies: [],
+      },
+    },
+    {
+      method: 'GET',
+      path: '/kundli/compatibility',
+      handler: 'kundli.calculateCompatibility',
       config: {
         policies: [],
       },
