@@ -77,28 +77,28 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Trust Badges Bar */}
-            <div className="grid grid-cols-3 gap-3 text-center text-xs">
-              <div className="bg-white p-3 rounded-2xl border border-[#EAE1D2]">
-                <ShieldCheck className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
-                <strong className="block text-[11px] text-[#2D1810]">{isMr ? '१००% अस्सल' : '100% Authentic'}</strong>
-                <span className="text-[10px] text-gray-500">{isMr ? 'लॅब प्रमाणित' : 'Lab Certified'}</span>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center text-xs">
+              <div className="bg-white p-2.5 sm:p-3 rounded-2xl border border-[#EAE1D2]">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] mx-auto mb-1" />
+                <strong className="block text-[10px] sm:text-[11px] text-[#2D1810]">{isMr ? '१००% अस्सल' : '100% Authentic'}</strong>
+                <span className="text-[9px] sm:text-[10px] text-gray-500">{isMr ? 'लॅब प्रमाणित' : 'Lab Certified'}</span>
               </div>
-              <div className="bg-white p-3 rounded-2xl border border-[#EAE1D2]">
-                <Sparkles className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
-                <strong className="block text-[11px] text-[#2D1810]">{isMr ? 'प्राण प्रतिष्ठित' : 'Consecrated'}</strong>
-                <span className="text-[10px] text-gray-500">{isMr ? 'मंत्रोच्चार विधी' : 'Vedic Rituals'}</span>
+              <div className="bg-white p-2.5 sm:p-3 rounded-2xl border border-[#EAE1D2]">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] mx-auto mb-1" />
+                <strong className="block text-[10px] sm:text-[11px] text-[#2D1810]">{isMr ? 'प्राण प्रतिष्ठित' : 'Consecrated'}</strong>
+                <span className="text-[9px] sm:text-[10px] text-gray-500">{isMr ? 'मंत्रोच्चार विधी' : 'Vedic Rituals'}</span>
               </div>
-              <div className="bg-white p-3 rounded-2xl border border-[#EAE1D2]">
-                <Truck className="w-5 h-5 text-[#D97706] mx-auto mb-1" />
-                <strong className="block text-[11px] text-[#2D1810]">{isMr ? 'विनामूल्य पाठवणी' : 'Free Delivery'}</strong>
-                <span className="text-[10px] text-gray-500">{isMr ? '₹९९९ च्या वर' : 'Above ₹999'}</span>
+              <div className="bg-white p-2.5 sm:p-3 rounded-2xl border border-[#EAE1D2]">
+                <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] mx-auto mb-1" />
+                <strong className="block text-[10px] sm:text-[11px] text-[#2D1810]">{isMr ? 'विनामूल्य पाठवणी' : 'Free Delivery'}</strong>
+                <span className="text-[9px] sm:text-[10px] text-gray-500">{isMr ? '₹९९९ च्या वर' : 'Above ₹999'}</span>
               </div>
             </div>
           </div>
 
           {/* Product Information Column */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="bg-white rounded-3xl border border-[#EAE1D2] p-6 sm:p-8 shadow-sm space-y-5">
+            <div className="bg-white rounded-3xl border border-[#EAE1D2] p-4 sm:p-6 md:p-8 shadow-sm space-y-5">
               {/* Category & Rating */}
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase font-bold text-[#D97706] tracking-wider">
@@ -168,24 +168,24 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 pt-2">
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className={`py-3.5 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center space-x-2 ${
+                    className={`py-3.5 px-3 rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center space-x-2 ${
                       added
                         ? 'bg-emerald-600 text-white'
                         : 'bg-[#FFFBEB] hover:bg-[#FEF3C7] text-[#92400E] border-2 border-[#D97706]'
                     }`}
                   >
-                    {added ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4 text-[#D97706]" />}
-                    <span>{added ? (isMr ? 'कार्टमध्ये जोडले!' : 'Added to Cart!') : (isMr ? 'कार्टमध्ये जोडा' : 'Add to Cart')}</span>
+                    {added ? <Check className="w-4 h-4 flex-shrink-0" /> : <ShoppingBag className="w-4 h-4 text-[#D97706] flex-shrink-0" />}
+                    <span className="truncate">{added ? (isMr ? 'कार्टमध्ये जोडले!' : 'Added to Cart!') : (isMr ? 'कार्टमध्ये जोडा' : 'Add to Cart')}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={handleBuyNow}
-                    className="py-3.5 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all"
+                    className="py-3.5 px-3 rounded-2xl bg-[#D97706] hover:bg-[#B45309] text-white font-bold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all text-center truncate"
                   >
                     {isMr ? 'आता खरेदी करा' : 'Buy Now'}
                   </button>

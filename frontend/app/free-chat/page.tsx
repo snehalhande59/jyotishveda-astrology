@@ -337,28 +337,28 @@ export default function FreeChatPage() {
     return (
       <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans flex flex-col">
         {/* Chat Header Bar */}
-        <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] py-3 px-4 sm:px-6 sticky top-16 z-30 shadow-sm">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-[#D97706] font-bold text-sm">
-                {mode === 'ai' ? <Bot className="w-5 h-5" /> : <UserIcon className="w-5 h-5" />}
+        <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] py-2.5 sm:py-3 px-3 sm:px-6 sticky top-16 z-30 shadow-sm">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-[#D97706] font-bold text-sm flex-shrink-0">
+                {mode === 'ai' ? <Bot className="w-4 h-4 sm:w-5 sm:h-5" /> : <UserIcon className="w-4 h-4 sm:w-5 sm:h-5" />}
               </div>
-              <div>
-                <strong className="block text-xs sm:text-sm text-[#2D1810]">
+              <div className="min-w-0">
+                <strong className="block text-xs sm:text-sm text-[#2D1810] truncate">
                   {mode === 'ai' ? 'JyotishVeda AI Assistant' : selectedAstrologer?.name || 'Acharya Vidyadhar'}
                 </strong>
                 <span className="text-[10px] text-emerald-600 font-semibold flex items-center space-x-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{mode === 'ai' ? (isMr ? 'एआय ज्योतिष सहायक' : 'AI Astrologer (Parashari Model)') : (isMr ? 'सक्रिय सत्र' : 'Live Free Session')}</span>
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{mode === 'ai' ? (isMr ? 'एआय ज्योतिष सहायक' : 'AI Astrologer') : (isMr ? 'सक्रिय सत्र' : 'Live Free Session')}</span>
                 </span>
               </div>
             </div>
 
             {/* Actions & Countdown Timer */}
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-3.5 py-1.5 rounded-full">
-                <Clock className="w-4 h-4 text-[#D97706]" />
-                <span className={`font-mono text-xs font-extrabold ${secondsRemaining < 60 ? 'text-red-600 animate-pulse' : 'text-[#92400E]'}`}>
+            <div className="flex items-center space-x-1.5 sm:space-x-3 ml-auto flex-shrink-0">
+              <div className="flex items-center space-x-1 sm:space-x-2 bg-[#FFFBEB] border border-[#FDE68A] px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-full">
+                <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D97706]" />
+                <span className={`font-mono text-[11px] sm:text-xs font-extrabold ${secondsRemaining < 60 ? 'text-red-600 animate-pulse' : 'text-[#92400E]'}`}>
                   {formatTimer(secondsRemaining)}
                 </span>
               </div>
@@ -367,9 +367,9 @@ export default function FreeChatPage() {
                 <button
                   type="button"
                   onClick={handleEndSession}
-                  className="px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold transition-colors"
+                  className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[10px] sm:text-xs font-bold transition-colors"
                 >
-                  {isMr ? 'सत्र समाप्त करा' : 'End Chat'}
+                  {isMr ? 'समाप्त करा' : 'End Chat'}
                 </button>
               )}
             </div>
@@ -508,7 +508,7 @@ export default function FreeChatPage() {
               <label className="block text-xs font-bold text-[#5C4535] uppercase tracking-wider mb-2">
                 {isMr ? 'सल्लामसलत पद्धत निवडा' : 'Select Consultation Mode'}
               </label>
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <button
                   type="button"
                   onClick={() => setMode('human')}

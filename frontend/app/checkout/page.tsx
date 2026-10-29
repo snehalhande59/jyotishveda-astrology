@@ -181,8 +181,8 @@ export default function CheckoutPage() {
   // SUCCESS CONFIRMATION VIEW
   if (confirmedOrder) {
     return (
-      <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans py-16 px-4 sm:px-6">
-        <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-[#EAE1D2] p-8 sm:p-12 shadow-xl text-center space-y-6">
+      <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans py-12 sm:py-16 px-4 sm:px-6">
+        <div className="max-w-2xl mx-auto bg-white rounded-3xl border border-[#EAE1D2] p-5 sm:p-8 md:p-12 shadow-xl text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center mx-auto text-emerald-600">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
 
         <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Shipping Address Column */}
-          <div className="lg:col-span-7 bg-white rounded-3xl border border-[#EAE1D2] p-6 sm:p-8 shadow-sm space-y-5">
+          <div className="lg:col-span-7 bg-white rounded-3xl border border-[#EAE1D2] p-4 sm:p-6 md:p-8 shadow-sm space-y-5">
             <h2 className="font-serif font-bold text-lg text-[#2D1810] pb-2 border-b border-[#F3ECE1]">
               {isMr ? 'वितरण पत्ता तपशील' : 'Shipping & Delivery Address'}
             </h2>
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-[#5C4535] mb-1">{isMr ? 'शहर' : 'City'}</label>
                 <input
@@ -351,7 +351,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary & Payment Button */}
-          <div className="lg:col-span-5 bg-white rounded-3xl border border-[#EAE1D2] p-6 sm:p-8 shadow-sm space-y-5 sticky top-24">
+          <div className="lg:col-span-5 bg-white rounded-3xl border border-[#EAE1D2] p-4 sm:p-6 md:p-8 shadow-sm space-y-5 static lg:sticky lg:top-24">
             <h3 className="font-serif font-bold text-base text-[#2D1810] pb-2 border-b border-[#F3ECE1]">
               {isMr ? 'ऑर्डर तपशील' : 'Order Details'} ({totals.totalItems})
             </h3>

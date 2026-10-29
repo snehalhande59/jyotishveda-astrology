@@ -43,7 +43,7 @@ function LoginContent() {
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] pb-24 font-sans flex items-center justify-center p-4">
-      <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm max-w-md w-full space-y-6">
+      <div className="bg-white p-5 sm:p-8 md:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm max-w-md w-full space-y-6">
         <div className="text-center space-y-2">
           <div className="w-14 h-14 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center shadow-xs mx-auto text-[#D97706]">
             <Sparkles className="w-7 h-7" />

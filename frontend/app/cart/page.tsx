@@ -102,17 +102,17 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Cart Items List */}
             <div className="lg:col-span-8 space-y-4">
-              <div className="bg-white rounded-3xl border border-[#EAE1D2] p-6 shadow-sm space-y-4">
+              <div className="bg-white rounded-3xl border border-[#EAE1D2] p-4 sm:p-6 shadow-sm space-y-4">
                 {items.map(({ product, quantity }) => (
                   <div
                     key={product.id}
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#F5EFE6] last:border-0 last:pb-0"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE1D2] flex-shrink-0">
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE1D2] flex-shrink-0">
                         <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <Link
                           href={`/shop/product/${product.slug}`}
                           className="font-serif font-bold text-sm text-[#2D1810] hover:text-[#D97706] transition-colors line-clamp-1"
@@ -149,7 +149,7 @@ export default function CartPage() {
                       </div>
 
                       {/* Total */}
-                      <span className="font-serif font-bold text-sm text-[#2D1810] w-20 text-right">
+                      <span className="font-serif font-bold text-sm text-[#2D1810] w-16 sm:w-20 text-right">
                         ₹{product.price * quantity}
                       </span>
 
@@ -182,7 +182,7 @@ export default function CartPage() {
 
             {/* Order Summary Column */}
             <div className="lg:col-span-4">
-              <div className="bg-white rounded-3xl border border-[#EAE1D2] p-6 shadow-sm space-y-5 sticky top-24">
+              <div className="bg-white rounded-3xl border border-[#EAE1D2] p-4 sm:p-6 shadow-sm space-y-5 static lg:sticky lg:top-24">
                 <h3 className="font-serif font-bold text-base text-[#2D1810] pb-3 border-b border-[#F3ECE1]">
                   {isMr ? 'ऑर्डर सारांश' : 'Order Summary'}
                 </h3>

@@ -58,13 +58,13 @@ export default function PremiumKundliReportPage() {
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
         {purchasedReport ? (
-          <div className="bg-white text-[#2D1810] p-8 sm:p-10 rounded-2xl border-2 border-[#D97706] shadow-md space-y-6 animate-fadeIn">
-            <div className="flex justify-between items-center pb-4 border-b border-[#EAE1D2]">
+          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-10 rounded-3xl border-2 border-[#D97706] shadow-md space-y-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-[#EAE1D2] gap-3">
               <div>
                 <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   {language === 'mr' ? 'प्रीमियम जीवन अहवाल' : 'Premium Life Dossier'}
                 </span>
-                <h2 className="font-serif text-3xl font-bold text-[#2D1810] mt-1">{purchasedReport.title}</h2>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810] mt-1">{purchasedReport.title}</h2>
               </div>
               <span className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold">
                 {language === 'mr' ? 'खरेदी केलेले आणि सक्रिय' : 'Purchased & Active'}
@@ -106,7 +106,7 @@ export default function PremiumKundliReportPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
             <div className="lg:col-span-6 space-y-6">
               <BirthDetailsForm
                 onSubmit={handleFormSubmit}
@@ -117,7 +117,7 @@ export default function PremiumKundliReportPage() {
             </div>
 
             <div className="lg:col-span-6 space-y-6">
-              <div className="bg-white p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+              <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
                 <div className="flex justify-between items-baseline">
                   <div>
                     <span className="text-[10px] text-[#B45309] uppercase font-bold tracking-wider">

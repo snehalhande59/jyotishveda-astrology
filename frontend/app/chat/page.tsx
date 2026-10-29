@@ -117,7 +117,7 @@ export default function ChatHubPage() {
 
       await openRazorpayModal({
         key: order.keyId,
-        amount: order.amount,
+        amount: Math.round(order.amount * 100),
         currency: order.currency || 'INR',
         name: language === 'mr' ? 'ज्योतिषवेदा चॅट' : 'JyotishVeda Live Chat',
         description: `${duration} Mins Consultation with ${astrologer.name}`,
@@ -179,7 +179,7 @@ export default function ChatHubPage() {
         )}
 
         {/* Free First Chat Eligibility Card */}
-        <div className="bg-gradient-to-r from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] border-2 border-[#F59E0B] rounded-3xl p-6 sm:p-8 shadow-sm text-[#2D1810] relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] border-2 border-[#F59E0B] rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm text-[#2D1810] relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               <div className="flex items-center space-x-2">

@@ -45,7 +45,7 @@ export default function FaqPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         {/* Category Filter Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2 justify-center">
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 pb-2 sm:justify-center">
           {categories.map((cat) => (
             <button
               key={cat}

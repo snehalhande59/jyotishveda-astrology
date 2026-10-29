@@ -330,7 +330,7 @@ export default function CalculatorsPage() {
               <Link
                 key={calc.href}
                 href={calc.href}
-                className="group bg-white rounded-3xl border border-[#EAE1D2] p-6 shadow-sm hover:shadow-xl hover:border-[#D97706] transition-all flex flex-col justify-between"
+                className="group bg-white rounded-3xl border border-[#EAE1D2] p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-[#D97706] transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between mb-4">

@@ -220,11 +220,11 @@ export default function ShopHomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4">
           {zodiacProducts.slice(0, 12).map((prod) => (
             <div
               key={prod.id}
-              className="bg-white rounded-2xl border border-[#EAE1D2] p-3 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
+              className="bg-white rounded-2xl border border-[#EAE1D2] p-2.5 sm:p-3 flex flex-col justify-between shadow-sm hover:shadow-md transition-all group"
             >
               <Link href={`/shop/product/${prod.slug}`} className="block">
                 <div className="aspect-square rounded-xl overflow-hidden mb-2 bg-[#FAF7F2] border border-[#F3ECE1]">
@@ -360,22 +360,22 @@ export default function ShopHomePage() {
             </div>
 
             {/* Search & Sort Controls */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
+            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              <div className="relative flex-1 sm:flex-initial">
                 <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder={isMr ? 'उत्पादन शोधा...' : 'Search products...'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 pr-3 py-2 bg-white border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none w-48 sm:w-60 shadow-sm"
+                  className="pl-8 pr-3 py-2 bg-white border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none w-full sm:w-60 shadow-sm"
                 />
               </div>
 
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 bg-white border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none shadow-sm"
+                className="px-3 py-2 bg-white border border-[#EAE1D2] rounded-xl text-xs focus:ring-2 focus:ring-[#D97706]/40 focus:outline-none shadow-sm flex-shrink-0"
               >
                 <option value="featured">{isMr ? 'विशेष शिफारस' : 'Featured'}</option>
                 <option value="price-low">{isMr ? 'किंमत: कमी ते जास्त' : 'Price: Low to High'}</option>
@@ -386,7 +386,7 @@ export default function ShopHomePage() {
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 text-xs">
+          <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 pb-4 mb-6 text-xs">
             {[
               { id: 'all', label: isMr ? 'सर्व उत्पादने' : 'All Products' },
               { id: 'crystal', label: isMr ? 'क्रिस्टल्स व खडे' : 'Crystals' },

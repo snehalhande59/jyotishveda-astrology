@@ -24,7 +24,7 @@ export default function AboutPage() {
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-14 space-y-16">
         {/* Section 1: Vedic vs Western Astrology */}
-        <section className="bg-white p-8 sm:p-10 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+        <section className="bg-white p-5 sm:p-8 md:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
           <div className="border-l-4 border-[#D97706] pl-4">
             <h2 className="font-serif text-2xl font-bold text-[#2D1810]">
               Vedic (Sidereal) vs. Western (Tropical) Astrology
@@ -99,7 +99,7 @@ export default function AboutPage() {
         </section>
 
         {/* Section 3: Ethical Philosophy: Karma & Purushartha */}
-        <section className="bg-white text-[#2D1810] p-8 sm:p-10 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+        <section className="bg-white text-[#2D1810] p-5 sm:p-8 md:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
           <div className="flex items-center space-x-3 text-[#D97706]">
             <ShieldCheck className="w-6 h-6" />
             <h2 className="font-serif text-2xl font-bold text-[#2D1810]">

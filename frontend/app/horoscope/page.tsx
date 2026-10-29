@@ -123,14 +123,14 @@ export default function HoroscopePage() {
         </div>
 
         {/* Selected Sign View & Frequency Toggles */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-8">
+        <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 sm:space-y-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[#F5EFE6] gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-3xl text-[#D97706] shadow-xs">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-2xl sm:text-3xl text-[#D97706] shadow-xs flex-shrink-0">
                 {activeSignInfo.symbol}
               </div>
               <div>
-                <h2 className="font-serif text-2xl font-bold text-[#2D1810]">
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810]">
                   {translateSign(activeSignInfo.name)} ({activeSignInfo.sanskrit})
                 </h2>
                 <p className="text-xs text-[#786C60] mt-0.5">{activeSignInfo.dates}</p>
@@ -174,7 +174,7 @@ export default function HoroscopePage() {
           ) : horoscope ? (
             <div className="space-y-8">
               {/* General Guidance Quote Card */}
-              <div className="bg-[#FFFDF9] border border-[#EAE1D2] rounded-2xl p-6 relative">
+              <div className="bg-[#FFFDF9] border border-[#EAE1D2] rounded-2xl p-4 sm:p-6 relative">
                 <span className="text-[10px] uppercase font-bold text-[#D97706] tracking-wider block mb-2">
                   {language === 'mr' ? 'आजचा प्रमुख संदेश' : 'Core Planetary Guidance'}
                 </span>
@@ -184,9 +184,9 @@ export default function HoroscopePage() {
               </div>
 
               {/* 4 Pillars of Life (Love, Career, Finance, Health) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Love */}
-                <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
+                <div className="bg-[#FFFDF9] p-4 sm:p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
                   <div className="flex items-center space-x-2 text-[#D97706]">
                     <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
                     <h3 className="font-serif text-sm font-bold text-[#2D1810]">
@@ -199,7 +199,7 @@ export default function HoroscopePage() {
                 </div>
 
                 {/* Career */}
-                <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
+                <div className="bg-[#FFFDF9] p-4 sm:p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
                   <div className="flex items-center space-x-2 text-[#D97706]">
                     <Briefcase className="w-4 h-4 text-[#D97706]" />
                     <h3 className="font-serif text-sm font-bold text-[#2D1810]">
@@ -212,7 +212,7 @@ export default function HoroscopePage() {
                 </div>
 
                 {/* Finance */}
-                <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
+                <div className="bg-[#FFFDF9] p-4 sm:p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
                   <div className="flex items-center space-x-2 text-[#D97706]">
                     <DollarSign className="w-4 h-4 text-emerald-600" />
                     <h3 className="font-serif text-sm font-bold text-[#2D1810]">
@@ -225,7 +225,7 @@ export default function HoroscopePage() {
                 </div>
 
                 {/* Health */}
-                <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
+                <div className="bg-[#FFFDF9] p-4 sm:p-5 rounded-2xl border border-[#EAE1D2] space-y-2.5 shadow-2xs">
                   <div className="flex items-center space-x-2 text-[#D97706]">
                     <Activity className="w-4 h-4 text-amber-600" />
                     <h3 className="font-serif text-sm font-bold text-[#2D1810]">

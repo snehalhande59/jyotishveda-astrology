@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </section>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 bg-white p-8 sm:p-12 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6 text-xs text-[#5C4033] leading-relaxed">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 bg-white p-5 sm:p-8 md:p-12 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 text-xs text-[#5C4033] leading-relaxed">
         <div className="flex items-center space-x-2 text-[#92400E] font-bold text-sm">
           <ShieldCheck className="w-5 h-5 text-[#D97706]" />
           <span>Our Commitment to Sacred Birth Privacy</span>

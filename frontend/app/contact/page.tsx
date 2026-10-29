@@ -52,7 +52,7 @@ export default function ContactPage() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         {/* Contact Info */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white text-[#2D1810] p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+          <div className="bg-white text-[#2D1810] p-5 sm:p-6 md:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
             <h3 className="font-serif text-xl font-bold text-[#2D1810]">
               {language === 'mr' ? 'वैदिक ज्ञान केंद्र' : 'Vedic Knowledge Center'}
             </h3>
@@ -80,7 +80,7 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Form */}
-        <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+        <div className="lg:col-span-7 bg-white p-5 sm:p-6 md:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
           <h3 className="font-serif text-xl font-bold text-[#2D1810]">
             {language === 'mr' ? 'आम्हाला संदेश पाठवा' : 'Send Us a Message'}
           </h3>

@@ -41,7 +41,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold">
             <div className="flex items-center space-x-1.5 bg-white border border-[#EAE1D2] px-3.5 py-1.5 rounded-full text-[#16A34A] shadow-xs">
               <ShieldCheck className="w-4 h-4 text-[#16A34A]" />
               <span>100% Confidential</span>

@@ -495,26 +495,26 @@ export default function HomePage() {
             </div>
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#EAE1D2] max-w-md">
-              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-2xl font-bold text-[#B45309]">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-[#EAE1D2] max-w-md">
+              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">
                   {formatNumber(27)}
                 </span>
-                <span className="text-[11px] text-[#786C60] font-medium">
+                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
                   {t('home.metricNakshatras')}
                 </span>
               </div>
-              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-2xl font-bold text-[#B45309]">100%</span>
-                <span className="text-[11px] text-[#786C60] font-medium">
+              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">100%</span>
+                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
                   {t('home.metricAccuracy')}
                 </span>
               </div>
-              <div className="bg-white/80 p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-2xl font-bold text-[#B45309]">
+              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">
                   {formatNumber(4.98)}★
                 </span>
-                <span className="text-[11px] text-[#786C60] font-medium">
+                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
                   {t('home.metricRating')}
                 </span>
               </div>
@@ -762,7 +762,7 @@ export default function HomePage() {
           {/* Horizontal Scrollable Row */}
           <div
             ref={carouselRef}
-            className="flex gap-5 overflow-x-auto no-scrollbar scroll-smooth py-2 -mx-4 px-4 sm:mx-0 sm:px-0"
+            className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth py-2 -mx-4 px-4 sm:mx-0 sm:px-0"
           >
             {(Array.isArray(astrologers) && astrologers.length > 0 ? astrologers : [
               {
@@ -818,7 +818,7 @@ export default function HomePage() {
               return (
                 <div
                   key={astrologer.id}
-                  className="w-[280px] sm:w-[310px] flex-shrink-0 bg-white border border-[#EAE1D2] rounded-2xl p-5 shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
+                  className="w-[260px] sm:w-[310px] flex-shrink-0 bg-white border border-[#EAE1D2] rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
                 >
                   <div>
                     {/* Top Row: Photo with Green Border + Verified Badge */}
@@ -962,7 +962,7 @@ export default function HomePage() {
               </div>
 
               {/* 12 Zodiac Tabs */}
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              <div className="grid grid-cols-3 xs:grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2">
                 {ZODIAC_OVERVIEW.map((z) => {
                   const signLabel = translateSign(z.name);
                   const isSelected = selectedZodiac.name === z.name;
@@ -1663,7 +1663,7 @@ export default function HomePage() {
           9. FINAL CONSULTATION CTA BANNER
          ======================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#B45309] text-white rounded-2xl sm:rounded-3xl p-6 sm:p-12 shadow-xl relative overflow-hidden">
           {/* Subtle celestial pattern */}
           <div className="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#FFF_1px,transparent_1px)] [background-size:24px_24px]" />
 

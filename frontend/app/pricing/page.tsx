@@ -53,9 +53,9 @@ export default function PricingPage() {
             return (
               <div
                 key={service.id}
-                className={`rounded-3xl p-8 flex flex-col justify-between transition-all ${
+                className={`rounded-3xl p-5 sm:p-8 flex flex-col justify-between transition-all ${
                   isFeatured
-                    ? 'bg-gradient-to-b from-[#FFFDF9] to-[#FFFBEB] border-2 border-[#F59E0B] shadow-md scale-105'
+                    ? 'bg-gradient-to-b from-[#FFFDF9] to-[#FFFBEB] border-2 border-[#F59E0B] shadow-md md:scale-105'
                     : 'bg-white border border-[#EAE1D2] shadow-sm text-[#2D1810]'
                 }`}
               >
@@ -120,7 +120,7 @@ export default function PricingPage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="bg-white p-8 rounded-3xl border border-[#EAE1D2] shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
+        <div className="bg-white p-5 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-xs">
           <div className="space-y-1.5">
             <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center mx-auto text-[#D97706] shadow-2xs">
               <ShieldCheck className="w-6 h-6" />

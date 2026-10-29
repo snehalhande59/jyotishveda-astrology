@@ -89,11 +89,11 @@ export default function HealingPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {remedies.map((rem, i) => (
             <div
               key={i}
-              className="bg-white p-8 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex flex-col justify-between"
+              className="bg-white p-5 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex flex-col justify-between"
             >
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#92400E] bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A]">

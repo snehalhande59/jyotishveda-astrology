@@ -36,7 +36,7 @@ export default function CalculatorShell({
       {/* Breadcrumb Header */}
       <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] py-4">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <nav className="flex items-center space-x-2 text-xs text-[#786C60] mb-3">
+          <nav className="flex flex-wrap items-center gap-1.5 text-xs text-[#786C60] mb-3">
             <Link href="/" className="hover:text-[#D97706]">Home</Link>
             <ChevronRight className="w-3.5 h-3.5 text-[#D8C7A5]" />
             <Link href="/calculators" className="hover:text-[#D97706]">
@@ -81,10 +81,10 @@ export default function CalculatorShell({
         </div>
 
         {/* Form and Result Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
           {/* Input Form Column */}
           <div className={result ? 'lg:col-span-5' : 'lg:col-span-8 lg:col-start-3'}>
-            <div className="bg-white rounded-3xl border border-[#EAE1D2] shadow-sm p-6 sm:p-8">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#EAE1D2] shadow-sm p-4 sm:p-8">
               {children}
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function CalculatorShell({
           {/* Result Column */}
           {result && (
             <div className="lg:col-span-7">
-              <div className="bg-white rounded-3xl border border-[#EAE1D2] shadow-md p-6 sm:p-8 sticky top-24">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#EAE1D2] shadow-md p-4 sm:p-8 static lg:sticky lg:top-24">
                 {result}
               </div>
             </div>

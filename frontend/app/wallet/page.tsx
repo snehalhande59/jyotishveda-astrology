@@ -118,7 +118,7 @@ export default function WalletPage() {
             </p>
           </div>
 
-          <div className="bg-white border-2 border-[#D97706] rounded-2xl p-5 shadow-sm text-center min-w-[220px]">
+          <div className="bg-white border-2 border-[#D97706] rounded-2xl p-5 shadow-sm text-center w-full md:w-auto md:min-w-[220px]">
             <span className="text-[10px] uppercase font-bold tracking-widest text-[#B45309] block">
               {language === 'mr' ? 'उपलब्ध शिल्लक' : 'Available Balance'}
             </span>
@@ -135,7 +135,7 @@ export default function WalletPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Recharge Controls */}
         <div className="md:col-span-7 space-y-6">
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
             <h2 className="font-serif text-xl font-bold text-[#2D1810] flex items-center space-x-2">
               <PlusCircle className="w-5 h-5 text-[#D97706]" />
               <span>{language === 'mr' ? 'वॉलेटमध्ये शिल्लक जोडा' : 'Add Balance to Wallet'}</span>
@@ -153,7 +153,7 @@ export default function WalletPage() {
               <label className="block text-xs font-semibold text-[#5C4033] mb-2">
                 {language === 'mr' ? 'रिचार्ज रक्कम निवडा (रुपये)' : 'Select Recharge Amount (INR)'}
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 {[200, 500, 1000, 2000].map((amt) => (
                   <button
                     key={amt}

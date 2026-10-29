@@ -74,10 +74,10 @@ export default function CompatibilityPage() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-10">
         {/* Form Inputs */}
-        <form onSubmit={handleMatch} className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form onSubmit={handleMatch} className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Boy Birth Box */}
-            <div className="p-6 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] space-y-4">
+            <div className="p-4 sm:p-6 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] space-y-4">
               <div className="flex items-center space-x-2 border-b border-[#F5EFE6] pb-2.5">
                 <span className="w-3 h-3 rounded-full bg-blue-500" />
                 <h3 className="font-serif text-base font-bold text-[#2D1810]">
@@ -96,7 +96,7 @@ export default function CompatibilityPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#4A2E18] mb-1.5">{language === 'mr' ? 'जन्मतारीख' : 'Date of Birth'}</label>
                   <input
@@ -139,7 +139,7 @@ export default function CompatibilityPage() {
             </div>
 
             {/* Girl Birth Box */}
-            <div className="p-6 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] space-y-4">
+            <div className="p-4 sm:p-6 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] space-y-4">
               <div className="flex items-center space-x-2 border-b border-[#F5EFE6] pb-2.5">
                 <span className="w-3 h-3 rounded-full bg-rose-500" />
                 <h3 className="font-serif text-base font-bold text-[#2D1810]">
@@ -158,7 +158,7 @@ export default function CompatibilityPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-[#4A2E18] mb-1.5">{language === 'mr' ? 'जन्मतारीख' : 'Date of Birth'}</label>
                   <input
@@ -220,13 +220,13 @@ export default function CompatibilityPage() {
 
         {/* Results */}
         {result && (
-          <div className="bg-white text-[#2D1810] p-6 sm:p-10 rounded-3xl border-2 border-[#FDE68A] shadow-md space-y-8 animate-fadeIn">
+          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-10 rounded-3xl border-2 border-[#FDE68A] shadow-md space-y-6 sm:space-y-8 animate-fadeIn">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[#F5EFE6] gap-4">
               <div>
                 <span className="text-[10px] text-[#D97706] font-bold uppercase tracking-wider bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] inline-block mb-1">
                   {language === 'mr' ? 'गुणमेलन निकाल' : 'Match Evaluation Result'}
                 </span>
-                <h3 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">
+                <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">
                   {result.gunaMilan?.totalScore} / 36 {language === 'mr' ? 'गुण' : 'Gunas'}
                 </h3>
                 <p className="text-xs text-[#786C60] mt-1">
@@ -244,7 +244,7 @@ export default function CompatibilityPage() {
                   </div>
                 </div>
                 <div
-                  className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-bold text-lg shadow-sm ${
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center font-bold text-base sm:text-lg shadow-sm ${
                     result.gunaMilan?.totalScore >= 18
                       ? 'bg-emerald-50 text-emerald-800 border-2 border-emerald-300'
                       : 'bg-rose-50 text-rose-800 border-2 border-rose-300'
@@ -262,8 +262,8 @@ export default function CompatibilityPage() {
                 {language === 'mr' ? '८ अष्टकूट सविस्तर विश्लेषण' : '8 Ashta Kuta Detailed Breakdown'}
               </h4>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
+              <div className="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0">
+                <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                   <thead>
                     <tr className="border-b border-[#EAE1D2] bg-[#FAF7F2] text-[#4A2E18] font-bold">
                       <th className="py-3 px-3">{language === 'mr' ? 'कूट नाव' : 'Kuta'}</th>

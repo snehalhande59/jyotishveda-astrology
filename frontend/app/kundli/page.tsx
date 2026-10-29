@@ -150,7 +150,7 @@ export default function KundliPage() {
           {/* Quick Summary Card */}
           <div className="lg:col-span-7 print:col-span-12">
             {chartData ? (
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 print:border-none print:shadow-none print:p-0">
+              <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 print:border-none print:shadow-none print:p-0">
                 <div className="flex flex-wrap justify-between items-center pb-4 border-b border-[#F5EFE6] gap-4">
                   <div>
                     <span className="text-[10px] uppercase font-bold text-[#92400E] tracking-wider bg-[#FFFBEB] px-2.5 py-0.5 rounded-full border border-[#FDE68A]">
@@ -168,11 +168,11 @@ export default function KundliPage() {
                   </div>
 
                   {/* Actions (Hidden in Print) */}
-                  <div className="flex items-center space-x-2 print:hidden">
+                  <div className="flex flex-wrap items-center gap-2 print:hidden">
                     <button
                       onClick={handleSaveProfile}
                       disabled={savingProfile}
-                      className="flex items-center space-x-1.5 px-3.5 py-2 bg-[#FFFBEB] border border-[#FDE68A] text-xs font-bold text-[#92400E] rounded-xl hover:bg-[#FEF3C7] transition-colors cursor-pointer shadow-xs"
+                      className="flex items-center space-x-1.5 px-3 py-2 bg-[#FFFBEB] border border-[#FDE68A] text-xs font-bold text-[#92400E] rounded-xl hover:bg-[#FEF3C7] transition-colors cursor-pointer shadow-xs"
                     >
                       {savedSuccess ? (
                         <>
@@ -189,7 +189,7 @@ export default function KundliPage() {
 
                     <button
                       onClick={handlePrint}
-                      className="flex items-center space-x-1.5 px-3.5 py-2 bg-white border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:bg-[#FAF7F2] transition-colors cursor-pointer shadow-xs"
+                      className="flex items-center space-x-1.5 px-3 py-2 bg-white border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:bg-[#FAF7F2] transition-colors cursor-pointer shadow-xs"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>{t('kundli.printPdf')}</span>
@@ -197,7 +197,7 @@ export default function KundliPage() {
 
                     <Link
                       href="/chat"
-                      className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 transition-opacity"
+                      className="flex items-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-bold rounded-xl shadow-xs hover:opacity-95 transition-opacity"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
                       <span>{t('kundli.askAstrologer')}</span>
@@ -206,8 +206,8 @@ export default function KundliPage() {
                 </div>
 
                 {/* 4 Core Vedic Pillars */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+                  <div className="p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
                     <span className="text-[10px] text-[#786C60] uppercase block font-semibold">{t('kundli.lagna')}</span>
                     <strong className="font-serif text-base text-[#2D1810] block mt-1">
                       {translateSign(chartData.ascendant.signName)}
@@ -218,7 +218,7 @@ export default function KundliPage() {
                     </span>
                   </div>
 
-                  <div className="p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
+                  <div className="p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
                     <span className="text-[10px] text-[#786C60] uppercase block font-semibold">{t('kundli.rashi')}</span>
                     <strong className="font-serif text-base text-[#2D1810] block mt-1">
                       {translateSign(chartData.moonSign.signName)}
@@ -227,7 +227,7 @@ export default function KundliPage() {
                     <span className="text-[9px] text-[#786C60]/70 block mt-0.5">{chartData.moonSign.degreeFormatted}</span>
                   </div>
 
-                  <div className="p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
+                  <div className="p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
                     <span className="text-[10px] text-[#786C60] uppercase block font-semibold">{t('kundli.nakshatra')}</span>
                     <strong className="font-serif text-base text-[#2D1810] block mt-1">
                       {chartData.moonSign.nakshatra}
@@ -236,7 +236,7 @@ export default function KundliPage() {
                     <span className="text-[9px] text-[#786C60]/70 block mt-0.5">{t('kundli.lord')}: {translatePlanet(chartData.moonSign.nakshatraLord)}</span>
                   </div>
 
-                  <div className="p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
+                  <div className="p-2.5 sm:p-3.5 bg-[#FFFDF9] rounded-2xl border border-[#EAE1D2] text-center shadow-2xs">
                     <span className="text-[10px] text-[#786C60] uppercase block font-semibold">{t('kundli.sunSign')}</span>
                     <strong className="font-serif text-base text-[#2D1810] block mt-1">
                       {translateSign(chartData.sunSign.signName)}
@@ -275,7 +275,7 @@ export default function KundliPage() {
               </div>
 
               {/* Chart Switchers (Hidden on print) */}
-              <div className="flex items-center space-x-3 print:hidden">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 print:hidden">
                 {/* Varga Selector */}
                 <div className="flex bg-[#FAF7F2] p-1 rounded-xl text-xs border border-[#EAE1D2]">
                   <button
@@ -363,8 +363,8 @@ export default function KundliPage() {
 
         {/* Detailed Planetary Positions & Dignities Table */}
         {chartData && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
-            <div className="flex items-center justify-between pb-3 border-b border-[#F5EFE6]">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
+            <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#F5EFE6] gap-2">
               <div className="flex items-center space-x-2 text-[#2D1810]">
                 <Table className="w-5 h-5 text-[#D97706]" />
                 <h3 className="font-serif text-xl font-bold">{t('kundli.planetsTableTitle')}</h3>
@@ -374,8 +374,8 @@ export default function KundliPage() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0">
+              <table className="w-full text-left text-xs border-collapse min-w-[640px]">
                 <thead>
                   <tr className="border-b border-[#EAE1D2] bg-[#FAF7F2] text-[#4A2E18] font-bold">
                     <th className="py-3 px-3">{t('kundli.graha')}</th>
@@ -449,7 +449,7 @@ export default function KundliPage() {
 
         {/* 12 Bhavas (Houses) Breakdown */}
         {chartData && (
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
             <div className="flex items-center space-x-2 text-[#2D1810]">
               <Layers className="w-5 h-5 text-[#D97706]" />
               <h3 className="font-serif text-xl font-bold">{t('kundli.bhavasTitle')}</h3>
@@ -489,7 +489,7 @@ export default function KundliPage() {
 
         {/* Vimshottari Mahadasha Timeline */}
         {chartData && (
-          <div className="bg-white text-[#2D1810] p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
+          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
             <div className="flex items-center space-x-2 text-[#D97706]">
               <Clock className="w-5 h-5" />
               <h3 className="font-serif text-xl font-bold text-[#2D1810]">
@@ -503,8 +503,8 @@ export default function KundliPage() {
               })}
             </p>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
+            <div className="overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0">
+              <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                 <thead>
                   <tr className="border-b border-[#EAE1D2] bg-[#FAF7F2] text-[#4A2E18] font-bold">
                     <th className="py-2.5 px-4">{t('kundli.dashaLord')}</th>

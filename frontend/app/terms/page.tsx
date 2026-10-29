@@ -13,7 +13,7 @@ export default function TermsPage() {
         </p>
       </section>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 bg-white p-8 sm:p-12 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-6 text-xs text-[#5C4033] leading-relaxed">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 bg-white p-5 sm:p-8 md:p-12 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 text-xs text-[#5C4033] leading-relaxed">
         <div className="p-4 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] text-[#92400E] flex items-start space-x-3">
           <ShieldAlert className="w-5 h-5 text-[#D97706] flex-shrink-0 mt-0.5" />
           <p>

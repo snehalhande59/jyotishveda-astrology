@@ -76,7 +76,7 @@ export default function PanchangPage() {
         </div>
 
         {/* Controls Card */}
-        <div className="bg-white border border-[#EAE1D2] rounded-3xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-white border border-[#EAE1D2] rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#4A2E18] uppercase tracking-wider mb-2 flex items-center space-x-1.5">
@@ -142,9 +142,9 @@ export default function PanchangPage() {
         {panchang && !loading && (
           <div className="space-y-8 animate-fadeIn">
             {/* The 5 Limbs (Panchang) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
               {/* 1. Tithi */}
-              <div className="bg-white border border-[#EAE1D2] rounded-2xl p-5 space-y-3 shadow-xs">
+              <div className="bg-white border border-[#EAE1D2] rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-[#D97706] uppercase tracking-wider">
                     {language === 'mr' ? '१. तिथी' : '1. Tithi (Lunar Day)'}
@@ -261,13 +261,13 @@ export default function PanchangPage() {
             </div>
 
             {/* Auspicious & Inauspicious Timings */}
-            <div className="bg-white border-2 border-[#FDE68A] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="bg-white border-2 border-[#FDE68A] rounded-3xl p-4 sm:p-6 md:p-8 space-y-6 shadow-sm">
               <h3 className="font-serif text-lg sm:text-xl font-bold text-[#2D1810] flex items-center space-x-2">
                 <Clock className="w-5 h-5 text-[#D97706]" />
                 <span>{language === 'mr' ? 'शुभ आणि अशुभ मुहूर्त काळ' : 'Auspicious & Inauspicious Muhurat Windows'}</span>
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {/* Sunrise & Sunset */}
                 <div className="bg-[#FFFDF9] border border-[#EAE1D2] rounded-2xl p-4 space-y-1">
                   <span className="text-[11px] text-[#D97706] font-bold uppercase tracking-wider">

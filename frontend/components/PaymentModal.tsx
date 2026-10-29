@@ -129,8 +129,8 @@ export default function PaymentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fadeIn font-sans">
-      <div className="bg-white border-2 border-[#FDE68A] w-full max-w-md rounded-3xl p-6 sm:p-8 text-[#2D1810] shadow-xl relative space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-fadeIn font-sans">
+      <div className="bg-white border-2 border-[#FDE68A] w-full max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-8 text-[#2D1810] shadow-xl relative space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-5 right-5 text-[#786C60] hover:text-[#2D1810] cursor-pointer"

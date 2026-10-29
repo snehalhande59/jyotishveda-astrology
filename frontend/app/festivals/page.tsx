@@ -159,7 +159,7 @@ export default function FestivalsPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         {/* Category Filters */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 pb-2">
           <Filter className="w-4 h-4 text-[#D97706] flex-shrink-0" />
           <span className="text-xs font-semibold text-[#786C60] mr-2">
             {language === 'mr' ? 'फिल्टर:' : 'Filter:'}
@@ -180,11 +180,11 @@ export default function FestivalsPage() {
         </div>
 
         {/* Festival Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {filtered.map((fest) => (
             <div
               key={fest.id}
-              className="bg-white border border-[#EAE1D2] rounded-2xl p-6 shadow-sm hover:border-[#D97706] transition-all flex flex-col justify-between"
+              className="bg-white border border-[#EAE1D2] rounded-3xl p-4 sm:p-6 shadow-sm hover:border-[#D97706] transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">

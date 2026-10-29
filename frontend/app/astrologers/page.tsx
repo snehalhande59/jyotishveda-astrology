@@ -62,9 +62,9 @@ export default function AstrologersPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-8">
         {/* Specialty Filter Pills */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-2">
+        <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           <Filter className="w-4 h-4 text-[#D97706] flex-shrink-0" />
-          <span className="text-xs font-bold text-[#4A2E18] mr-2">{t('astrologers.filterSpecialty')}</span>
+          <span className="text-xs font-bold text-[#4A2E18] mr-2 flex-shrink-0">{t('astrologers.filterSpecialty')}</span>
           {specialtiesList.map((spec) => {
             const label = specialtiesLabels[spec] ? (language === 'mr' ? specialtiesLabels[spec].mr : specialtiesLabels[spec].en) : spec;
             const isSelected = selectedSpecialty === spec;
@@ -91,7 +91,7 @@ export default function AstrologersPage() {
             return (
               <div
                 key={astrologer.id}
-                className="bg-white border border-[#EAE1D2] rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
+                className="bg-white border border-[#EAE1D2] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm hover:shadow-md hover:border-[#F59E0B] transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between mb-4">

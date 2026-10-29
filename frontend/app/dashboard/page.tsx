@@ -77,7 +77,7 @@ export default function DashboardPage() {
             <p className="text-xs text-[#786C60]">{language === 'mr' ? 'ईमेल:' : 'Email:'} {user?.email}</p>
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Link
               href="/birth-profile"
               className="px-4 py-2 bg-[#D97706] hover:bg-[#B45309] text-white font-semibold text-xs rounded-xl shadow-md transition-all"
@@ -96,57 +96,57 @@ export default function DashboardPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-10">
         {/* Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <Link
             href="/dashboard/reports"
-            className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
+            className="bg-white p-4 sm:p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
           >
             <div>
               <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">
                 {language === 'mr' ? 'माझे अहवाल' : 'My Reports'}
               </span>
-              <h3 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">{reports.length}</h3>
+              <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">{reports.length}</h3>
               <p className="text-xs text-[#D97706] font-semibold mt-1">
                 {language === 'mr' ? 'अहवाल पहा →' : 'View active reports →'}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706]">
+            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706] flex-shrink-0">
               <FileText className="w-6 h-6" />
             </div>
           </Link>
 
           <Link
             href="/dashboard/bookings"
-            className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
+            className="bg-white p-4 sm:p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
           >
             <div>
               <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">
                 {language === 'mr' ? 'सल्लामसलत' : 'Consultations'}
               </span>
-              <h3 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">{bookings.length}</h3>
+              <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">{bookings.length}</h3>
               <p className="text-xs text-[#D97706] font-semibold mt-1">
                 {language === 'mr' ? 'अपॉइंटमेंट्स पहा →' : 'View appointments →'}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706]">
+            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706] flex-shrink-0">
               <Calendar className="w-6 h-6" />
             </div>
           </Link>
 
           <Link
             href="/dashboard/birth-profiles"
-            className="bg-white p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
+            className="bg-white p-4 sm:p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
           >
             <div>
               <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">
                 {language === 'mr' ? 'जतन केलेली प्रोफाइल्स' : 'Saved Profiles'}
               </span>
-              <h3 className="font-serif text-3xl font-extrabold text-[#2D1810] mt-1">{profiles.length}</h3>
+              <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">{profiles.length}</h3>
               <p className="text-xs text-[#D97706] font-semibold mt-1">
                 {language === 'mr' ? 'व्यवस्थापित करा →' : 'Manage profiles →'}
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706]">
+            <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706] flex-shrink-0">
               <Compass className="w-6 h-6" />
             </div>
           </Link>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
         {/* Recent Activity Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Saved Birth Profiles */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
             <div className="flex justify-between items-center border-b border-[#EAE1D2] pb-3">
               <h3 className="font-serif text-lg font-bold text-[#2D1810]">
                 {language === 'mr' ? 'जतन केलेली जन्म माहिती' : 'Saved Birth Profiles'}
@@ -168,7 +168,7 @@ export default function DashboardPage() {
             {profiles.length > 0 ? (
               <div className="divide-y divide-[#EAE1D2] text-xs">
                 {profiles.map((p) => (
-                  <div key={p.id} className="py-3 flex justify-between items-center">
+                  <div key={p.id} className="py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                       <strong className="text-sm font-semibold text-[#2D1810] block">{p.fullName}</strong>
                       <span className="text-[#786C60]">
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     </div>
                     <Link
                       href="/kundli"
-                      className="px-3 py-1 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-semibold rounded-lg hover:bg-[#FEF3C7] transition-colors"
+                      className="px-3 py-1 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-semibold rounded-lg hover:bg-[#FEF3C7] transition-colors self-end sm:self-auto"
                     >
                       {language === 'mr' ? 'कुंडली पहा' : 'View Kundli'}
                     </Link>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Upcoming Consultations */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
             <div className="flex justify-between items-center border-b border-[#EAE1D2] pb-3">
               <h3 className="font-serif text-lg font-bold text-[#2D1810]">
                 {language === 'mr' ? 'सल्लामसलत सत्रे' : 'Consultation Sessions'}
@@ -207,7 +207,7 @@ export default function DashboardPage() {
             {bookings.length > 0 ? (
               <div className="divide-y divide-[#EAE1D2] text-xs">
                 {bookings.map((b) => (
-                  <div key={b.id} className="py-3 flex justify-between items-center">
+                  <div key={b.id} className="py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                       <strong className="text-sm font-semibold text-[#2D1810] block">
                         {b.astrologer?.name || (language === 'mr' ? 'वैदिक विद्वान' : 'Vedic Scholar')}
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                         href={b.meetingLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="px-3 py-1 bg-[#D97706] hover:bg-[#B45309] text-white font-semibold rounded-lg transition-colors"
+                        className="px-3 py-1 bg-[#D97706] hover:bg-[#B45309] text-white font-semibold rounded-lg transition-colors self-end sm:self-auto"
                       >
                         {language === 'mr' ? 'कॉलमध्ये सामील व्हा' : 'Join Call'}
                       </a>

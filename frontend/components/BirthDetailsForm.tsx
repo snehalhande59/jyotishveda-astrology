@@ -195,8 +195,8 @@ export default function BirthDetailsForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white border border-[#EAE1D2] p-6 md:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow space-y-6 text-[#2D1810]">
-      <div className="flex items-center justify-between pb-3 border-b border-[#EAE1D2]">
+    <form onSubmit={handleSubmit} className="bg-white border border-[#EAE1D2] p-4 sm:p-6 md:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow space-y-5 sm:space-y-6 text-[#2D1810]">
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#EAE1D2]">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-[#D97706]">
             <Sparkles className="w-4 h-4" />

@@ -104,7 +104,7 @@ function BookingContent() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         {confirmedBooking ? (
-          <div className="bg-white p-8 sm:p-12 rounded-3xl border-2 border-[#FDE68A] shadow-md text-center space-y-5">
+          <div className="bg-white p-5 sm:p-8 md:p-12 rounded-3xl border-2 border-[#FDE68A] shadow-md text-center space-y-5">
             <div className="w-16 h-16 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center mx-auto text-emerald-600">
               <CheckCircle2 className="w-9 h-9" />
             </div>
@@ -122,7 +122,7 @@ function BookingContent() {
               <div><strong>{language === 'mr' ? 'सत्र प्रकार:' : 'Format:'}</strong> {language === 'mr' ? 'थेट व्हॉईस/व्हिडिओ कॉल' : 'Private Voice / Video'}</div>
             </div>
 
-            <div className="pt-4 flex justify-center space-x-3">
+            <div className="pt-4 flex flex-wrap justify-center gap-3">
               <Link
                 href="/dashboard/bookings"
                 className="px-5 py-2.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white text-xs font-bold rounded-xl shadow-xs"
@@ -138,7 +138,7 @@ function BookingContent() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleStartBooking} className="bg-white p-6 sm:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-8">
+          <form onSubmit={handleStartBooking} className="bg-white p-4 sm:p-6 md:p-10 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6 sm:space-y-8">
             {/* Astrologer Selector */}
             <div>
               <label className="block text-xs font-bold text-[#4A2E18] mb-3">

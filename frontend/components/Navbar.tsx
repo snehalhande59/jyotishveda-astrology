@@ -76,6 +76,7 @@ export default function Navbar() {
     setUser(getCurrentUser());
     setWalletBalance(getWalletBalance());
     setCartItemCount(getCartTotals().totalItems);
+    setMobileMenuOpen(false); // Auto-close drawer on navigation
 
     const handleWalletUpdate = () => setWalletBalance(getWalletBalance());
     const handleAuthUpdate = () => setUser(getCurrentUser());
@@ -124,10 +125,10 @@ export default function Navbar() {
         {/* ========================================================
             1. TOP SLIM UTILITY BAR (AstroTalk-Inspired)
            ======================================================== */}
-        <div className="bg-[#FAF7F2] border-b border-[#EAE1D2] text-[11px] py-1.5 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-y-1">
+        <div className="bg-[#FAF7F2] border-b border-[#EAE1D2] text-[11px] py-1 px-3 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-x-2">
             {/* Quick Links */}
-            <div className="flex items-center space-x-3 sm:space-x-4 overflow-x-auto text-[#785D46]">
+            <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto no-scrollbar py-0.5 text-[#785D46] min-w-0 flex-shrink">
               <Link href="/horoscope" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
                 <Star className="w-3 h-3 text-[#D97706]" />
                 <span>{t('nav.rashifal')}</span>
@@ -155,16 +156,16 @@ export default function Navbar() {
             </div>
 
             {/* Right Side: Wallet, Cart, Search, Account, Language */}
-            <div className="flex items-center space-x-3 ml-auto">
+            <div className="flex items-center space-x-2 sm:space-x-3 ml-auto flex-shrink-0">
               {/* Wallet Button */}
               <Link
                 href="/wallet"
-                className="flex items-center space-x-1.5 bg-[#FFFBEB] border border-[#FDE68A] px-2.5 py-0.5 rounded-full hover:border-[#D97706] transition-all text-[#92400E]"
+                className="flex items-center space-x-1 sm:space-x-1.5 bg-[#FFFBEB] border border-[#FDE68A] px-2 sm:px-2.5 py-0.5 rounded-full hover:border-[#D97706] transition-all text-[#92400E]"
                 title="Manage Astro Credits & Balance"
               >
                 <Wallet className="w-3 h-3 text-[#D97706]" />
                 <span className="font-semibold text-xs">₹{walletBalance.toLocaleString('en-IN')}</span>
-                <span className="text-[9px] uppercase tracking-wider text-[#B45309] bg-white px-1 rounded ml-1 font-bold">
+                <span className="text-[9px] uppercase tracking-wider text-[#B45309] bg-white px-1 rounded ml-0.5 hidden xs:inline font-bold">
                   + Add
                 </span>
               </Link>
@@ -175,7 +176,7 @@ export default function Navbar() {
                 className="relative p-1 text-[#785D46] hover:text-[#D97706] transition-colors"
                 title="View Shopping Cart"
               >
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 bg-[#D97706] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm">
                     {cartItemCount}
@@ -195,13 +196,13 @@ export default function Navbar() {
 
               {/* User Authentication Status */}
               {user ? (
-                <div className="flex items-center space-x-2 pl-1 border-l border-[#EAE1D2]">
+                <div className="flex items-center space-x-1.5 pl-1 border-l border-[#EAE1D2]">
                   <Link
                     href="/dashboard"
                     className="flex items-center space-x-1 text-[#92400E] hover:underline font-semibold"
                   >
                     <UserIcon className="w-3 h-3 text-[#D97706]" />
-                    <span className="max-w-[85px] truncate">{user.username}</span>
+                    <span className="hidden sm:inline max-w-[85px] truncate">{user.username}</span>
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -212,14 +213,14 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-1.5 pl-1 border-l border-[#EAE1D2]">
-                  <Link href="/login" className="hover:text-[#D97706] font-medium text-[#5C4535]">
+                <div className="flex items-center space-x-1 pl-1 border-l border-[#EAE1D2]">
+                  <Link href="/login" className="hover:text-[#D97706] font-medium text-[#5C4535] text-[10px] sm:text-[11px]">
                     {t('nav.signIn')}
                   </Link>
                   <span className="text-[#D8C7A5]">/</span>
                   <Link
                     href="/register"
-                    className="text-[#D97706] hover:text-[#B45309] font-semibold"
+                    className="text-[#D97706] hover:text-[#B45309] font-semibold text-[10px] sm:text-[11px]"
                   >
                     {t('nav.signUp')}
                   </Link>
@@ -237,17 +238,17 @@ export default function Navbar() {
         {/* ========================================================
             2. MAIN NAVIGATION BAR (AstroTalk Brand & Menu Structure)
            ======================================================== */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo & Brand Name */}
-          <Link href="/" className="flex items-center space-x-3 group flex-shrink-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B] flex items-center justify-center shadow-sm border border-[#FCD34D] group-hover:scale-105 transition-transform">
-              <Sparkles className="w-5 h-5 text-[#92400E]" />
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B] flex items-center justify-center shadow-sm border border-[#FCD34D] group-hover:scale-105 transition-transform flex-shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#92400E]" />
             </div>
-            <div>
-              <span className="font-serif text-2xl font-extrabold tracking-wide text-[#2D1810] block leading-tight">
+            <div className="min-w-0">
+              <span className="font-serif text-lg sm:text-2xl font-extrabold tracking-wide text-[#2D1810] block leading-tight truncate">
                 Jyotish<span className="text-[#D97706]">Veda</span>
               </span>
-              <span className="block text-[9px] tracking-widest uppercase text-[#8C6D1F] font-sans font-medium">
+              <span className="hidden sm:block text-[8px] sm:text-[9px] tracking-widest uppercase text-[#8C6D1F] font-sans font-medium">
                 Vedic Astrology &amp; Ephemeris
               </span>
             </div>
@@ -581,11 +582,11 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             {/* User Profile / Dashboard Icon */}
             <Link
               href={user ? '/dashboard' : '/login'}
-              className="hidden sm:flex items-center justify-center w-9 h-9 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] hover:border-[#D97706] hover:bg-[#FEF3C7] transition-all"
+              className="hidden md:flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] hover:border-[#D97706] hover:bg-[#FEF3C7] transition-all"
               title={user ? `Logged in as ${user.username}` : 'Sign In to Portal'}
             >
               <UserIcon className="w-4 h-4" />
@@ -594,17 +595,17 @@ export default function Navbar() {
             {/* PROMINENT ASTROTALK-STYLE "FIRST CHAT FREE" BUTTON (Points to /free-chat) */}
             <Link
               href="/free-chat"
-              className="inline-flex items-center space-x-1.5 px-4 sm:px-5 py-2.5 rounded-full bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] text-[#2D1810] font-serif font-bold text-xs sm:text-sm shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+              className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-full bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] text-[#2D1810] font-serif font-bold text-[11px] sm:text-xs shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex-shrink-0"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping inline-block" />
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-600 animate-ping inline-block" />
               <span>{t('nav.firstChatFree')}</span>
-              <ArrowRight className="w-4 h-4 ml-0.5" />
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
             </Link>
 
             {/* Mobile Menu Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-[#2D1810] hover:bg-[#FAF7F2] border border-[#EAE1D2]"
+              className="lg:hidden p-1.5 sm:p-2 rounded-xl text-[#2D1810] hover:bg-[#FAF7F2] border border-[#EAE1D2] flex-shrink-0"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -616,14 +617,21 @@ export default function Navbar() {
             3. MOBILE SLIDING DRAWER MENU
            ======================================================== */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#FFFDF9] border-t border-[#EAE1D2] px-4 py-5 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl animate-fadeIn">
-            {/* Mobile Language Switcher Row */}
-            <div className="flex items-center justify-between p-3 bg-[#FAF7F2] border border-[#EAE1D2] rounded-2xl">
-              <span className="text-xs text-[#5C4535] font-semibold">
-                {language === 'mr' ? 'भाषा निवडा:' : 'Select Language:'}
-              </span>
-              <LanguageSwitcher />
-            </div>
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-xs"
+              onClick={closeMenu}
+              aria-hidden="true"
+            />
+            <div className="relative z-50 lg:hidden bg-[#FFFDF9] border-t border-[#EAE1D2] px-4 py-5 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl animate-fadeIn">
+              {/* Mobile Language Switcher Row */}
+              <div className="flex items-center justify-between p-3 bg-[#FAF7F2] border border-[#EAE1D2] rounded-2xl">
+                <span className="text-xs text-[#5C4535] font-semibold">
+                  {language === 'mr' ? 'भाषा निवडा:' : 'Select Language:'}
+                </span>
+                <LanguageSwitcher />
+              </div>
 
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -743,6 +751,7 @@ export default function Navbar() {
               )}
             </div>
           </div>
+          </>
         )}
       </header>
 
