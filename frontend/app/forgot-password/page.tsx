@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
-import { getStrapiUrl } from '@/lib/api';
+import { api } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
   const { language } = useLanguage();
@@ -20,21 +20,10 @@ export default function ForgotPasswordPage() {
     setErrorMsg(null);
 
     try {
-      const strapiUrl = getStrapiUrl();
-      const res = await fetch(`${strapiUrl}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        // If SMTP isn't configured, Strapi responds with error; handle gracefully
-        console.warn('Strapi forgot-password dispatch notice:', data?.error?.message);
-      }
+      await api.forgotPassword(email.trim().toLowerCase());
       setSubmitted(true);
     } catch (err: any) {
-      console.warn('Password recovery error:', err.message);
+      console.warn('Password recovery error:', err?.message);
       // Still show confirmation screen to prevent email enumeration attacks
       setSubmitted(true);
     } finally {

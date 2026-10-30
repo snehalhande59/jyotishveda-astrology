@@ -28,6 +28,14 @@ export function getStrapiUrl(): string {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname;
     if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      // If running on a local Wi-Fi private IP during local development, point to local Strapi port 1337
+      const isLanIp =
+        /^192\.168\.\d{1,3}\.\d{1,3}$/.test(host) ||
+        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host) ||
+        /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host);
+      if (isLanIp && process.env.NODE_ENV !== 'production') {
+        return `http://${host}:1337`;
+      }
       return PRODUCTION_STRAPI_URL;
     }
   }
@@ -37,6 +45,18 @@ export function getStrapiUrl(): string {
   }
 
   return 'http://localhost:1337';
+}
+
+/**
+ * Generates the full Google OAuth initiation URL including dynamic callback parameter.
+ */
+export function getGoogleAuthUrl(): string {
+  const base = getStrapiUrl();
+  if (typeof window !== 'undefined') {
+    const callback = `${window.location.origin}/connect/google/redirect`;
+    return `${base}/api/connect/google?callback=${encodeURIComponent(callback)}`;
+  }
+  return `${base}/api/connect/google`;
 }
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -54,10 +74,34 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const base = getStrapiUrl();
   const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  let response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let response: Response;
+  try {
+    // 40s timeout to allow Render free tier spin-up
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 40000);
+    const signal = options.signal || controller.signal;
+
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers,
+        signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error('Connection timed out. The astrology server is waking up, please retry in a few seconds.');
+    }
+    if (typeof window !== 'undefined' && !navigator.onLine) {
+      throw new Error('You appear to be offline. Please check your internet connection.');
+    }
+    if (err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('Failed'))) {
+      throw new Error('Unable to connect to the astrology server. Please check your network connection.');
+    }
+    throw err;
+  }
 
   // If unauthorized due to an expired/invalid token, clear dead session and retry without token for public endpoints
   if (response.status === 401 && token) {
@@ -66,10 +110,14 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     }
     const retryHeaders = { ...headers };
     delete retryHeaders['Authorization'];
-    response = await fetch(url, {
-      ...options,
-      headers: retryHeaders,
-    });
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers: retryHeaders,
+      });
+    } catch {
+      // ignore retry failure and throw below
+    }
   }
 
   if (!response.ok) {
@@ -111,6 +159,13 @@ export const api = {
     return request<AuthResponse>('/api/auth/local/register', {
       method: 'POST',
       body: JSON.stringify({ username, email, password }),
+    });
+  },
+
+  async forgotPassword(email: string): Promise<any> {
+    return request<any>('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
     });
   },
 

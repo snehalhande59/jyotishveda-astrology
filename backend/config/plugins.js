@@ -7,12 +7,54 @@ module.exports = ({ env }) => {
 
   const googleClientId = env('GOOGLE_CLIENT_ID');
   const googleClientSecret = env('GOOGLE_CLIENT_SECRET');
-  const googleCallbackUrl = env('GOOGLE_CALLBACK_URL');
+  const frontendUrl = env('FRONTEND_URL', 'http://localhost:3001');
+  const googleCallbackUrl = env('GOOGLE_CALLBACK_URL', `${frontendUrl}/connect/google/redirect`);
 
   const pluginsConfig = {
     'users-permissions': {
       config: {
         jwtSecret: env('JWT_SECRET', 'superJwtSecret1234567890ForVedicAstrologyPlatform'),
+        callback: {
+          validate(callback, provider) {
+            let uCallback;
+            try {
+              uCallback = new URL(callback);
+            } catch {
+              throw new Error('The callback is not a valid URL');
+            }
+
+            const allowedOrigins = [
+              'http://localhost:3001',
+              'http://127.0.0.1:3001',
+              'https://jyotishveda-astrology.vercel.app',
+              'https://jyotishveda-astrology-web.vercel.app',
+              'https://jyotishveda.com',
+              'https://www.jyotishveda.com',
+              frontendUrl,
+            ].filter(Boolean).map((url) => {
+              try {
+                return new URL(url).origin;
+              } catch {
+                return url;
+              }
+            });
+
+            const isAllowed =
+              allowedOrigins.includes(uCallback.origin) ||
+              uCallback.hostname.endsWith('.vercel.app') ||
+              (provider && provider.callback && (() => {
+                try {
+                  return uCallback.origin === new URL(provider.callback).origin;
+                } catch {
+                  return false;
+                }
+              })());
+
+            if (!isAllowed) {
+              throw new Error(`Forbidden callback origin: ${uCallback.origin}`);
+            }
+          },
+        },
       },
     },
   };
@@ -47,7 +89,7 @@ module.exports = ({ env }) => {
         icon: 'google',
         key: googleClientId,
         secret: googleClientSecret,
-        callback: googleCallbackUrl || `${env('PUBLIC_URL', 'http://localhost:1337')}/api/connect/google/callback`,
+        callback: googleCallbackUrl,
         scope: ['email', 'profile'],
       },
     };

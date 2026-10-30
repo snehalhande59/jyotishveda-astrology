@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { api, getStrapiUrl } from '@/lib/api';
+import { api, getStrapiUrl, getGoogleAuthUrl } from '@/lib/api';
 import { setAuthSession } from '@/lib/auth';
 import { Sparkles, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -30,12 +30,27 @@ function LoginContent() {
       setAuthSession(res.jwt, res.user);
       router.push(redirectUrl);
     } catch (err: any) {
-      setError(
-        err.message ||
-          (language === 'mr'
+      const msg = err?.message || '';
+      if (msg.includes('Invalid identifier or password')) {
+        setError(
+          language === 'mr'
             ? 'अवैध वापरकर्तानाव/ईमेल किंवा पासवर्ड.'
-            : 'Invalid username/email or password.')
-      );
+            : 'Invalid username/email or password.'
+        );
+      } else if (msg.includes('Unable to connect') || msg.includes('timed out') || msg.includes('offline')) {
+        setError(
+          language === 'mr'
+            ? 'सर्व्हरशी संपर्क होऊ शकला नाही. कृपया इंटरनेट कनेक्शन तपासा किंवा काही सेकंदांनंतर पुन्हा प्रयत्न करा.'
+            : msg
+        );
+      } else {
+        setError(
+          msg ||
+            (language === 'mr'
+              ? 'लॉगिन अयशस्वी. कृपया पुन्हा प्रयत्न करा.'
+              : 'Login failed. Please try again.')
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -129,7 +144,7 @@ function LoginContent() {
           </div>
 
           <a
-            href={`${getStrapiUrl()}/api/connect/google`}
+            href={getGoogleAuthUrl()}
             className="w-full py-3 px-4 bg-[#FAF7F2] hover:bg-[#FFFDF9] border border-[#EAE1D2] hover:border-[#D97706] rounded-xl text-xs font-bold text-[#2D1810] flex items-center justify-center space-x-2.5 transition-all shadow-2xs"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
