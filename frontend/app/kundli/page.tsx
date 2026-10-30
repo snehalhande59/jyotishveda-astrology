@@ -363,7 +363,7 @@ export default function KundliPage() {
 
         {/* Detailed Planetary Positions & Dignities Table */}
         {chartData && (
-          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
+          <div className="bg-white p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0 overflow-hidden">
             <div className="flex flex-wrap items-center justify-between pb-3 border-b border-[#F5EFE6] gap-2">
               <div className="flex items-center space-x-2 text-[#2D1810]">
                 <Table className="w-5 h-5 text-[#D97706]" />
@@ -489,7 +489,7 @@ export default function KundliPage() {
 
         {/* Vimshottari Mahadasha Timeline */}
         {chartData && (
-          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0">
+          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-4 print:border-none print:p-0 overflow-hidden">
             <div className="flex items-center space-x-2 text-[#D97706]">
               <Clock className="w-5 h-5" />
               <h3 className="font-serif text-xl font-bold text-[#2D1810]">

@@ -293,14 +293,14 @@ export default function BirthDetailsForm({
               } rounded-xl text-sm text-[#2D1810] focus:outline-none focus:border-[#D97706] focus:bg-white transition-colors`}
             />
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
               <select
                 value={hours12}
                 onChange={(e) => {
                   setHours12(e.target.value);
                   handle12hChange(e.target.value, minutes12, ampm);
                 }}
-                className="px-2 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-sm text-[#2D1810] focus:outline-none focus:border-[#D97706] focus:bg-white"
+                className="px-1.5 sm:px-2 py-2 sm:py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs sm:text-sm text-[#2D1810] focus:outline-none focus:border-[#D97706] focus:bg-white"
               >
                 {Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0')).map((h) => (
                   <option key={h} value={h}>{h} {t('form.hour')}</option>
@@ -312,7 +312,7 @@ export default function BirthDetailsForm({
                   setMinutes12(e.target.value);
                   handle12hChange(hours12, e.target.value, ampm);
                 }}
-                className="px-2 py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-sm text-[#2D1810] focus:outline-none focus:border-[#D97706] focus:bg-white"
+                className="px-1.5 sm:px-2 py-2 sm:py-2.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs sm:text-sm text-[#2D1810] focus:outline-none focus:border-[#D97706] focus:bg-white"
               >
                 {Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')).map((m) => (
                   <option key={m} value={m}>{m} {t('form.minute')}</option>
@@ -325,7 +325,7 @@ export default function BirthDetailsForm({
                   setAmpm(nextPeriod);
                   handle12hChange(hours12, minutes12, nextPeriod);
                 }}
-                className={`py-2.5 rounded-xl border font-bold text-xs uppercase transition-all cursor-pointer ${
+                className={`py-2 sm:py-2.5 rounded-xl border font-bold text-xs uppercase transition-all cursor-pointer ${
                   ampm === 'AM'
                     ? 'bg-[#FEF3C7] border-[#FCD34D] text-[#92400E]'
                     : 'bg-[#FFEDD5] border-[#FDBA74] text-[#C2410C]'

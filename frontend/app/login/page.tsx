@@ -3,7 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { api } from '@/lib/api';
+import { api, getStrapiUrl } from '@/lib/api';
 import { setAuthSession } from '@/lib/auth';
 import { Sparkles, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -129,7 +129,7 @@ function LoginContent() {
           </div>
 
           <a
-            href={`${process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337'}/api/connect/google`}
+            href={`${getStrapiUrl()}/api/connect/google`}
             className="w-full py-3 px-4 bg-[#FAF7F2] hover:bg-[#FFFDF9] border border-[#EAE1D2] hover:border-[#D97706] rounded-xl text-xs font-bold text-[#2D1810] flex items-center justify-center space-x-2.5 transition-all shadow-2xs"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">

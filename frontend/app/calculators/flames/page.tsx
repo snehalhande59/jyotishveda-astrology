@@ -56,7 +56,7 @@ export default function FlamesCalculatorPage() {
             </div>
 
             {/* Legend */}
-            <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center text-[11px]">
               {[
                 { k: 'F', v: 'Friends' },
                 { k: 'L', v: 'Lovers' },

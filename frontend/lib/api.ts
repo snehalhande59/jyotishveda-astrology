@@ -11,7 +11,33 @@ import {
   ZodiacSign,
 } from './types';
 
-const STRAPI_BASE = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+export const PRODUCTION_STRAPI_URL = 'https://jyotishveda-backend-0epp.onrender.com';
+
+/**
+ * Resolves the Strapi backend URL dynamically:
+ * 1. Explicit NEXT_PUBLIC_STRAPI_URL environment variable (highest priority)
+ * 2. In browser environments: if hostname is NOT localhost/127.0.0.1, use PRODUCTION_STRAPI_URL
+ * 3. Server-side rendering in production mode: use PRODUCTION_STRAPI_URL
+ * 4. Fallback for local development: http://localhost:1337
+ */
+export function getStrapiUrl(): string {
+  if (process.env.NEXT_PUBLIC_STRAPI_URL && process.env.NEXT_PUBLIC_STRAPI_URL.trim() !== '') {
+    return process.env.NEXT_PUBLIC_STRAPI_URL.replace(/\/+$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      return PRODUCTION_STRAPI_URL;
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    return PRODUCTION_STRAPI_URL;
+  }
+
+  return 'http://localhost:1337';
+}
 
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = typeof window !== 'undefined' ? getAuthToken() : null;
@@ -25,7 +51,8 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const url = `${STRAPI_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const base = getStrapiUrl();
+  const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
   let response = await fetch(url, {
     ...options,
@@ -108,18 +135,14 @@ export const api = {
 
   // Astrologers
   async getAstrologers(): Promise<Astrologer[]> {
-    try {
-      const res = await request<{ data: Astrologer[] }>('/api/astrologers?populate=*');
-      const items = Array.isArray(res?.data) ? res.data : [];
-      return items.map((a) => ({
-        ...a,
-        specialties: toArray(a.specialties),
-        languages: toArray(a.languages),
-        availableSlots: toArray(a.availableSlots),
-      }));
-    } catch (e) {
-      return [];
-    }
+    const res = await request<{ data: Astrologer[] }>('/api/astrologers?populate=*');
+    const items = Array.isArray(res?.data) ? res.data : [];
+    return items.map((a) => ({
+      ...a,
+      specialties: toArray(a.specialties),
+      languages: toArray(a.languages),
+      availableSlots: toArray(a.availableSlots),
+    }));
   },
 
   async getAstrologerById(id: string | number): Promise<Astrologer | null> {
@@ -133,6 +156,7 @@ export const api = {
         availableSlots: toArray(res.data.availableSlots),
       };
     } catch (e) {
+      console.warn(`Astrologer fetch failed for id "${id}":`, e);
       return null;
     }
   },

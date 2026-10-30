@@ -359,11 +359,11 @@ export default function HomePage() {
     async function loadData() {
       try {
         const [servicesRes, astrologersRes, faqsRes, settingsRes, articlesRes] = await Promise.all([
-          api.getServices(),
-          api.getAstrologers(),
-          api.getFaqs(),
-          api.getSiteSettings(),
-          api.getArticles(),
+          api.getServices().catch(() => []),
+          api.getAstrologers().catch(() => []),
+          api.getFaqs().catch(() => []),
+          api.getSiteSettings().catch(() => null),
+          api.getArticles().catch(() => []),
         ]);
         setServices(servicesRes);
         setAstrologers(astrologersRes);
@@ -461,7 +461,7 @@ export default function HomePage() {
               <span className="tracking-wide">{t('hero.badge')}</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D1810] leading-tight">
+            <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#2D1810] leading-tight">
               {heroTitle}
             </h1>
 
@@ -469,10 +469,10 @@ export default function HomePage() {
               {heroSubtitle}
             </p>
 
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-wrap gap-2.5 sm:gap-3 pt-2">
               <Link
                 href="/kundli"
-                className="px-6 py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all flex items-center space-x-2"
+                className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-serif font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg hover:from-[#D97706] hover:to-[#B45309] transition-all flex items-center justify-center space-x-2 text-center"
               >
                 <Compass className="w-4 h-4" />
                 <span>{t('hero.ctaKundli')}</span>
@@ -480,14 +480,14 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/chat"
-                className="px-5 py-3.5 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-bold text-xs sm:text-sm rounded-xl hover:bg-[#FEF3C7] shadow-sm transition-all flex items-center space-x-2"
+                className="flex-1 sm:flex-initial px-4 sm:px-5 py-3 sm:py-3.5 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-bold text-xs sm:text-sm rounded-xl hover:bg-[#FEF3C7] shadow-sm transition-all flex items-center justify-center space-x-2 text-center"
               >
                 <MessageCircle className="w-4 h-4 text-[#D97706]" />
                 <span>{t('hero.ctaChat')}</span>
               </Link>
               <Link
                 href="/astrologers"
-                className="px-5 py-3.5 bg-white border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:border-[#D97706] hover:text-[#92400E] shadow-sm transition-all flex items-center space-x-1.5"
+                className="flex-1 sm:flex-initial px-4 sm:px-5 py-3 sm:py-3.5 bg-white border border-[#EAE1D2] text-xs font-bold text-[#4A2E18] rounded-xl hover:border-[#D97706] hover:text-[#92400E] shadow-sm transition-all flex items-center justify-center space-x-1.5 text-center"
               >
                 <PhoneCall className="w-4 h-4 text-[#F59E0B]" />
                 <span>{t('home.btnConsult')}</span>
@@ -495,26 +495,26 @@ export default function HomePage() {
             </div>
 
             {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-[#EAE1D2] max-w-md">
-              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-4 pt-6 border-t border-[#EAE1D2] max-w-md">
+              <div className="bg-white/80 p-1.5 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-lg sm:text-2xl font-bold text-[#B45309]">
                   {formatNumber(27)}
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
+                <span className="text-[9px] sm:text-[11px] text-[#786C60] font-medium block truncate">
                   {t('home.metricNakshatras')}
                 </span>
               </div>
-              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">100%</span>
-                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
+              <div className="bg-white/80 p-1.5 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-lg sm:text-2xl font-bold text-[#B45309]">100%</span>
+                <span className="text-[9px] sm:text-[11px] text-[#786C60] font-medium block truncate">
                   {t('home.metricAccuracy')}
                 </span>
               </div>
-              <div className="bg-white/80 p-2 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
-                <span className="block font-serif text-xl sm:text-2xl font-bold text-[#B45309]">
+              <div className="bg-white/80 p-1.5 sm:p-3 rounded-xl border border-[#EAE1D2] text-center shadow-xs">
+                <span className="block font-serif text-lg sm:text-2xl font-bold text-[#B45309]">
                   {formatNumber(4.98)}★
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-[#786C60] font-medium">
+                <span className="text-[9px] sm:text-[11px] text-[#786C60] font-medium block truncate">
                   {t('home.metricRating')}
                 </span>
               </div>
@@ -537,13 +537,13 @@ export default function HomePage() {
          ======================================================== */}
       {previewChart && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 mb-12">
-          <div className="bg-white border-2 border-[#F59E0B] rounded-3xl p-6 sm:p-8 shadow-xl text-[#2D1810]">
+          <div className="bg-white border-2 border-[#F59E0B] rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-xl text-[#2D1810]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center pb-5 border-b border-[#EAE1D2] gap-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#92400E] bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A]">
                   {language === 'mr' ? 'ग्रहगणित आधारित कुंडली' : 'Ephemeris Computed Kundli'}
                 </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#2D1810] mt-2">
+                <h2 className="font-serif text-xl sm:text-3xl font-bold text-[#2D1810] mt-2">
                   {previewChart.meta?.fullName || 'User'}&apos;s{' '}
                   {language === 'mr' ? 'वैदिक जन्मकुंडली' : 'Vedic Kundli'}
                 </h2>
@@ -554,7 +554,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Link
                   href="/kundli"
                   className="px-4 py-2 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-semibold text-xs rounded-lg hover:opacity-95 shadow-md"

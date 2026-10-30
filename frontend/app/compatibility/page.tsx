@@ -220,7 +220,7 @@ export default function CompatibilityPage() {
 
         {/* Results */}
         {result && (
-          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-10 rounded-3xl border-2 border-[#FDE68A] shadow-md space-y-6 sm:space-y-8 animate-fadeIn">
+          <div className="bg-white text-[#2D1810] p-4 sm:p-6 md:p-10 rounded-3xl border-2 border-[#FDE68A] shadow-md space-y-6 sm:space-y-8 animate-fadeIn overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-6 border-b border-[#F5EFE6] gap-4">
               <div>
                 <span className="text-[10px] text-[#D97706] font-bold uppercase tracking-wider bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] inline-block mb-1">

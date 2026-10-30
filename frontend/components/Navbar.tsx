@@ -93,6 +93,17 @@ export default function Navbar() {
     };
   }, [pathname]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = () => {
     clearAuthSession();
     setUser(null);
@@ -235,7 +246,8 @@ export default function Navbar() {
 
               {/* Language Switcher */}
               <div className="pl-1 border-l border-[#EAE1D2]">
-                <LanguageSwitcher />
+                <LanguageSwitcher variant="compact" className="sm:hidden" />
+                <LanguageSwitcher variant="pill" className="hidden sm:inline-flex" />
               </div>
             </div>
           </div>
@@ -244,14 +256,14 @@ export default function Navbar() {
         {/* ========================================================
             2. MAIN NAVIGATION BAR (AstroTalk Brand & Menu Structure)
            ======================================================== */}
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Logo & Brand Name */}
-          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group flex-shrink-0 min-w-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B] flex items-center justify-center shadow-sm border border-[#FCD34D] group-hover:scale-105 transition-transform flex-shrink-0">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#92400E]" />
+          <Link href="/" className="flex items-center space-x-1.5 sm:space-x-3 group flex-shrink-0 min-w-0">
+            <div className="w-7 h-7 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B] flex items-center justify-center shadow-sm border border-[#FCD34D] group-hover:scale-105 transition-transform flex-shrink-0">
+              <Sparkles className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-[#92400E]" />
             </div>
             <div className="min-w-0">
-              <span className="font-serif text-lg sm:text-2xl font-extrabold tracking-wide text-[#2D1810] block leading-tight truncate">
+              <span className="font-serif text-base sm:text-2xl font-extrabold tracking-wide text-[#2D1810] block leading-tight truncate">
                 Jyotish<span className="text-[#D97706]">Veda</span>
               </span>
               <span className="hidden sm:block text-[8px] sm:text-[9px] tracking-widest uppercase text-[#8C6D1F] font-sans font-medium">
@@ -601,11 +613,11 @@ export default function Navbar() {
             {/* PROMINENT ASTROTALK-STYLE "FIRST CHAT FREE" BUTTON (Points to /free-chat) */}
             <Link
               href="/free-chat"
-              className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-full bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] text-[#2D1810] font-serif font-bold text-[11px] sm:text-xs shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex-shrink-0"
+              className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-full bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] text-[#2D1810] font-serif font-bold text-[10px] xs:text-[11px] sm:text-xs shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all flex-shrink-0"
             >
               <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-600 animate-ping inline-block" />
-              <span>{t('nav.firstChatFree')}</span>
-              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5" />
+              <span className="truncate">{t('nav.firstChatFree')}</span>
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5 shrink-0" />
             </Link>
 
             {/* Mobile Menu Hamburger Toggle */}

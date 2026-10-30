@@ -36,17 +36,17 @@ export default function SouthIndianChart({ chartData }: SouthIndianChartProps) {
   });
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EAE1D2] shadow-sm flex flex-col items-center w-full max-w-lg">
-      <div className="flex items-center justify-between w-full mb-4 px-1">
-        <h3 className="font-serif text-base sm:text-lg font-bold text-[#2D1810]">
+    <div className="bg-white p-3 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#EAE1D2] shadow-sm flex flex-col items-center w-full max-w-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full mb-3 sm:mb-4 px-1 gap-2">
+        <h3 className="font-serif text-sm sm:text-lg font-bold text-[#2D1810]">
           {language === 'mr' ? 'दक्षिण भारतीय पद्धत (स्थिर राशी)' : 'South Indian Chart (Fixed Zodiac)'}
         </h3>
-        <span className="text-xs bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] text-[#92400E] font-medium shadow-2xs">
+        <span className="text-[11px] sm:text-xs bg-[#FFFBEB] px-2.5 sm:px-3 py-1 rounded-full border border-[#FDE68A] text-[#92400E] font-medium shadow-2xs">
           {language === 'mr' ? '१२ स्थिर राशी' : '12 Fixed Signs'}
         </span>
       </div>
 
-      <div className="w-full max-w-[420px] aspect-square grid grid-cols-4 grid-rows-4 gap-1 p-2 bg-[#FAF7F2] border-2 border-[#D97706] rounded-2xl shadow-xs">
+      <div className="w-full max-w-[420px] aspect-square grid grid-cols-4 grid-rows-4 gap-1 p-1.5 sm:p-2 bg-[#FAF7F2] border-2 border-[#D97706] rounded-2xl shadow-xs">
         {/* Render grid cells */}
         {[0, 1, 2, 3].map((r) =>
           [0, 1, 2, 3].map((c) => {
@@ -56,15 +56,15 @@ export default function SouthIndianChart({ chartData }: SouthIndianChartProps) {
                 return (
                   <div
                     key={`${r}-${c}`}
-                    className="col-span-2 row-span-2 flex flex-col items-center justify-center p-3 text-center bg-white border border-[#EAE1D2] rounded-xl shadow-2xs"
+                    className="col-span-2 row-span-2 flex flex-col items-center justify-center p-2 sm:p-3 text-center bg-white border border-[#EAE1D2] rounded-xl shadow-2xs"
                   >
-                    <span className="font-serif text-sm font-bold text-[#2D1810]">
+                    <span className="font-serif text-xs sm:text-sm font-bold text-[#2D1810]">
                       {chartData.meta?.fullName || 'User'}
                     </span>
-                    <span className="text-[10px] text-[#786C60] mt-0.5">
+                    <span className="text-[9px] sm:text-[10px] text-[#786C60] mt-0.5">
                       {chartData.meta?.dateOfBirth} • {chartData.meta?.timeOfBirth}
                     </span>
-                    <span className="text-[11px] font-bold text-[#D97706] bg-[#FFFBEB] px-2 py-0.5 rounded border border-[#FDE68A] mt-1.5">
+                    <span className="text-[10px] sm:text-[11px] font-bold text-[#D97706] bg-[#FFFBEB] px-1.5 sm:px-2 py-0.5 rounded border border-[#FDE68A] mt-1 sm:mt-1.5">
                       {language === 'mr' ? 'लग्न:' : 'Asc:'} {translateSign(ascendant.signName)}
                     </span>
                   </div>
@@ -87,7 +87,7 @@ export default function SouthIndianChart({ chartData }: SouthIndianChartProps) {
             return (
               <div
                 key={`${r}-${c}`}
-                className={`p-1.5 flex flex-col justify-between border rounded-lg text-[11px] min-h-[75px] transition-colors ${
+                className={`p-1 sm:p-1.5 flex flex-col justify-between border rounded-lg text-[9px] sm:text-[11px] min-h-[58px] sm:min-h-[75px] transition-colors ${
                   isLagna
                     ? 'bg-[#FEF3C7] border-[#F59E0B] shadow-2xs'
                     : 'bg-white border-[#EAE1D2] hover:bg-[#FFFDF9]'

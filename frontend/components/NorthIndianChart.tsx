@@ -49,7 +49,7 @@ export default function NorthIndianChart({
   };
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-[#EAE1D2] shadow-sm flex flex-col items-center w-full max-w-lg">
+    <div className="bg-white p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#EAE1D2] shadow-sm flex flex-col items-center w-full max-w-lg">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full mb-4 px-1 gap-2">
         <div>
           <h3 className="font-serif text-base sm:text-lg font-bold text-[#2D1810]">

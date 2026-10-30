@@ -77,7 +77,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Trust Badges Bar */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center text-xs">
+            <div className="grid grid-cols-1 xs:grid-cols-3 gap-2 sm:gap-3 text-center text-xs">
               <div className="bg-white p-2.5 sm:p-3 rounded-2xl border border-[#EAE1D2]">
                 <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] mx-auto mb-1" />
                 <strong className="block text-[10px] sm:text-[11px] text-[#2D1810]">{isMr ? '१००% अस्सल' : '100% Authentic'}</strong>

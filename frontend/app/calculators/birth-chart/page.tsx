@@ -161,7 +161,7 @@ export default function BirthChartCalculatorPage() {
             <h4 className="text-xs font-bold text-[#5C4535] uppercase tracking-wider mb-2">
               {isMr ? 'ग्रह स्पष्ट व भाव स्थिती' : 'Planetary Positions in Bhavas'}
             </h4>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
               {samplePlanets.map((p) => (
                 <div key={p.name} className="p-2 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2] text-center">
                   <strong className="text-[#2D1810] block">{p.name}</strong>

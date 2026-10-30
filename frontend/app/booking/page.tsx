@@ -62,9 +62,10 @@ function BookingContent() {
       setAstrologerNotFoundId(null);
 
       try {
+        // Fetch verified astrologers; decouple services so services failure never blocks astrologers
         const [astroList, serviceList] = await Promise.all([
           api.getAstrologers(),
-          api.getServices(),
+          api.getServices().catch(() => []),
         ]);
 
         setAstrologers(astroList);
@@ -93,6 +94,19 @@ function BookingContent() {
             setSelectedAstrologer(matched);
             setAstrologerNotFoundId(null);
           } else {
+            // Attempt direct fetch by id or documentId before reporting not found
+            try {
+              const directAstro = await api.getAstrologerById(astrologerIdParam);
+              if (directAstro) {
+                setSelectedAstrologer(directAstro);
+                setAstrologerNotFoundId(null);
+                setAstrologers((prev) => [directAstro, ...prev.filter((x) => x.id !== directAstro.id)]);
+                return;
+              }
+            } catch (err) {
+              console.warn('Direct astrologer lookup notice:', err);
+            }
+
             // Do NOT silently replace with another astrologer; report invalid ID
             setAstrologerNotFoundId(astrologerIdParam);
             setSelectedAstrologer(null);
@@ -106,8 +120,8 @@ function BookingContent() {
         setDirectoryError(
           err.message ||
             (language === 'mr'
-              ? 'ज्योतिषी सूची लोड करताना त्रुटी आली. कृपया रीफ्रेश करा.'
-              : 'Failed to load astrologer directory from the backend. Please check your connection and refresh.')
+              ? 'ज्योतिषी सूची लोड करताना त्रुटी आली. कृपया इंटरनेट तपासा आणि पुन्हा प्रयत्न करा.'
+              : 'Failed to connect to the astrology directory backend. Please verify your connection and refresh.')
         );
       } finally {
         setIsLoadingDirectory(false);

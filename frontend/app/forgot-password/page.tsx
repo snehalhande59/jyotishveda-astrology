@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
+import { getStrapiUrl } from '@/lib/api';
 
 export default function ForgotPasswordPage() {
   const { language } = useLanguage();
@@ -19,7 +20,7 @@ export default function ForgotPasswordPage() {
     setErrorMsg(null);
 
     try {
-      const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+      const strapiUrl = getStrapiUrl();
       const res = await fetch(`${strapiUrl}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

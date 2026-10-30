@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { setAuthSession } from '@/lib/auth';
+import { getStrapiUrl } from '@/lib/api';
 import { Sparkles, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -24,7 +25,7 @@ function GoogleCallbackContent() {
     if (!accessToken) {
       // Check if user came with code/query directly from Strapi
       const allParams = searchParams.toString();
-      const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+      const strapiUrl = getStrapiUrl();
 
       fetch(`${strapiUrl}/api/auth/google/callback?${allParams}`)
         .then(async (res) => {
@@ -42,7 +43,7 @@ function GoogleCallbackContent() {
     }
 
     // Connect with token
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+    const strapiUrl = getStrapiUrl();
     fetch(`${strapiUrl}/api/auth/google/callback?access_token=${accessToken}`)
       .then(async (res) => {
         const data = await res.json();
