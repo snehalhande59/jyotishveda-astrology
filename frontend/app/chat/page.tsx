@@ -123,49 +123,35 @@ function ChatHubContent() {
 
       let verified = false;
 
-      try {
-        await openRazorpayModal({
-          key: order.keyId,
-          amount: Math.round(order.amount * 100),
-          currency: order.currency || 'INR',
-          name: isMr ? 'ज्योतिषवेदा चॅट' : 'JyotishVeda Live Chat',
-          description: `${duration} Mins Consultation with ${astrologer.name}`,
-          order_id: order.orderId,
-          handler: async (response) => {
-            try {
-              await api.verifyPayment({
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
-                serviceType: 'chat_consultation',
-                referenceId: String(astrologer.id),
-              });
-              verified = true;
-              const session = await api.startPaidChatSession(astrologer.id, duration);
-              router.push(`/chat/${session.id}`);
-            } catch (vErr: any) {
-              setErrorMessage(vErr.message || (isMr ? 'पडताळणी अयशस्वी' : 'Payment verification failed.'));
-              setStartingChat(null);
-            }
+      await openRazorpayModal({
+        key: order.keyId,
+        amount: Math.round(order.amount * 100),
+        currency: order.currency || 'INR',
+        name: isMr ? 'ज्योतिषवेदा चॅट' : 'JyotishVeda Live Chat',
+        description: `${duration} Mins Consultation with ${astrologer.name}`,
+        order_id: order.orderId,
+        handler: async (response) => {
+          try {
+            await api.verifyPayment({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              serviceType: 'chat_consultation',
+              referenceId: String(astrologer.id),
+            });
+            const session = await api.startPaidChatSession(astrologer.id, duration);
+            router.push(`/chat/${session.id}`);
+          } catch (vErr: any) {
+            setErrorMessage(vErr.message || (isMr ? 'पडताळणी अयशस्वी' : 'Payment verification failed.'));
+            setStartingChat(null);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setStartingChat(null);
           },
-          modal: {
-            ondismiss: () => {
-              setStartingChat(null);
-            },
-          },
-        });
-      } catch (modalErr) {
-        // Fallback for simulated development / test keys
-        await api.verifyPayment({
-          orderId: order.orderId,
-          paymentId: `pay_test_${Date.now()}`,
-          signature: 'test_signature_valid',
-          serviceType: 'chat_consultation',
-          referenceId: String(astrologer.id),
-        });
-        const session = await api.startPaidChatSession(astrologer.id, duration);
-        router.push(`/chat/${session.id}`);
-      }
+        },
+      });
     } catch (err: any) {
       setErrorMessage(
         err.message || (isMr ? 'पेमेंट सुरू करता आले नाही.' : 'Payment initiation failed.')

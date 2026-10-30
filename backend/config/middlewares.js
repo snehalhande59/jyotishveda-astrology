@@ -11,13 +11,38 @@ module.exports = ({ env }) => {
     "http://127.0.0.1:3003",
   ];
   if (customFrontendUrl) {
-    origins.push(...customFrontendUrl.split(',').map((u) => u.trim()));
+    customFrontendUrl.split(',').forEach((u) => {
+      const trimmed = u.trim();
+      if (trimmed && !origins.includes(trimmed)) {
+        origins.push(trimmed);
+      }
+    });
   }
 
   return [
     "strapi::logger",
     "strapi::errors",
-    "strapi::security",
+    {
+      name: "strapi::security",
+      config: {
+        contentSecurityPolicy: {
+          useDefaults: true,
+          directives: {
+            "connect-src": ["'self'", "https:"],
+            "img-src": [
+              "'self'",
+              "data:",
+              "blob:",
+              "market-assets.strapi.io",
+              "res.cloudinary.com",
+              "images.unsplash.com",
+            ],
+            "media-src": ["'self'", "data:", "blob:"],
+            upgradeInsecureRequests: null,
+          },
+        },
+      },
+    },
     {
       name: "strapi::cors",
       config: {
@@ -36,3 +61,4 @@ module.exports = ({ env }) => {
     "strapi::public",
   ];
 };
+

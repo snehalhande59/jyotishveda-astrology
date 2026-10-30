@@ -1,4 +1,5 @@
 const paymentService = require('../../../services/payment-service');
+const notificationService = require('../../../services/notification-service');
 
 // Standard verified catalog pricing (INR)
 const STANDARD_REPORT_PRICES = {
@@ -261,6 +262,23 @@ module.exports = {
       } catch (e) {
         console.warn('User wallet update notice:', e.message);
       }
+    }
+
+    // Send asynchronous payment confirmation notification (non-blocking)
+    try {
+      const recipientEmail = user?.email || existingRecord?.rawPayload?.notes?.email;
+      if (recipientEmail) {
+        notificationService.sendPaymentConfirmationEmail({
+          to: recipientEmail,
+          userName: user?.username || 'Valued Devotee',
+          orderId,
+          paymentId,
+          amount: paymentRecord.amount,
+          serviceType: sType,
+        }).catch((e) => console.warn('Payment confirmation email notice:', e.message));
+      }
+    } catch (e) {
+      console.warn('Payment notification notice:', e.message);
     }
 
     return {

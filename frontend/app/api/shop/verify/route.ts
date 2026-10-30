@@ -13,14 +13,8 @@ export async function POST(req: NextRequest) {
     const secret = process.env.RAZORPAY_KEY_SECRET;
     let isValid = false;
 
-    // Support valid HMAC verification as well as secure local test signatures
-    if (
-      signature === 'test_signature_valid' ||
-      signature === 'simulated_test_sig' ||
-      signature?.startsWith('mock_sig_')
-    ) {
-      isValid = true;
-    } else if (secret && signature) {
+    // Strict HMAC-SHA256 signature verification in production
+    if (secret && signature && !signature.startsWith('simulated_') && signature !== 'test_signature_valid') {
       try {
         const generatedSignature = crypto
           .createHmac('sha256', secret)
@@ -32,6 +26,9 @@ export async function POST(req: NextRequest) {
       } catch {
         isValid = false;
       }
+    } else if (process.env.NODE_ENV !== 'production' && (signature === 'test_signature_valid' || signature === 'simulated_test_sig')) {
+      // Local development test signature fallback only allowed outside production
+      isValid = true;
     }
 
     if (!isValid) {

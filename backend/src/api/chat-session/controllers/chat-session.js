@@ -84,11 +84,30 @@ async function findChatSession(sessionId, populate = ['astrologer', 'user']) {
   return byNumber && byNumber.length > 0 ? byNumber[0] : null;
 }
 
+// Concurrency guard to prevent race conditions during session creation
+const activeCreationLocks = new Set();
+
 module.exports = {
   async getEligibility(ctx) {
     const user = ctx.state.user;
     if (!user) {
-      return ctx.unauthorized('Authentication required to check free chat eligibility');
+      return {
+        data: {
+          isAuthenticated: false,
+          isEligible: true,
+          eligibleForFreeIntro: true,
+          requiresAuth: true,
+          hasActiveSession: false,
+          freeSessionUsed: false,
+          remainingSeconds: 300,
+          freeMinutes: 5,
+          maxMessages: 10,
+          reason: 'Sign in or create a free account to claim your 5-minute complimentary introductory Vedic consultation.',
+          hasChart: false,
+          hasKundli: false,
+          latestKundli: null,
+        },
+      };
     }
 
     const now = Date.now();
@@ -139,6 +158,7 @@ module.exports = {
       const remainingSeconds = Math.max(0, Math.floor((new Date(activeSession.expiresAt).getTime() - now) / 1000));
       return {
         data: {
+          isAuthenticated: true,
           isEligible: true,
           eligibleForFreeIntro: true,
           hasActiveSession: true,
@@ -168,13 +188,14 @@ module.exports = {
     if (hasUsedIntro) {
       return {
         data: {
+          isAuthenticated: true,
           isEligible: false,
           eligibleForFreeIntro: false,
           hasActiveSession: false,
           freeSessionUsed: true,
           remainingSeconds: 0,
           freeMinutes: 0,
-          reason: 'First free introductory consultation has already been consumed on this account.',
+          reason: 'Your complimentary 5-minute introductory Vedic consultation has already been used on this account. Please select an Acharya below for a paid consultation.',
           hasChart,
           hasKundli: hasChart,
           latestKundli: kundlis && kundlis.length > 0 ? kundlis[0] : null,
@@ -186,6 +207,7 @@ module.exports = {
     // Case 3: Fresh user, eligible for 5-minute free intro
     return {
       data: {
+        isAuthenticated: true,
         isEligible: true,
         eligibleForFreeIntro: true,
         hasActiveSession: false,
@@ -204,39 +226,49 @@ module.exports = {
   async startFreeSession(ctx) {
     const user = ctx.state.user;
     if (!user) {
-      return ctx.unauthorized('Authentication required');
+      return ctx.unauthorized('Authentication required to start complimentary session');
     }
 
-    const now = Date.now();
+    // Anti-duplicate click / concurrency lock
+    if (activeCreationLocks.has(user.id)) {
+      return ctx.badRequest('Session initialization already in progress. Please wait a moment.');
+    }
+    activeCreationLocks.add(user.id);
 
-    // 1. Check for existing sessions
-    const existingSessions = await strapi.entityService.findMany('api::chat-session.chat-session', {
-      filters: {
-        user: user.id,
-        sessionType: 'free_intro',
-      },
-      populate: ['astrologer'],
-      sort: { createdAt: 'desc' },
-    });
+    try {
+      const now = Date.now();
 
-    if (existingSessions && existingSessions.length > 0) {
-      // If there is an active session that has not expired yet, return it to resume!
-      const active = existingSessions.find(
-        (s) => s.status === 'active' && new Date(s.expiresAt).getTime() > now
-      );
-      if (active) {
-        const remainingSeconds = Math.max(0, Math.floor((new Date(active.expiresAt).getTime() - now) / 1000));
-        return {
-          data: {
-            ...active,
-            remainingSeconds,
-            resumed: true,
-          },
-        };
+      // 1. Check for existing sessions
+      const existingSessions = await strapi.entityService.findMany('api::chat-session.chat-session', {
+        filters: {
+          user: user.id,
+          sessionType: 'free_intro',
+        },
+        populate: ['astrologer'],
+        sort: { createdAt: 'desc' },
+      });
+
+      if (existingSessions && existingSessions.length > 0) {
+        // If there is an active session that has not expired yet, return it to resume!
+        const active = existingSessions.find(
+          (s) => s.status === 'active' && new Date(s.expiresAt).getTime() > now
+        );
+        if (active) {
+          const remainingSeconds = Math.max(0, Math.floor((new Date(active.expiresAt).getTime() - now) / 1000));
+          return {
+            data: {
+              ...active,
+              remainingSeconds,
+              resumed: true,
+            },
+          };
+        }
+
+        return ctx.badRequest('Free introductory consultation has already been used on this account. Please select an Acharya for a paid consultation.', {
+          code: 'FREE_INTRO_CONSUMED',
+          freeSessionUsed: true,
+        });
       }
-
-      return ctx.badRequest('Free introductory consultation has already been used on this account. Please select an Acharya for a paid consultation.');
-    }
 
     // 2. Fetch user's latest Kundli or birth chart
     let chartSummary = null;
@@ -335,6 +367,9 @@ module.exports = {
         remainingSeconds: durationMinutes * 60,
       },
     };
+    } finally {
+      activeCreationLocks.delete(user.id);
+    }
   },
 
   async startPaidSession(ctx) {

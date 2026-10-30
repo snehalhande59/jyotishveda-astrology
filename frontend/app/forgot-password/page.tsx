@@ -10,16 +10,35 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
-    // Secure simulated recovery instruction dispatch
-    setTimeout(() => {
-      setLoading(false);
+    setErrorMsg(null);
+
+    try {
+      const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+      const res = await fetch(`${strapiUrl}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        // If SMTP isn't configured, Strapi responds with error; handle gracefully
+        console.warn('Strapi forgot-password dispatch notice:', data?.error?.message);
+      }
       setSubmitted(true);
-    }, 700);
+    } catch (err: any) {
+      console.warn('Password recovery error:', err.message);
+      // Still show confirmation screen to prevent email enumeration attacks
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

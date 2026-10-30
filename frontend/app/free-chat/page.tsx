@@ -186,7 +186,23 @@ export default function FreeChatPage() {
       }
     } catch (err: any) {
       console.error('Failed to start session:', err);
-      setErrorMsg(err.message || 'Unable to start free session. Please try again.');
+      const msg = err.message || 'Unable to start free session. Please try again.';
+      if (msg.includes('already been used') || msg.includes('FREE_INTRO_CONSUMED')) {
+        setEligibility((prev) => ({
+          ...(prev || {
+            hasKundli: false,
+            freeMinutes: 0,
+            hasActiveSession: false,
+            activeSession: null,
+            remainingSeconds: 0,
+          }),
+          eligibleForFreeIntro: false,
+          freeSessionUsed: true,
+          reason: msg,
+        }));
+      } else {
+        setErrorMsg(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -494,23 +510,43 @@ export default function FreeChatPage() {
 
         {/* Eligibility Verification Card */}
         {eligibility && !eligibility.eligibleForFreeIntro ? (
-          <div className="bg-white rounded-3xl border border-[#EAE1D2] p-8 shadow-sm text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center mx-auto text-amber-700">
-              <Clock className="w-6 h-6" />
+          <div className="bg-white rounded-3xl border-2 border-[#FDE68A] p-6 sm:p-10 shadow-md text-center space-y-5">
+            <div className="w-14 h-14 rounded-full bg-amber-50 border-2 border-amber-300 flex items-center justify-center mx-auto text-amber-700 shadow-xs">
+              <Sparkles className="w-7 h-7 text-[#D97706]" />
             </div>
-            <h2 className="font-serif text-xl font-bold text-[#2D1810]">
-              {isMr ? 'मोफत सत्र आधीच वापरले गेले आहे' : 'Free Introductory Session Already Claimed'}
-            </h2>
-            <p className="text-xs text-[#786C60] max-w-md mx-auto leading-relaxed">
-              {eligibility.reason}
-            </p>
-            <div className="pt-2">
+            <div className="space-y-2">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-[#92400E] bg-[#FFFBEB] px-3 py-1 rounded-full font-bold border border-[#FDE68A]">
+                {isMr ? 'सत्र स्थिती: वापरले गेले' : 'Status: Introductory Offer Claimed'}
+              </span>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810] pt-1">
+                {isMr ? 'आपले मोफत प्रास्ताविक सत्र पूर्ण झाले आहे' : 'Complimentary Introductory Session Claimed'}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#786C60] max-w-lg mx-auto leading-relaxed">
+                {eligibility.reason ||
+                  (isMr
+                    ? 'या खात्यावर ५-मिनिटांचे मोफत प्रास्ताविक सत्र आधीच वापरले गेले आहे. सखोल कुंडली मार्गदर्शनासाठी कृपया आमच्या अनुभवी आचार्यांसोबत सशुल्क सत्र निवडा.'
+                    : 'Your one-time 5-minute complimentary consultation has already been used on this account. Connect with our verified Vedic scholars below for a personalized in-depth consultation.')}
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/astrologers"
-                className="inline-block px-6 py-3 rounded-full bg-[#D97706] hover:bg-[#B45309] text-white text-xs font-bold shadow-md transition-all"
+                className="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-[#F59E0B] to-[#D97706] hover:from-[#D97706] hover:to-[#B45309] text-white text-xs font-bold shadow-md transition-all text-center"
               >
-                {isMr ? 'सशुल्क आचार्य सल्लामसलत निवडा' : 'Explore Astrologers & Packages'}
+                {isMr ? 'आचार्य निवडा आणि सशुल्क चॅट सुरू करा' : 'Explore Astrologers & Paid Consultations'}
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('ai');
+                  setEligibility((prev) => ({ ...(prev || {}), eligibleForFreeIntro: true }));
+                }}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white border border-[#EAE1D2] hover:bg-[#FAF7F2] text-[#4A2E18] text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5"
+              >
+                <Bot className="w-4 h-4 text-[#D97706]" />
+                <span>{isMr ? 'विनामूल्य एआय ज्योतिष सहायक वापरा' : 'Switch to Free AI Astrologer Mode'}</span>
+              </button>
             </div>
           </div>
         ) : (

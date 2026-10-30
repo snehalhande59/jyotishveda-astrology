@@ -1,4 +1,5 @@
 const { createCoreController } = require('@strapi/strapi').factories;
+const notificationService = require('../../../services/notification-service');
 
 module.exports = createCoreController('api::consultation-booking.consultation-booking', ({ strapi }) => ({
   async create(ctx) {
@@ -62,6 +63,24 @@ module.exports = createCoreController('api::consultation-booking.consultation-bo
       },
       populate: ['astrologer'],
     });
+
+    // Send confirmation email asynchronously if user email is present
+    try {
+      const recipientEmail = user?.email || body.email;
+      if (recipientEmail) {
+        notificationService.sendBookingConfirmationEmail({
+          to: recipientEmail,
+          userName: user?.username || body.fullName || 'Devotee',
+          bookingNumber,
+          astrologerName: astrologer.name,
+          bookingDate: body.date,
+          timeSlot: body.timeSlot,
+          fee: parseFloat(astrologer.consultationFee) || 999,
+        }).catch((e) => console.warn('Booking confirmation email notice:', e.message));
+      }
+    } catch (e) {
+      console.warn('Booking notification notice:', e.message);
+    }
 
     return { data: booking };
   },

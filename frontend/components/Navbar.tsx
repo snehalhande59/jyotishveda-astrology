@@ -128,31 +128,37 @@ export default function Navbar() {
         <div className="bg-[#FAF7F2] border-b border-[#EAE1D2] text-[11px] py-1 px-3 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto flex items-center justify-between gap-x-2">
             {/* Quick Links */}
-            <div className="flex items-center space-x-2 sm:space-x-4 overflow-x-auto no-scrollbar py-0.5 text-[#785D46] min-w-0 flex-shrink">
-              <Link href="/horoscope" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
-                <Star className="w-3 h-3 text-[#D97706]" />
-                <span>{t('nav.rashifal')}</span>
-              </Link>
-              <span className="text-[#D8C7A5]">|</span>
-              <Link href="/kundli" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
-                <Compass className="w-3 h-3 text-[#D97706]" />
-                <span>{t('nav.kundli')}</span>
-              </Link>
-              <span className="text-[#D8C7A5]">|</span>
-              <Link href="/compatibility" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
-                <Heart className="w-3 h-3 text-[#D97706]" />
-                <span>{t('nav.compatibility')}</span>
-              </Link>
-              <span className="text-[#D8C7A5] hidden sm:inline">|</span>
-              <Link href="/panchang" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap hidden sm:inline-flex">
-                <Calendar className="w-3 h-3 text-[#D97706]" />
-                <span>{t('nav.panchang')}</span>
-              </Link>
-              <span className="text-[#D8C7A5] hidden md:inline">|</span>
-              <Link href="/astrologers" className="text-[#16A34A] hover:underline flex items-center space-x-1 whitespace-nowrap font-semibold hidden md:inline-flex">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
-                <span>24x7 Astrologers Online</span>
-              </Link>
+            <div className="flex items-center min-w-0 flex-shrink">
+              <span className="text-[10px] text-[#8C6D1F] font-semibold sm:hidden truncate flex items-center space-x-1">
+                <Sparkles className="w-3 h-3 text-[#D97706] inline shrink-0" />
+                <span>JyotishVeda</span>
+              </span>
+              <div className="hidden sm:flex items-center space-x-2 sm:space-x-4 overflow-x-auto no-scrollbar py-0.5 text-[#785D46]">
+                <Link href="/horoscope" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                  <Star className="w-3 h-3 text-[#D97706]" />
+                  <span>{t('nav.rashifal')}</span>
+                </Link>
+                <span className="text-[#D8C7A5]">|</span>
+                <Link href="/kundli" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                  <Compass className="w-3 h-3 text-[#D97706]" />
+                  <span>{t('nav.kundli')}</span>
+                </Link>
+                <span className="text-[#D8C7A5]">|</span>
+                <Link href="/compatibility" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap">
+                  <Heart className="w-3 h-3 text-[#D97706]" />
+                  <span>{t('nav.compatibility')}</span>
+                </Link>
+                <span className="text-[#D8C7A5] hidden sm:inline">|</span>
+                <Link href="/panchang" className="hover:text-[#D97706] flex items-center space-x-1 whitespace-nowrap hidden sm:inline-flex">
+                  <Calendar className="w-3 h-3 text-[#D97706]" />
+                  <span>{t('nav.panchang')}</span>
+                </Link>
+                <span className="text-[#D8C7A5] hidden md:inline">|</span>
+                <Link href="/astrologers" className="text-[#16A34A] hover:underline flex items-center space-x-1 whitespace-nowrap font-semibold hidden md:inline-flex">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                  <span>24x7 Astrologers Online</span>
+                </Link>
+              </div>
             </div>
 
             {/* Right Side: Wallet, Cart, Search, Account, Language */}

@@ -45,6 +45,7 @@ module.exports = {
         'api::consultation-booking.consultation-booking.findOne',
         'api::location.location.search',
         'api::kundli.kundli.find',
+        'api::chat-session.chat-session.getEligibility',
       ];
 
       if (publicRole) {
@@ -375,6 +376,43 @@ module.exports = {
 
         for (const art of articles) {
           await strapi.entityService.create('api::astrology-article.astrology-article', { data: art });
+        }
+      }
+
+      // 3. Admin Bootstrap from Environment (if configured)
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+
+      if (adminEmail && adminPassword) {
+        try {
+          const adminUsers = await strapi.db.query('admin::user').findMany({ limit: 1 });
+          if (!adminUsers || adminUsers.length === 0) {
+            console.log('[Admin Bootstrap] No administrator found. Bootstrapping initial admin account...');
+            const superAdminRole = await strapi.db.query('admin::role').findOne({
+              where: { code: 'strapi-super-admin' },
+            });
+
+            if (superAdminRole) {
+              const hashedPassword = await strapi.service('admin::auth').hashPassword(adminPassword);
+              await strapi.db.query('admin::user').create({
+                data: {
+                  email: adminEmail.toLowerCase().trim(),
+                  password: hashedPassword,
+                  firstname: 'JyotishVeda',
+                  lastname: 'Admin',
+                  isActive: true,
+                  roles: [superAdminRole.id],
+                },
+              });
+              console.log(`[Admin Bootstrap] Successfully created super-admin with email: ${adminEmail}`);
+            } else {
+              console.warn('[Admin Bootstrap] Super-admin role not found yet. Admin creation deferred.');
+            }
+          } else {
+            console.log('[Admin Bootstrap] Existing admin account detected. Preserving existing admin credentials without overwrite.');
+          }
+        } catch (adminErr) {
+          console.warn('[Admin Bootstrap] Notice during admin bootstrap:', adminErr.message);
         }
       }
 

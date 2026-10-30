@@ -104,82 +104,60 @@ export default function CheckoutPage() {
       // 2. Open Razorpay Gateway with graceful fallback
       let modalCompleted = false;
 
-      try {
-        await openRazorpayModal({
-          key: order.keyId,
-          amount: Math.round(order.amount * 100),
-          currency: 'INR',
-          name: isMr ? 'ज्योतिषवेदा वैदिक स्टोअर' : 'JyotishVeda Astrology Store',
-          description: `Vedic Shop Order (${order.receipt})`,
-          order_id: order.orderId,
-          prefill: {
-            name: fullName,
-            email,
-            contact: phone,
-          },
-          theme: {
-            color: '#D97706',
-          },
-          handler: async (response: any) => {
-            modalCompleted = true;
-            try {
-              const verifyRes = await fetch('/api/shop/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  orderId: response.razorpay_order_id,
-                  paymentId: response.razorpay_payment_id,
-                  signature: response.razorpay_signature,
-                  orderDetails: order,
-                }),
-              });
-              const verifyData = await verifyRes.json();
-              if (verifyData.success) {
-                clearCart();
-                setConfirmedOrder(verifyData.confirmedOrder);
-              } else {
-                setErrorMsg(isMr ? 'सर्व्हरवर पेमेंट पडताळणी अयशस्वी झाली.' : 'Payment verification failed on server.');
-              }
-            } catch (vErr: any) {
-              setErrorMsg(vErr.message || (isMr ? 'पडताळणी अयशस्वी' : 'Payment verification failed'));
-            } finally {
-              setLoading(false);
+      await openRazorpayModal({
+        key: order.keyId,
+        amount: Math.round(order.amount * 100),
+        currency: 'INR',
+        name: isMr ? 'ज्योतिषवेदा वैदिक स्टोअर' : 'JyotishVeda Astrology Store',
+        description: `Vedic Shop Order (${order.receipt})`,
+        order_id: order.orderId,
+        prefill: {
+          name: fullName,
+          email,
+          contact: phone,
+        },
+        theme: {
+          color: '#D97706',
+        },
+        handler: async (response: any) => {
+          modalCompleted = true;
+          try {
+            const verifyRes = await fetch('/api/shop/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                orderDetails: order,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              clearCart();
+              setConfirmedOrder(verifyData.confirmedOrder);
+            } else {
+              setErrorMsg(isMr ? 'सर्व्हरवर पेमेंट पडताळणी अयशस्वी झाली.' : 'Payment verification failed on server.');
             }
-          },
-          onFailure: (failedResp: any) => {
-            setErrorMsg(failedResp?.error?.description || (isMr ? 'पेमेंट अयशस्वी झाले.' : 'Payment failed.'));
+          } catch (vErr: any) {
+            setErrorMsg(vErr.message || (isMr ? 'पडताळणी अयशस्वी' : 'Payment verification failed'));
+          } finally {
+            setLoading(false);
+          }
+        },
+        onFailure: (failedResp: any) => {
+          setErrorMsg(failedResp?.error?.description || (isMr ? 'पेमेंट अयशस्वी झाले.' : 'Payment failed.'));
+          setLoading(false);
+        },
+        modal: {
+          ondismiss: function () {
             setLoading(false);
           },
-          modal: {
-            ondismiss: function () {
-              setLoading(false);
-            },
-          },
-        });
-      } catch (modalErr) {
-        // Fallback for simulated development / test key environments
-        const mockVerifyRes = await fetch('/api/shop/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId: order.orderId,
-            paymentId: `pay_test_${Date.now()}`,
-            signature: 'simulated_test_sig',
-            orderDetails: order,
-          }),
-        });
-
-        const verifyData = await mockVerifyRes.json();
-        if (verifyData.success) {
-          clearCart();
-          setConfirmedOrder(verifyData.confirmedOrder);
-        } else {
-          setErrorMsg(verifyData.message || (isMr ? 'पडताळणी अयशस्वी.' : 'Payment verification failed.'));
-        }
-      }
+        },
+      });
     } catch (err: any) {
       console.error('Order error:', err);
-      setErrorMsg(err.message || 'An error occurred during order submission.');
+      setErrorMsg(err.message || (isMr ? 'ऑर्डर प्रक्रियेमध्ये त्रुटी आली.' : 'An error occurred during order submission.'));
     } finally {
       setLoading(false);
     }
