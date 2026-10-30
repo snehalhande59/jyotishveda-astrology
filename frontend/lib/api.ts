@@ -3,6 +3,7 @@ import {
   Astrologer,
   AstrologyService,
   AuthResponse,
+  ChatEligibility,
   FAQ,
   Horoscope,
   KundliChartData,
@@ -340,23 +341,9 @@ export const api = {
   },
 
   // Astrologer Chat Sessions
-  async getChatEligibility() {
+  async getChatEligibility(): Promise<ChatEligibility> {
     const res = await request<{
-      data: {
-        isEligible?: boolean;
-        eligibleForFreeIntro: boolean;
-        reason: string;
-        freeSessionUsed: boolean;
-        hasActiveSession?: boolean;
-        activeSession?: any;
-        remainingSeconds?: number;
-        freeMinutes?: number;
-        maxMessages?: number;
-        hasChart?: boolean;
-        hasKundli: boolean;
-        latestKundli?: any;
-        user?: any;
-      };
+      data: ChatEligibility;
     }>('/api/chat/eligibility');
     return res.data;
   },

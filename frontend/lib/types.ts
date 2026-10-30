@@ -303,3 +303,19 @@ export interface ChatMessage {
   timestamp: string;
   metadata?: any;
 }
+
+export interface ChatEligibility {
+  isEligible?: boolean;
+  eligibleForFreeIntro: boolean;
+  reason: string;
+  freeSessionUsed: boolean;
+  hasActiveSession?: boolean;
+  activeSession?: any;
+  remainingSeconds?: number;
+  freeMinutes?: number;
+  maxMessages?: number;
+  hasChart?: boolean;
+  hasKundli: boolean;
+  latestKundli?: any;
+  user?: any;
+}

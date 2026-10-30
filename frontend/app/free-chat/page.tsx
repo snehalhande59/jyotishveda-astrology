@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { api } from '@/lib/api';
-import { User, Astrologer } from '@/lib/types';
+import { User, Astrologer, ChatEligibility } from '@/lib/types';
 import { useLanguage } from '@/context/LanguageContext';
 import {
   MessageSquare,
@@ -29,7 +29,7 @@ export default function FreeChatPage() {
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [eligibility, setEligibility] = useState<any>(null);
+  const [eligibility, setEligibility] = useState<ChatEligibility | null>(null);
 
   const [astrologers, setAstrologers] = useState<Astrologer[]>([]);
   const [selectedAstrologer, setSelectedAstrologer] = useState<Astrologer | null>(null);
@@ -67,10 +67,11 @@ export default function FreeChatPage() {
 
     // Check free chat eligibility and fetch astrologers
     Promise.all([
-      api.getChatEligibility().catch((e) => {
+      api.getChatEligibility().catch((e): ChatEligibility => {
         console.warn('Eligibility check failed:', e);
         return {
           eligibleForFreeIntro: true,
+          freeSessionUsed: false,
           reason: 'Eligible for 5-minute complimentary introductory consultation.',
           hasKundli: true,
           freeMinutes: 5,
@@ -188,7 +189,7 @@ export default function FreeChatPage() {
       console.error('Failed to start session:', err);
       const msg = err.message || 'Unable to start free session. Please try again.';
       if (msg.includes('already been used') || msg.includes('FREE_INTRO_CONSUMED')) {
-        setEligibility((prev) => ({
+        setEligibility((prev: ChatEligibility | null) => ({
           ...(prev || {
             hasKundli: false,
             freeMinutes: 0,
@@ -540,7 +541,14 @@ export default function FreeChatPage() {
                 type="button"
                 onClick={() => {
                   setMode('ai');
-                  setEligibility((prev) => ({ ...(prev || {}), eligibleForFreeIntro: true }));
+                  setEligibility((prev: ChatEligibility | null) => ({
+                    ...(prev || {
+                      hasKundli: false,
+                      reason: '',
+                      freeSessionUsed: false,
+                    }),
+                    eligibleForFreeIntro: true,
+                  }));
                 }}
                 className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white border border-[#EAE1D2] hover:bg-[#FAF7F2] text-[#4A2E18] text-xs font-bold transition-all text-center flex items-center justify-center space-x-1.5"
               >
