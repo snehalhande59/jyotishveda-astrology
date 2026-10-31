@@ -416,6 +416,14 @@ module.exports = {
         }
       }
 
+      // 4. Synchronize Google OAuth in users-permissions plugin store if credentials exist
+      try {
+        const syncGoogleOAuth = require('./bootstrap/oauth');
+        await syncGoogleOAuth({ strapi });
+      } catch (oauthErr) {
+        console.warn('[Google OAuth Bootstrap] Notice:', oauthErr.message);
+      }
+
       console.log('✅ Vedic Astrology platform initialized with default settings, roles, and catalog.');
     } catch (err) {
       console.warn('Bootstrap seeding notice:', err.message);

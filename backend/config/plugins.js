@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = ({ env }) => {
   const emailUser = env('EMAIL_USER');
   const emailPass = env('EMAIL_PASS');
@@ -5,10 +7,17 @@ module.exports = ({ env }) => {
   const emailPort = env.int('EMAIL_SMTP_PORT', 465);
   const emailSecure = env.bool('EMAIL_SMTP_SECURE', true);
 
-  const googleClientId = env('GOOGLE_CLIENT_ID');
-  const googleClientSecret = env('GOOGLE_CLIENT_SECRET');
   const frontendUrl = env('FRONTEND_URL', 'http://localhost:3001');
-  const googleCallbackUrl = env('GOOGLE_CALLBACK_URL', `${frontendUrl}/connect/google/redirect`);
+
+  const knownOrigins = [
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
+    'https://jyotishveda-astrology.vercel.app',
+    'https://jyotishveda-astrology-web.vercel.app',
+    'https://jyotishveda-astrology-ew4n3uxvh-snehalhande59s-projects.vercel.app',
+    'https://jyotishveda.com',
+    'https://www.jyotishveda.com',
+  ];
 
   const pluginsConfig = {
     'users-permissions': {
@@ -24,20 +33,17 @@ module.exports = ({ env }) => {
             }
 
             const allowedOrigins = [
-              'http://localhost:3001',
-              'http://127.0.0.1:3001',
-              'https://jyotishveda-astrology.vercel.app',
-              'https://jyotishveda-astrology-web.vercel.app',
-              'https://jyotishveda.com',
-              'https://www.jyotishveda.com',
+              ...knownOrigins,
               frontendUrl,
-            ].filter(Boolean).map((url) => {
-              try {
-                return new URL(url).origin;
-              } catch {
-                return url;
-              }
-            });
+            ]
+              .filter(Boolean)
+              .map((url) => {
+                try {
+                  return new URL(url).origin;
+                } catch {
+                  return url;
+                }
+              });
 
             const isAllowed =
               allowedOrigins.includes(uCallback.origin) ||
@@ -81,20 +87,5 @@ module.exports = ({ env }) => {
     };
   }
 
-  // Configure Google OAuth in grant settings if credentials are provided
-  if (googleClientId && googleClientSecret) {
-    pluginsConfig['users-permissions'].config.grant = {
-      google: {
-        enabled: true,
-        icon: 'google',
-        key: googleClientId,
-        secret: googleClientSecret,
-        callback: googleCallbackUrl,
-        scope: ['email', 'profile'],
-      },
-    };
-  }
-
   return pluginsConfig;
 };
-
