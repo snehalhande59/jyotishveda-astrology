@@ -709,7 +709,7 @@ export const api = {
     return res.data;
   },
 
-  async sendChatMessage(sessionId: string, message: string) {
+  async sendChatMessage(sessionId: string, message: string, mode: string = 'ai') {
     const res = await request<{
       data: {
         userMessage: any;
@@ -723,7 +723,7 @@ export const api = {
       };
     }>(`/api/chat/sessions/${sessionId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, mode }),
     });
     return res.data;
   },

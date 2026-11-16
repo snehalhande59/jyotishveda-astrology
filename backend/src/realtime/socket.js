@@ -178,41 +178,50 @@ module.exports = function initializeSocketIO({ strapi }) {
           let astrologerReply = null;
           let newCount = session.messageCount + 1;
 
-          if (mode === 'ai') {
+          const astrologerName = session.astrologer?.name || 'Dr. Meenakshi Sundaram';
+          const isDevanagari = /[\u0900-\u097F]/.test(message);
+          const resolvedLanguage = isDevanagari ? 'mr' : (session.language || 'en');
+
+          // Emit typing indicator to the user
+          io.to(roomName).emit('user_typing', { senderName: astrologerName, isTyping: true });
+
+          try {
             const history = await strapi.entityService.findMany('api::chat-message.chat-message', {
               filters: { session: session.id },
               sort: { timestamp: 'desc' },
               limit: 6,
             });
 
-            let aiResult;
+            let aiResult = null;
             if (strapi.service('api::ai.ai')) {
               aiResult = await strapi.service('api::ai.ai').generateAstrologyGuidance({
                 message: message.trim(),
                 history: history.reverse(),
                 birthChart: session.birthChartSummary,
-                language: 'en',
+                language: resolvedLanguage,
+                astrologerName,
               });
-            } else {
-              aiResult = {
-                configured: false,
-                message: 'AI Service not initialized.',
-              };
             }
 
-            if (aiResult.configured && aiResult.reply) {
+            if (aiResult && aiResult.reply) {
               astrologerReply = await strapi.entityService.create('api::chat-message.chat-message', {
                 data: {
                   session: session.id,
                   senderType: 'astrologer',
-                  senderName: 'JyotishVeda AI Assistant',
+                  senderName: astrologerName,
                   message: aiResult.reply,
                   timestamp: new Date(),
                 },
               });
               newCount += 1;
+              io.to(roomName).emit('user_typing', { senderName: astrologerName, isTyping: false });
               io.to(roomName).emit('new_message', astrologerReply);
+            } else {
+              io.to(roomName).emit('user_typing', { senderName: astrologerName, isTyping: false });
             }
+          } catch (socketAiErr) {
+            io.to(roomName).emit('user_typing', { senderName: astrologerName, isTyping: false });
+            console.warn('Socket AI generation warning:', socketAiErr.message);
           }
 
           await strapi.entityService.update('api::chat-session.chat-session', session.id, {

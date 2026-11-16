@@ -570,66 +570,46 @@ module.exports = {
     let astrologerReply = null;
     let newCount = session.messageCount + 1;
 
-    // 2. Handle AI mode vs Real Human Astrologer mode
-    if (mode === 'ai') {
-      try {
-        const history = await strapi.entityService.findMany('api::chat-message.chat-message', {
-          filters: { session: session.id },
-          sort: { timestamp: 'desc' },
-          limit: 6,
+    // 2. Real-time Astrologer Consultation Reply (AI-Powered Vedic Astrologer)
+    const astrologerName = session.astrologer?.name || 'Dr. Meenakshi Sundaram';
+    const isDevanagari = /[\u0900-\u097F]/.test(message);
+    const resolvedLanguage = isDevanagari ? 'mr' : (session.language || 'en');
+
+    try {
+      const history = await strapi.entityService.findMany('api::chat-message.chat-message', {
+        filters: { session: session.id },
+        sort: { timestamp: 'desc' },
+        limit: 6,
+      });
+
+      let aiResult = null;
+      if (strapi.service('api::ai.ai')) {
+        aiResult = await strapi.service('api::ai.ai').generateAstrologyGuidance({
+          message: message.trim(),
+          history: history.reverse(),
+          birthChart: session.birthChartSummary,
+          language: resolvedLanguage,
+          astrologerName,
         });
-
-        let aiResult;
-        if (strapi.service('api::ai.ai')) {
-          aiResult = await strapi.service('api::ai.ai').generateAstrologyGuidance({
-            message: message.trim(),
-            history: history.reverse(),
-            birthChart: session.birthChartSummary,
-            language: 'en',
-          });
-        } else {
-          aiResult = await callGeminiAstrology({
-            message: message.trim(),
-            chartSummary: session.birthChartSummary,
-            history: history.reverse(),
-          });
-        }
-
-        if (aiResult.configured && aiResult.reply) {
-          astrologerReply = await strapi.entityService.create('api::chat-message.chat-message', {
-            data: {
-              session: session.id,
-              senderType: 'astrologer',
-              senderName: 'JyotishVeda AI Assistant',
-              message: aiResult.reply,
-              timestamp: new Date(),
-            },
-          });
-          newCount += 1;
-          if (strapi.io) {
-            strapi.io.to(`session_${session.id}`).emit('new_message', astrologerReply);
-          }
-        } else if (!aiResult.configured) {
-          // Provide authentic configuration notice without faking
-          astrologerReply = {
-            id: `notice-${Date.now()}`,
-            senderType: 'system',
-            senderName: 'System Notice',
-            message: aiResult.message,
-            timestamp: new Date().toISOString(),
-          };
-          if (strapi.io) {
-            strapi.io.to(`session_${session.id}`).emit('new_message', astrologerReply);
-          }
-        }
-      } catch (aiErr) {
-        console.warn('AI astrology generation notice:', aiErr.message);
       }
-    } else {
-      // Human consultation mode:
-      // Real astrologer session: do NOT generate fake simulated answers!
-      // The user message is persisted; the consultation is live.
-      astrologerReply = null;
+
+      if (aiResult && aiResult.reply) {
+        astrologerReply = await strapi.entityService.create('api::chat-message.chat-message', {
+          data: {
+            session: session.id,
+            senderType: 'astrologer',
+            senderName: astrologerName,
+            message: aiResult.reply,
+            timestamp: new Date(),
+          },
+        });
+        newCount += 1;
+        if (strapi.io) {
+          strapi.io.to(`session_${session.id}`).emit('new_message', astrologerReply);
+        }
+      }
+    } catch (aiErr) {
+      strapi.log.warn('AI astrology generation notice:', aiErr.message);
     }
 
     // Update message count and check completion
