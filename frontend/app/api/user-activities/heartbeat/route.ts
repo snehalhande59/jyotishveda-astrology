@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io';
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-backend-0epp.onrender.com';
 
     try {
       await fetch(`${strapiUrl}/api/user-activities/heartbeat`, {
@@ -18,3 +18,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 }
+

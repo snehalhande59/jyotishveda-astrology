@@ -1,4 +1,4 @@
-FROM node:20-alpine AS deps
+﻿FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -15,8 +15,8 @@ ARG NEXT_PUBLIC_STRAPI_MEDIA_URL
 ARG NEXT_PUBLIC_SITE_URL
 ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
 
-ENV NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
-ENV NEXT_PUBLIC_STRAPI_MEDIA_URL=${NEXT_PUBLIC_STRAPI_MEDIA_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
+ENV NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL:-https://jyotishveda-backend-0epp.onrender.com}
+ENV NEXT_PUBLIC_STRAPI_MEDIA_URL=${NEXT_PUBLIC_STRAPI_MEDIA_URL:-https://jyotishveda-backend-0epp.onrender.com}
 ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io}
 ENV NEXT_PUBLIC_RAZORPAY_KEY_ID=${NEXT_PUBLIC_RAZORPAY_KEY_ID:-rzp_test_Sx9dDPssrGbVKO}
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -42,3 +42,4 @@ COPY --from=builder /app/next.config.mjs ./next.config.mjs
 EXPOSE 3000
 
 CMD ["npm", "start"]
+

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 module.exports = ({ env }) => {
   const emailUser = env('EMAIL_USER');
@@ -28,7 +28,7 @@ module.exports = ({ env }) => {
     'https://jyotishveda-backend-0epp.onrender.com',
     // Dokploy deployment domains
     'https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io',
-    'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io',
+    'https://jyotishveda-backend-0epp.onrender.com',
   ];
 
   const pluginsConfig = {
@@ -129,3 +129,4 @@ module.exports = ({ env }) => {
 
   return pluginsConfig;
 };
+

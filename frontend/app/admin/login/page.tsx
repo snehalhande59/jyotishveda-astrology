@@ -19,9 +19,14 @@ function AdminLoginContent() {
 
   // If already authenticated as admin, redirect to dashboard
   useEffect(() => {
-    if (searchParams?.get('error') === 'session_expired') {
+    const errorParam = searchParams?.get('error');
+    if (errorParam === 'session_expired') {
       clearAdminSession();
       setError('Your administrative session has expired. Please log in again.');
+      // Clean query param from URL so it doesn't persist across page reloads or logins
+      if (typeof window !== 'undefined' && window.history?.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
       return;
     }
 
@@ -39,6 +44,11 @@ function AdminLoginContent() {
 
     setLoading(true);
     setError(null);
+
+    // Clean any lingering query parameter from the URL
+    if (typeof window !== 'undefined' && window.history?.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
 
     try {
       // First try Next.js API route or direct backend login
@@ -61,7 +71,7 @@ function AdminLoginContent() {
 
       if (res && res.jwt && res.admin) {
         setAdminSession(res.jwt, res.admin);
-        router.push('/admin/dashboard');
+        router.replace('/admin/dashboard');
       } else {
         throw new Error('Invalid administrative response from server.');
       }

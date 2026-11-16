@@ -1,4 +1,4 @@
-services:
+﻿services:
   frontend:
     build:
       context: .
@@ -12,8 +12,8 @@ services:
       - NODE_ENV=productio
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      - NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
-      - NEXT_PUBLIC_STRAPI_MEDIA_URL=${NEXT_PUBLIC_STRAPI_MEDIA_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
+      - NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL:-https://jyotishveda-backend-0epp.onrender.com}
+      - NEXT_PUBLIC_STRAPI_MEDIA_URL=${NEXT_PUBLIC_STRAPI_MEDIA_URL:-https://jyotishveda-backend-0epp.onrender.com}
     networks:
       - dokploy-network
       - default
@@ -23,3 +23,4 @@ networks:
     name: dokploy-network
     external: true
   default:
+

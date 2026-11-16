@@ -17,12 +17,16 @@ async function adminRequest<T>(endpoint: string, options: RequestInit = {}): Pro
   const base = getStrapiUrl();
   const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  // 1. Try remote Strapi endpoint
+  // 1. Try remote Strapi endpoint (with fast failover)
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4500);
     const response = await fetch(url, {
       ...options,
       headers,
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       return response.json();

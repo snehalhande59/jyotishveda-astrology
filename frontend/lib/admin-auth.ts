@@ -11,9 +11,25 @@ export interface AdminUser {
 const ADMIN_TOKEN_KEY = 'astroveda_admin_token';
 const ADMIN_USER_KEY = 'astroveda_admin_user';
 
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+  return match ? decodeURIComponent(match[3]) : null;
+}
+
 export function getAdminToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem(ADMIN_TOKEN_KEY);
+  const local = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (local && local.trim().length > 5) return local;
+
+  const cookie = getCookie(ADMIN_TOKEN_KEY);
+  if (cookie && cookie.trim().length > 5) {
+    try {
+      localStorage.setItem(ADMIN_TOKEN_KEY, cookie);
+    } catch {}
+    return cookie;
+  }
+  return null;
 }
 
 export function getAdminUser(): AdminUser | null {

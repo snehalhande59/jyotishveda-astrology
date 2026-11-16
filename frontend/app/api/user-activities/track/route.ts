@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { recordLiveEvent } from '@/lib/live-events-store';
 
 export async function POST(req: NextRequest) {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     });
 
     // 2. Also forward to Strapi backend asynchronously
-    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io';
+    const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-backend-0epp.onrender.com';
     try {
       fetch(`${strapiUrl}/api/user-activities/track`, {
         method: 'POST',
@@ -31,3 +31,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 }
+

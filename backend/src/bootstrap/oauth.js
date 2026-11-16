@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /**
  * Dedicated Google OAuth Bootstrap Synchronizer for Strapi 5.6.0 Users & Permissions Plugin.
@@ -21,7 +21,7 @@ module.exports = async function syncGoogleOAuth({ strapi }) {
   const hasGoogleCreds = hasGoogleClientId && hasGoogleClientSecret && !isDummyGoogleCreds;
 
   const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
-  const backendUrl = (process.env.PUBLIC_URL || 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io').replace(/\/+$/, '');
+  const backendUrl = (process.env.PUBLIC_URL || 'https://jyotishveda-backend-0epp.onrender.com').replace(/\/+$/, '');
   const defaultFrontend = process.env.NODE_ENV === 'production'
     ? (process.env.FRONTEND_URL || 'https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io')
     : 'http://localhost:3000';
@@ -63,3 +63,4 @@ module.exports = async function syncGoogleOAuth({ strapi }) {
     }
   }
 };
+

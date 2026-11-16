@@ -11,18 +11,17 @@ import {
   ZodiacSign,
 } from './types';
 
-export const PRODUCTION_STRAPI_URL = 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io';
+export const PRODUCTION_STRAPI_URL = 'https://jyotishveda-backend-0epp.onrender.com';
 
 /**
  * Resolves the Strapi backend URL dynamically:
- * 1. Explicit NEXT_PUBLIC_STRAPI_URL environment variable (highest priority, ignores dead onrender URLs)
+ * 1. Explicit NEXT_PUBLIC_STRAPI_URL environment variable (highest priority, ignores dead/offline server IPs)
  * 2. In browser environments: if hostname is NOT localhost/127.0.0.1, use PRODUCTION_STRAPI_URL
- * 3. Server-side rendering in production mode: use PRODUCTION_STRAPI_URL
- * 4. Fallback for local development: http://localhost:1337
+ * 3. Fallback for local development: http://localhost:1337
  */
 export function getStrapiUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
-  if (envUrl && envUrl.trim() !== '' && !envUrl.includes('onrender.com')) {
+  if (envUrl && envUrl.trim() !== '' && !envUrl.includes('150-136-44-53')) {
     return envUrl.replace(/\/+$/, '');
   }
 
@@ -46,16 +45,21 @@ export function getStrapiUrl(): string {
     return 'http://localhost:1337';
   }
 
-  // Default to production Dokploy Strapi URL
+  // Default to production Strapi URL
   return PRODUCTION_STRAPI_URL;
 }
 
 /**
  * Generates the full Google OAuth initiation URL including dynamic callback parameter.
+ * Automatically targets the active Strapi backend instance.
  * Optionally stores the post-login redirect path in sessionStorage.
  */
 export function getGoogleAuthUrl(redirectUrl?: string): string {
-  const base = getStrapiUrl();
+  let base = getStrapiUrl();
+  if (base.includes('150-136-44-53')) {
+    base = PRODUCTION_STRAPI_URL;
+  }
+
   if (typeof window !== 'undefined') {
     if (redirectUrl) {
       try {

@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
@@ -15,12 +15,13 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_STRAPI_URL:
-      process.env.NEXT_PUBLIC_STRAPI_URL || "https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io",
+      process.env.NEXT_PUBLIC_STRAPI_URL || "https://jyotishveda-backend-0epp.onrender.com",
     NEXT_PUBLIC_STRAPI_MEDIA_URL:
-      process.env.NEXT_PUBLIC_STRAPI_MEDIA_URL || "https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io",
+      process.env.NEXT_PUBLIC_STRAPI_MEDIA_URL || "https://jyotishveda-backend-0epp.onrender.com",
     NEXT_PUBLIC_RAZORPAY_KEY_ID:
       process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_Sx9dDPssrGbVKO",
   },
 };
 
 export default nextConfig;
+
