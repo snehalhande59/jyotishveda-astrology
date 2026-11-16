@@ -5,6 +5,7 @@ module.exports = {
       path: '/admin/login',
       handler: 'admin.login',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -13,6 +14,7 @@ module.exports = {
       path: '/admin/me',
       handler: 'admin.getMe',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -21,6 +23,7 @@ module.exports = {
       path: '/admin/dashboard-stats',
       handler: 'admin.getDashboardStats',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -29,6 +32,7 @@ module.exports = {
       path: '/admin/users',
       handler: 'admin.getUsers',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -37,6 +41,7 @@ module.exports = {
       path: '/admin/users/:id',
       handler: 'admin.getUserById',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -45,6 +50,7 @@ module.exports = {
       path: '/admin/astrologers',
       handler: 'admin.getAstrologers',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -53,6 +59,7 @@ module.exports = {
       path: '/admin/astrologers',
       handler: 'admin.createAstrologer',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -61,6 +68,7 @@ module.exports = {
       path: '/admin/astrologers/:id',
       handler: 'admin.updateAstrologer',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -69,6 +77,7 @@ module.exports = {
       path: '/admin/astrologers/:id',
       handler: 'admin.deleteAstrologer',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -77,6 +86,7 @@ module.exports = {
       path: '/admin/bookings',
       handler: 'admin.getBookings',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -85,6 +95,7 @@ module.exports = {
       path: '/admin/bookings/:id',
       handler: 'admin.getBookingById',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -93,6 +104,7 @@ module.exports = {
       path: '/admin/bookings/:id',
       handler: 'admin.updateBooking',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -101,6 +113,7 @@ module.exports = {
       path: '/admin/content/:contentType',
       handler: 'admin.getContent',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -109,6 +122,7 @@ module.exports = {
       path: '/admin/content/:contentType',
       handler: 'admin.createContent',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -117,6 +131,7 @@ module.exports = {
       path: '/admin/content/:contentType/:id',
       handler: 'admin.updateContent',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -125,6 +140,7 @@ module.exports = {
       path: '/admin/content/:contentType/:id',
       handler: 'admin.deleteContent',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -133,6 +149,7 @@ module.exports = {
       path: '/admin/reports/export',
       handler: 'admin.exportReport',
       config: {
+        auth: false,
         policies: [],
       },
     },
@@ -141,6 +158,7 @@ module.exports = {
       path: '/admin/change-password',
       handler: 'admin.changePassword',
       config: {
+        auth: false,
         policies: [],
       },
     },

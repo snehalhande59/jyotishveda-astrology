@@ -11,7 +11,7 @@ export default function Footer() {
   const { t, formatNumber } = useLanguage();
   const currentYear = formatNumber(new Date().getFullYear());
 
-  if (pathname?.startsWith('/admin')) {
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/chat/')) {
     return null;
   }
 

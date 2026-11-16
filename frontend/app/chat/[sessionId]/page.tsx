@@ -359,9 +359,9 @@ export default function ActiveChatSessionPage() {
   const isChatDisabled = isExpired || isMessageLimitReached || session?.status === 'completed';
 
   return (
-    <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] flex flex-col font-sans">
+    <div className="bg-[#FAF7F2] h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] text-[#2D1810] flex flex-col font-sans overflow-hidden">
       {/* Astrologer & Session Top Bar */}
-      <header className="bg-white border-b border-[#EAE1D2] text-[#2D1810] px-3 sm:px-4 py-2.5 sm:py-3 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white border-b border-[#EAE1D2] text-[#2D1810] px-3 sm:px-4 py-2.5 sm:py-3 shrink-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">
           {/* Astrologer Info */}
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink">
@@ -457,7 +457,7 @@ export default function ActiveChatSessionPage() {
 
       {/* Chart Drawer (Collapsible) */}
       {showChartDrawer && session?.birthChartSummary && (
-        <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] text-[#2D1810] p-4 text-xs animate-fadeIn shadow-xs">
+        <div className="bg-[#FFFDF9] border-b border-[#EAE1D2] text-[#2D1810] p-4 text-xs animate-fadeIn shadow-xs shrink-0 max-h-48 overflow-y-auto">
           <div className="max-w-5xl mx-auto space-y-2">
             <div className="flex items-center justify-between text-[#2D1810] font-bold">
               <span className="flex items-center space-x-1.5">
@@ -502,7 +502,7 @@ export default function ActiveChatSessionPage() {
       )}
 
       {/* Chat Messages Body */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-4 overflow-y-auto">
+      <main className="flex-1 min-h-0 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col space-y-4 overflow-y-auto">
         {/* Error message */}
         {errorBanner && (
           <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center space-x-2">
@@ -626,7 +626,7 @@ export default function ActiveChatSessionPage() {
       </main>
 
       {/* Message Input Footer */}
-      <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 sticky bottom-0 z-20 shadow-xs">
+      <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 shrink-0 z-20 shadow-md">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
             <input
