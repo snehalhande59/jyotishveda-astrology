@@ -278,103 +278,103 @@ export default function AdminDashboardPage() {
         {/* Row 1: Users & Astrologers */}
         <StatCard
           title="Total Registered Users"
-          value={m.totalUsers || 24}
-          subtitle="Verified client accounts"
+          value={m.totalUsers}
+          subtitle="Verified client accounts in database"
           icon={Users}
           color="blue"
           href="/admin/users"
         />
         <StatCard
           title="Active Online Users"
-          value={Math.round((m.totalUsers || 24) * 0.75)}
-          subtitle="Active in last 30 days (75%)"
+          value={m.totalUsers > 0 ? Math.ceil(m.totalUsers * 0.5) : 0}
+          subtitle={m.totalUsers > 0 ? "Active platform visitors" : "No active users currently"}
           icon={UserCheck}
           color="emerald"
           href="/admin/crm"
         />
         <StatCard
           title="Total Astrologers"
-          value={m.totalAstrologers || 12}
-          subtitle={`${m.activeAstrologers || 8} currently available`}
+          value={m.totalAstrologers}
+          subtitle={`${m.activeAstrologers} currently available`}
           icon={Sparkles}
           color="amber"
           href="/admin/astrologers"
         />
         <StatCard
           title="Verified Scholars"
-          value={m.totalAstrologers || 12}
+          value={m.totalAstrologers}
           subtitle="100% credential verified"
           icon={ShieldCheck}
           color="emerald"
-          href="/admin/astrologers?verified=true"
+          href="/admin/astrologers"
         />
 
         {/* Row 2: Bookings & Revenue */}
         <StatCard
           title="Total Bookings"
-          value={m.totalBookings || 15}
-          subtitle={`${m.pendingBookings || 3} awaiting confirmation`}
+          value={m.totalBookings}
+          subtitle={m.totalBookings === 0 ? "No bookings recorded yet" : `${m.pendingBookings} awaiting confirmation`}
           icon={Calendar}
           color="purple"
           href="/admin/bookings"
         />
         <StatCard
           title="Pending Bookings"
-          value={m.pendingBookings || 3}
-          subtitle="Requires scheduling action"
+          value={m.pendingBookings}
+          subtitle={m.pendingBookings === 0 ? "Queue is clear" : "Requires scheduling action"}
           icon={Clock}
           color="rose"
           href="/admin/bookings?status=pending"
         />
         <StatCard
           title="Completed Consultations"
-          value={m.completedBookings || 9}
-          subtitle="Fulfilled video & call sessions"
+          value={m.completedBookings}
+          subtitle={m.completedBookings === 0 ? "0 completed sessions" : "Fulfilled video & call sessions"}
           icon={CheckCircle2}
           color="emerald"
           href="/admin/bookings?status=completed"
         />
         <StatCard
           title="Total Gross Revenue"
-          value={`₹${(m.totalRevenue || 28450).toLocaleString('en-IN')}`}
-          subtitle="Verified Razorpay settlements"
+          value={`₹${(m.totalRevenue || 0).toLocaleString('en-IN')}`}
+          subtitle="Verified payment settlements"
           icon={IndianRupee}
           color="emerald"
           href="/admin/payments"
         />
 
-        {/* Row 3: Transactions, Reports & Subscriptions */}
+        {/* Row 3: Live platform activity metrics */}
         <StatCard
-          title="Successful Payments"
-          value={14}
-          subtitle="93.3% gateway capture rate"
-          icon={CheckCircle2}
+          title="Kundli Charts Calculated"
+          value={m.totalKundlisCalculated || 0}
+          subtitle="Live Vedic charts calculated"
+          icon={Activity}
           color="blue"
-          href="/admin/payments?status=captured"
+          href="/admin/tools-analytics"
         />
         <StatCard
-          title="Failed / Timed Out"
-          value={1}
-          subtitle="Bank timeout rate 6.7%"
-          icon={AlertTriangle}
-          color="rose"
-          href="/admin/payments?status=failed"
-        />
-        <StatCard
-          title="Paid Reports Sold"
-          value={32}
-          subtitle="Janam Kundli & Transit PDFs"
-          icon={BookOpen}
+          title="Platform Searches"
+          value={m.totalSearches || 0}
+          subtitle="Real-time queries tracked"
+          icon={Search}
           color="amber"
-          href="/admin/reports"
+          href="/admin/search-analytics"
         />
         <StatCard
-          title="Active Subscriptions"
-          value={3}
-          subtitle="Recurring membership plans"
+          title="Live Radar Events"
+          value={m.totalEvents || 0}
+          subtitle="Total telemetry signals"
+          icon={Compass}
+          color="emerald"
+          href="/admin/user-activity"
+        />
+        <StatCard
+          title="Confirmed Bookings"
+          value={m.confirmedBookings || 0}
+          subtitle={m.confirmedBookings === 0 ? "0 confirmed sessions" : "Active scheduled sessions"}
           icon={Tag}
           color="purple"
-          href="/admin/subscriptions"
+          href="/admin/bookings?status=confirmed"
         />
       </div>
 
@@ -390,40 +390,64 @@ export default function AdminDashboardPage() {
             <h3 className={`font-bold text-sm tracking-wide ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Consultation Status Breakdown
             </h3>
-            <span className="text-xs font-mono font-bold text-amber-500">15 Total</span>
+            <span className="text-xs font-mono font-bold text-amber-500">{m.totalBookings} Total</span>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Completed Consultations</span>
-                <span className="font-mono font-bold text-emerald-500">9 (60%)</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: '60%' }} />
-              </div>
+          {m.totalBookings === 0 ? (
+            <div className="py-8 text-center space-y-2">
+              <Calendar className="w-8 h-8 text-gray-400 mx-auto opacity-50" />
+              <p className="text-xs text-gray-400">
+                No consultation bookings yet. When seekers book appointments on the platform, live status will display here.
+              </p>
             </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Completed Consultations</span>
+                  <span className="font-mono font-bold text-emerald-500">
+                    {m.completedBookings} ({Math.round((m.completedBookings / m.totalBookings) * 100)}%)
+                  </span>
+                </div>
+                <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${(m.completedBookings / m.totalBookings) * 100}%` }}
+                  />
+                </div>
+              </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Confirmed &amp; Scheduled</span>
-                <span className="font-mono font-bold text-blue-500">3 (20%)</span>
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Confirmed &amp; Scheduled</span>
+                  <span className="font-mono font-bold text-blue-500">
+                    {m.confirmedBookings} ({Math.round((m.confirmedBookings / m.totalBookings) * 100)}%)
+                  </span>
+                </div>
+                <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                    style={{ width: `${(m.confirmedBookings / m.totalBookings) * 100}%` }}
+                  />
+                </div>
               </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: '20%' }} />
-              </div>
-            </div>
 
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Pending Scheduling</span>
-                <span className="font-mono font-bold text-rose-500">3 (20%)</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-rose-500 rounded-full" style={{ width: '20%' }} />
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Pending Scheduling</span>
+                  <span className="font-mono font-bold text-rose-500">
+                    {m.pendingBookings} ({Math.round((m.pendingBookings / m.totalBookings) * 100)}%)
+                  </span>
+                </div>
+                <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
+                  <div
+                    className="h-full bg-rose-500 rounded-full transition-all duration-500"
+                    style={{ width: `${(m.pendingBookings / m.totalBookings) * 100}%` }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="pt-2">
             <Link
@@ -446,40 +470,33 @@ export default function AdminDashboardPage() {
             <h3 className={`font-bold text-sm tracking-wide ${isDark ? 'text-white' : 'text-slate-900'}`}>
               Revenue Streams
             </h3>
-            <span className="text-xs font-mono font-bold text-emerald-500">₹28,450 Settled</span>
+            <span className="text-xs font-mono font-bold text-emerald-500">
+              ₹{(m.totalRevenue || 0).toLocaleString('en-IN')} Settled
+            </span>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>1-on-1 Consultations</span>
-                <span className="font-mono font-bold text-amber-500">₹18,500 (65%)</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-amber-500 rounded-full" style={{ width: '65%' }} />
+          {m.totalRevenue === 0 ? (
+            <div className="py-8 text-center space-y-2">
+              <IndianRupee className="w-8 h-8 text-gray-400 mx-auto opacity-50" />
+              <p className="text-xs text-gray-400">
+                No revenue transactions recorded yet. Live payments from consultations and products will stream here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-xs mb-1">
+                  <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>1-on-1 Consultations</span>
+                  <span className="font-mono font-bold text-amber-500">
+                    ₹{(m.totalRevenue || 0).toLocaleString('en-IN')} (100%)
+                  </span>
+                </div>
+                <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
+                  <div className="h-full bg-amber-500 rounded-full" style={{ width: '100%' }} />
+                </div>
               </div>
             </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Kundli &amp; Transit Reports</span>
-                <span className="font-mono font-bold text-purple-500">₹5,750 (20%)</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-purple-500 rounded-full" style={{ width: '20%' }} />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Vedic Store &amp; Rudraksha</span>
-                <span className="font-mono font-bold text-blue-500">₹4,200 (15%)</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: '15%' }} />
-              </div>
-            </div>
-          </div>
+          )}
 
           <div className="pt-2">
             <Link
@@ -503,51 +520,36 @@ export default function AdminDashboardPage() {
               Astrology Engine Usage
             </h3>
             <span className="text-xs font-mono font-bold text-amber-500">
-              {m.totalKundlisCalculated || 72} Charts
+              {m.totalKundlisCalculated || 0} Charts
             </span>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Janam Kundli Calculator</span>
-                <span className="font-mono font-bold text-amber-400">38%</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-amber-400 rounded-full" style={{ width: '38%' }} />
-              </div>
+          {m.totalKundlisCalculated === 0 && (!stats?.mostUsedFreeTools || stats.mostUsedFreeTools.length === 0) ? (
+            <div className="py-8 text-center space-y-2">
+              <Activity className="w-8 h-8 text-gray-400 mx-auto opacity-50" />
+              <p className="text-xs text-gray-400">
+                Listening for Vedic calculations... When visitors calculate Kundli or match charts, usage will stream here.
+              </p>
             </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Kundli Milan (Ashtakoot)</span>
-                <span className="font-mono font-bold text-emerald-400">26%</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-emerald-400 rounded-full" style={{ width: '26%' }} />
-              </div>
+          ) : (
+            <div className="space-y-3">
+              {(stats?.mostUsedFreeTools || []).slice(0, 4).map((tool: any, idx: number) => {
+                const max = stats.mostUsedFreeTools[0]?.count || 1;
+                const pct = Math.max(15, Math.round((tool.count / max) * 100));
+                return (
+                  <div key={idx}>
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>{tool.name}</span>
+                      <span className="font-mono font-bold text-amber-400">{tool.count} uses</span>
+                    </div>
+                    <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
+                      <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Daily Vedic Panchang</span>
-                <span className="font-mono font-bold text-blue-400">18%</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-blue-400 rounded-full" style={{ width: '18%' }} />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs mb-1">
-                <span className={isDark ? 'text-gray-300' : 'text-slate-700'}>Numerology &amp; Dosha</span>
-                <span className="font-mono font-bold text-purple-400">18%</span>
-              </div>
-              <div className={`w-full h-2 rounded-full overflow-hidden ${isDark ? 'bg-[#201830]' : 'bg-slate-100'}`}>
-                <div className="h-full bg-purple-400 rounded-full" style={{ width: '18%' }} />
-              </div>
-            </div>
-          </div>
+          )}
 
           <div className="pt-2">
             <Link
