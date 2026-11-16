@@ -44,8 +44,17 @@ async function adminRequest<T>(endpoint: string, options: RequestInit = {}): Pro
       });
       if (localRes.ok) {
         return localRes.json();
+      } else {
+        const errJson = await localRes.json().catch(() => ({}));
+        if (errJson?.error) {
+          throw new Error(errJson.error);
+        }
       }
-    } catch (localErr) {}
+    } catch (localErr: any) {
+      if (localErr?.message && !localErr.message.includes('failed')) {
+        throw localErr;
+      }
+    }
   }
 
   throw new Error(`Admin service request to ${endpoint} failed. Please try again.`);

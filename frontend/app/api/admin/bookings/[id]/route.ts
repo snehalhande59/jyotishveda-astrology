@@ -1,0 +1,114 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+let cachedBackendJwt: string | null = null;
+let tokenExpiresAt = 0;
+
+async function getBackendAdminToken(strapiUrl: string): Promise<string | null> {
+  if (cachedBackendJwt && Date.now() < tokenExpiresAt) {
+    return cachedBackendJwt;
+  }
+  try {
+    const res = await fetch(`${strapiUrl}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'admin@astroveda.com',
+        password: process.env.ADMIN_PASSWORD || 'Admin@AstroVeda2026!',
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const token = data?.jwt || data?.token;
+      if (token) {
+        cachedBackendJwt = token;
+        tokenExpiresAt = Date.now() + 2 * 60 * 60 * 1000;
+        return cachedBackendJwt;
+      }
+    }
+  } catch (err) {
+    console.warn('Backend admin auth fallback error:', err);
+  }
+  return null;
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-backend-0epp.onrender.com';
+  let authHeader = req.headers.get('authorization') || '';
+
+  if (!authHeader || !authHeader.includes('.')) {
+    const backendToken = await getBackendAdminToken(strapiUrl);
+    if (backendToken) {
+      authHeader = `Bearer ${backendToken}`;
+    }
+  }
+
+  try {
+    const res = await fetch(`${strapiUrl}/api/admin/bookings/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data);
+    }
+  } catch (err: any) {
+    console.warn('Fetch booking detail error:', err);
+  }
+
+  return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'https://jyotishveda-backend-0epp.onrender.com';
+  let authHeader = req.headers.get('authorization') || '';
+
+  if (!authHeader || !authHeader.includes('.')) {
+    const backendToken = await getBackendAdminToken(strapiUrl);
+    if (backendToken) {
+      authHeader = `Bearer ${backendToken}`;
+    }
+  }
+
+  try {
+    const body = await req.json();
+    const res = await fetch(`${strapiUrl}/api/admin/bookings/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authHeader,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      return NextResponse.json(data);
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: errData?.error?.message || errData?.message || 'Failed to update booking on server' },
+        { status: res.status }
+      );
+    }
+  } catch (err: any) {
+    console.warn('Update booking error:', err);
+    return NextResponse.json({ error: err.message || 'Internal error updating booking' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return PUT(req, { params });
+}
