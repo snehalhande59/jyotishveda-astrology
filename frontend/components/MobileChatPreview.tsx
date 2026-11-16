@@ -41,9 +41,9 @@ const CHAT_SCENARIOS: ChatScenario[] = [
     userQuestionEn: 'When will I get a promotion or job change? Feeling stuck for 2 years.',
     userQuestionMr: 'माझ्या नोकरीत पदोन्नती (Promotion) किंवा बदल कधी होईल? २ वर्षांपासून वाट पाहत आहे.',
     astroAnswerEn:
-      'Namaste Snehal! Looking at your chart, Jupiter is entering your 10th house of career in May 2026. This creates a strong Gaj Kesari Yog for a major career breakthrough and salary hike.',
+      'Namaste Rohit! Looking at your chart, Jupiter is entering your 10th house of career in May 2026. This creates a strong Gaj Kesari Yog for a major career breakthrough and salary hike.',
     astroAnswerMr:
-      'नमस्ते स्नेहल! तुमच्या कुंडलीत मे २०२६ पासून १० व्या भावात गुरूचे शुभ गोचर सुरू होत आहे. करिअरमध्ये उत्तम पदोन्नती आणि अपेक्षित पगारवाढीचे प्रबळ योग आहेत.',
+      'नमस्ते रोहित! तुमच्या कुंडलीत मे २०२६ पासून १० व्या भावात गुरूचे शुभ गोचर सुरू होत आहे. करिअरमध्ये उत्तम पदोन्नती आणि अपेक्षित पगारवाढीचे प्रबळ योग आहेत.',
     remedyEn: 'Remedy: Chant "Om Brihaspataye Namah" on Thursdays and offer yellow flowers to Vishnu.',
     remedyMr: 'उपाय: दर गुरुवारी "ॐ बृहस्पतये नमः" जप करा आणि पिवळे फुल विष्णूला अर्पण करा.',
     userTime: '9:38 AM',

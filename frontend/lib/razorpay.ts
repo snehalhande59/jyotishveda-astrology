@@ -64,11 +64,24 @@ export async function openRazorpayModal(options: RazorpayOptions): Promise<void>
 
   const { onFailure, ...rzpOptions } = options;
 
+  const cleanOptions: any = { ...rzpOptions };
+  // Only include order_id if it is a non-empty string and not undefined/null/placeholder
+  if (
+    !cleanOptions.order_id ||
+    typeof cleanOptions.order_id !== 'string' ||
+    cleanOptions.order_id === 'undefined' ||
+    cleanOptions.order_id.trim() === '' ||
+    cleanOptions.order_id.startsWith('order_test_') ||
+    cleanOptions.order_id.startsWith('order_1')
+  ) {
+    delete cleanOptions.order_id;
+  }
+
   const rzp = new window.Razorpay({
-    ...rzpOptions,
+    ...cleanOptions,
     theme: {
       color: '#D4AF37', // Gold brand theme
-      ...rzpOptions.theme,
+      ...cleanOptions.theme,
     },
   });
 

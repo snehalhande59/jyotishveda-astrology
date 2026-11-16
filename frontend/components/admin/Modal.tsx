@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useAdminTheme } from '@/context/AdminThemeContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -28,6 +29,8 @@ export default function Modal({
   children,
   maxWidth = 'lg',
 }: ModalProps) {
+  const { isDark } = useAdminTheme();
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -47,24 +50,46 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
       <div
-        className={`relative w-full ${WIDTH_CLASSES[maxWidth]} bg-[#151122] border border-[#2D2444] rounded-2xl shadow-2xl overflow-hidden text-[#E5DFD7] max-h-[90vh] flex flex-col`}
+        className={`relative w-full ${WIDTH_CLASSES[maxWidth]} rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border transition-colors ${
+          isDark
+            ? 'bg-[#151122] border-[#2D2444] text-[#E5DFD7]'
+            : 'bg-white border-slate-200 text-slate-800'
+        }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#261E38] bg-[#0F0C1A]">
+        <div
+          className={`flex items-center justify-between px-6 py-4 border-b ${
+            isDark ? 'border-[#261E38] bg-[#0F0C1A]' : 'border-slate-100 bg-slate-50'
+          }`}
+        >
           <div>
-            <h3 className="text-base font-bold text-white tracking-wide">{title}</h3>
-            {subtitle && <p className="text-xs text-[#8E84A6] mt-0.5">{subtitle}</p>}
+            <h3
+              className={`text-base font-bold tracking-wide ${
+                isDark ? 'text-white' : 'text-slate-900'
+              }`}
+            >
+              {title}
+            </h3>
+            {subtitle && (
+              <p className={`text-xs mt-0.5 ${isDark ? 'text-[#8E84A6]' : 'text-slate-500'}`}>
+                {subtitle}
+              </p>
+            )}
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#231B36] transition-colors"
+            className={`p-1.5 rounded-lg transition-colors ${
+              isDark
+                ? 'text-gray-400 hover:text-white hover:bg-[#231B36]'
+                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+            }`}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto space-y-4 text-xs">{children}</div>
+        {/* Body */}
+        <div className="p-6 overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

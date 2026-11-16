@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     success: true,
     data: [
       { id: 1, username: 'astroveda_admin', email: 'admin@astroveda.com', confirmed: true, blocked: false, status: 'Active', totalBookings: 0, createdAt: new Date().toISOString() },
-      { id: 2, username: 'snehalhande59', email: 'snehalhande59@gmail.com', confirmed: true, blocked: false, status: 'Active', totalBookings: 3, createdAt: '2026-11-01T10:00:00Z' },
+      { id: 2, username: 'rohitdeshmukh', email: 'rohit.deshmukh@example.com', confirmed: true, blocked: false, status: 'Active', totalBookings: 3, createdAt: '2026-11-01T10:00:00Z' },
     ],
     meta: { pagination: { page: 1, pageSize: 20, pageCount: 1, total: 2 } },
   });

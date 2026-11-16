@@ -285,19 +285,19 @@ export default function CompatibilityPage() {
   const defaultSangamner = POPULAR_CITIES.find((c) => c.name === 'Sangamner') || POPULAR_CITIES[0];
   const defaultSinnar = POPULAR_CITIES.find((c) => c.name === 'Sinnar') || POPULAR_CITIES[1] || POPULAR_CITIES[0];
 
-  // Active Tab: 'report' or 'form'
-  const [activeTab, setActiveTab] = useState<'report' | 'form'>('report');
+  // Active Tab: 'form' for user entry, 'report' once generated
+  const [activeTab, setActiveTab] = useState<'report' | 'form'>('form');
 
-  // Girl Details (Neutral Default)
-  const [girlName, setGirlName] = useState('Priyanka Sharma');
-  const [girlDob, setGirlDob] = useState('1998-08-15');
-  const [girlTob, setGirlTob] = useState('10:30');
+  // Girl Details (Empty by default for clean user input)
+  const [girlName, setGirlName] = useState('');
+  const [girlDob, setGirlDob] = useState('');
+  const [girlTob, setGirlTob] = useState('12:00');
   const [girlCity, setGirlCity] = useState<CityLocation>(defaultSangamner);
 
-  // Boy Details (Neutral Default)
-  const [boyName, setBoyName] = useState('Rahul Verma');
-  const [boyDob, setBoyDob] = useState('1996-04-22');
-  const [boyTob, setBoyTob] = useState('14:15');
+  // Boy Details (Empty by default for clean user input)
+  const [boyName, setBoyName] = useState('');
+  const [boyDob, setBoyDob] = useState('');
+  const [boyTob, setBoyTob] = useState('12:00');
   const [boyCity, setBoyCity] = useState<CityLocation>(defaultSinnar);
 
   const [result, setResult] = useState<any>(null);
@@ -327,6 +327,21 @@ export default function CompatibilityPage() {
 
       if (!matchRes) {
         matchRes = calculateFullCompatibility(bData, gData);
+      }
+
+      // Ensure names and birth details are strictly attached to result
+      if (matchRes) {
+        if (!matchRes.boyChart) matchRes.boyChart = {};
+        if (!matchRes.girlChart) matchRes.girlChart = {};
+        matchRes.boyChart.fullName = bData.fullName || (isMr ? 'वर' : 'Boy');
+        matchRes.boyChart.dateOfBirth = bData.dateOfBirth;
+        matchRes.boyChart.timeOfBirth = bData.timeOfBirth;
+        matchRes.boyChart.placeOfBirth = bData.placeOfBirth;
+
+        matchRes.girlChart.fullName = gData.fullName || (isMr ? 'वधू' : 'Girl');
+        matchRes.girlChart.dateOfBirth = gData.dateOfBirth;
+        matchRes.girlChart.timeOfBirth = gData.timeOfBirth;
+        matchRes.girlChart.placeOfBirth = gData.placeOfBirth;
       }
 
       setResult(matchRes);
@@ -424,10 +439,9 @@ export default function CompatibilityPage() {
     performMatch(b, g);
   };
 
-  // Initial load
+  // Track tool view on mount (do not prefill fake/sample report automatically)
   useEffect(() => {
-    handleLoadSample();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Form starts ready for user input
   }, []);
 
   const kutas = Array.isArray(result?.gunaMilan?.kutas)
@@ -535,7 +549,7 @@ export default function CompatibilityPage() {
                     type="text"
                     value={girlName}
                     onChange={(e) => setGirlName(e.target.value)}
-                    placeholder={isMr ? 'वधूचे नाव (उदा. प्रियांका शर्मा)...' : 'e.g. Priyanka Sharma'}
+                    placeholder={isMr ? 'वधूचे नाव (उदा. पूजा शर्मा)...' : 'e.g. Pooja Sharma'}
                     className="w-full px-3 py-2 bg-white border border-[#EAE1D2] rounded-xl text-xs text-[#2D1810] focus:outline-none focus:border-[#F59E0B]"
                     required
                   />
@@ -683,7 +697,7 @@ export default function CompatibilityPage() {
                           <FemaleAvatar />
                           <div>
                             <h3 className="font-bold text-[#2D1810] text-base sm:text-lg leading-tight">
-                              {girlName || 'Girl'}
+                              {result?.girlChart?.fullName || girlName || (isMr ? 'वधू' : 'Girl')}
                             </h3>
                             <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
                               {result?.girlChart?.moonSign?.signName

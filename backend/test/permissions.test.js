@@ -126,7 +126,7 @@ async function run() {
 
   console.log('\n=== 5. TESTING ADMIN LOGIN & FAVICON ===');
   const adminLogin = await post('/admin/login', {
-    email: 'snehalhande59@gmail.com',
+    email: 'test.user@example.com',
     password: 'AdminJyotish@2026'
   });
   console.log(`ADMIN LOGIN => Status: ${adminLogin.status} | Token exists: ${!!adminLogin.body?.data?.token}`);

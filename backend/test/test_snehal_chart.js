@@ -1,7 +1,7 @@
 const vedicEngine = require('../src/services/vedic-engine');
 
 const birth = {
-  fullName: "Snehal Hande",
+  fullName: "Rohit Deshmukh",
   dateOfBirth: "2003-10-20",
   timeOfBirth: "21:45",
   placeOfBirth: "Sangamner, Maharashtra, India",

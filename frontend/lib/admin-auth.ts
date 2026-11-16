@@ -18,19 +18,61 @@ export function getAdminToken(): string | null {
 
 export function getAdminUser(): AdminUser | null {
   if (typeof window === 'undefined') return null;
+  const token = getAdminToken();
+  if (!token) return null;
+
   const raw = localStorage.getItem(ADMIN_USER_KEY);
-  if (!raw) return null;
+  if (!raw) {
+    const fallbackUser: AdminUser = {
+      id: 1,
+      email: 'admin@astroveda.com',
+      username: 'AstroVeda Super Admin',
+      role: 'admin',
+      lastLogin: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(fallbackUser));
+    } catch {}
+    return fallbackUser;
+  }
+
   try {
-    return JSON.parse(raw) as AdminUser;
+    const parsed = JSON.parse(raw) as AdminUser;
+    if (!parsed || !parsed.email) {
+      const fallbackUser: AdminUser = {
+        id: 1,
+        email: 'admin@astroveda.com',
+        username: 'AstroVeda Super Admin',
+        role: 'admin',
+        lastLogin: new Date().toISOString(),
+      };
+      return fallbackUser;
+    }
+    return parsed;
   } catch {
-    return null;
+    const fallbackUser: AdminUser = {
+      id: 1,
+      email: 'admin@astroveda.com',
+      username: 'AstroVeda Super Admin',
+      role: 'admin',
+      lastLogin: new Date().toISOString(),
+    };
+    return fallbackUser;
   }
 }
 
-export function setAdminSession(token: string, user: AdminUser): void {
+export function setAdminSession(token: string, user?: Partial<AdminUser>): void {
   if (typeof window === 'undefined') return;
+  const safeUser: AdminUser = {
+    id: user?.id || 1,
+    email: user?.email || 'admin@astroveda.com',
+    username: user?.username || 'AstroVeda Super Admin',
+    role: 'admin',
+    lastLogin: user?.lastLogin || new Date().toISOString(),
+  };
+
   localStorage.setItem(ADMIN_TOKEN_KEY, token);
-  localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(user));
+  localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(safeUser));
   document.cookie = `astroveda_admin_token=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`;
   window.dispatchEvent(new Event('admin-auth-updated'));
 }
@@ -44,5 +86,7 @@ export function clearAdminSession(): void {
 }
 
 export function isAdminAuthenticated(): boolean {
-  return Boolean(getAdminToken());
+  if (typeof window === 'undefined') return false;
+  const token = getAdminToken();
+  return Boolean(token && token.trim().length > 5);
 }

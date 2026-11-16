@@ -1129,10 +1129,11 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
   // 3. Tara / Dina (Max 3 pts)
   const diffNak1 = (girlNakIdx - boyNakIdx + 27) % 9;
   const diffNak2 = (boyNakIdx - girlNakIdx + 27) % 9;
-  const isAuspiciousTara = (diff: number) => [1, 3, 5, 7].includes(diff);
-  let taraScore = 1.5;
+  const isAuspiciousTara = (diff: number) => [0, 2, 4, 6, 8].includes(diff);
+  let taraScore = 0;
   if (isAuspiciousTara(diffNak1) && isAuspiciousTara(diffNak2)) taraScore = 3;
   else if (isAuspiciousTara(diffNak1) || isAuspiciousTara(diffNak2)) taraScore = 1.5;
+  else taraScore = 0;
 
   // 4. Yoni (Max 4 pts)
   const boyYoni = boyNakAttr.yoni;
@@ -1185,9 +1186,19 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
   else ganaScore = 1;
 
   // 7. Bhakoot (Max 7 pts)
-  const signDistance = Math.abs(boySignIdx - girlSignIdx) + 1;
+  const dist1 = ((girlSignIdx - boySignIdx + 12) % 12) + 1;
+  const dist2 = ((boySignIdx - girlSignIdx + 12) % 12) + 1;
   let bhakootScore = 7;
-  if ([2, 12, 6, 8, 9, 5].includes(signDistance)) bhakootScore = 0;
+  if (SIGN_LORDS_LIST[boySignIdx] === SIGN_LORDS_LIST[girlSignIdx]) {
+    // Bhakoot Dosha Parihara: Same planetary lord grants harmony
+    bhakootScore = 7;
+  } else if ((dist1 === 2 && dist2 === 12) || (dist1 === 12 && dist2 === 2)) {
+    bhakootScore = 0; // Dwirdwadash
+  } else if ((dist1 === 6 && dist2 === 8) || (dist1 === 8 && dist2 === 6)) {
+    bhakootScore = 0; // Shadashtak
+  } else if ((dist1 === 5 && dist2 === 9) || (dist1 === 9 && dist2 === 5)) {
+    bhakootScore = 0; // Navapancham
+  }
 
   // 8. Nadi (Max 8 pts)
   const boyNadi = boyNakAttr.nadi;

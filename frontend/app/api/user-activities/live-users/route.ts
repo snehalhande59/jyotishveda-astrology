@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       registeredActive: 6,
       guestActive: 8,
       sessions: [
-        { id: 'sess_1', isGuest: false, email: 'snehalhande59@gmail.com', path: '/compatibility', lastSeen: new Date().toISOString() },
+        { id: 'sess_1', isGuest: false, email: 'rohit.deshmukh@example.com', path: '/compatibility', lastSeen: new Date().toISOString() },
         { id: 'sess_2', isGuest: true, email: 'Guest Client (Mumbai)', path: '/kundli', lastSeen: new Date(Date.now() - 40000).toISOString() },
         { id: 'sess_3', isGuest: true, email: 'Guest Client (Pune)', path: '/shop', lastSeen: new Date(Date.now() - 90000).toISOString() },
         { id: 'sess_4', isGuest: false, email: 'rahul.verma@gmail.com', path: '/astrologers', lastSeen: new Date(Date.now() - 120000).toISOString() },

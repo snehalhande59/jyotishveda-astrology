@@ -23,7 +23,6 @@ module.exports = ({ env }) => {
     'http://127.0.0.1:3003',
     'https://jyotishveda-astrology.vercel.app',
     'https://jyotishveda-astrology-web.vercel.app',
-    'https://jyotishveda-astrology-ew4n3uxvh-snehalhande59s-projects.vercel.app',
     'https://jyotishveda.com',
     'https://www.jyotishveda.com',
     'https://jyotishveda-backend-0epp.onrender.com',

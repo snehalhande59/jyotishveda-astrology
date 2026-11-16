@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { adminApi } from '@/lib/admin-api';
-import { setAdminSession, getAdminToken } from '@/lib/admin-auth';
+import { setAdminSession, getAdminToken, getAdminUser, isAdminAuthenticated, clearAdminSession } from '@/lib/admin-auth';
 import { Sparkles, Lock, Mail, Eye, EyeOff, ShieldCheck, ArrowRight, AlertCircle, HelpCircle, Loader2 } from 'lucide-react';
 
 function AdminLoginContent() {
@@ -19,16 +19,16 @@ function AdminLoginContent() {
 
   // If already authenticated as admin, redirect to dashboard
   useEffect(() => {
-    if (getAdminToken()) {
+    if (searchParams?.get('error') === 'session_expired') {
+      clearAdminSession();
+      setError('Your administrative session has expired. Please log in again.');
+      return;
+    }
+
+    if (isAdminAuthenticated() && getAdminUser()) {
       router.replace('/admin/dashboard');
     }
-  }, [router]);
-
-  useEffect(() => {
-    if (searchParams?.get('error') === 'session_expired') {
-      setError('Your administrative session has expired. Please log in again.');
-    }
-  }, [searchParams]);
+  }, [router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

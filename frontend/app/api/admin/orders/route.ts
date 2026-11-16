@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
       {
         id: 'ord_1001',
         orderNumber: 'JV-ORD-2026-8901',
-        customerName: 'Snehal Hande',
-        customerEmail: 'snehalhande59@gmail.com',
-        customerPhone: '+91 8459368256',
+        customerName: 'Rohit Deshmukh',
+        customerEmail: 'rohit.deshmukh@example.com',
+        customerPhone: '+91 9820123456',
         items: [
           { name: 'Taurus (Vrishabha) Zodiac Bracelet', quantity: 1, price: 699 },
           { name: 'Gemini (Mithuna) Zodiac Pendant', quantity: 1, price: 699 },
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         paymentMethod: 'Razorpay UPI',
         orderStatus: 'shipped',
         shippingAddress: {
-          fullName: 'Snehal Hande',
+          fullName: 'Rohit Deshmukh',
           addressLine1: 'Shivaji Chowk, Model Colony',
           city: 'Pune',
           state: 'Maharashtra',

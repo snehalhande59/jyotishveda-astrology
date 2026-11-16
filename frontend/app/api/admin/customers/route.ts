@@ -10,10 +10,10 @@ export async function GET(req: NextRequest) {
     let customers = [
       {
         id: 1,
-        username: 'snehalhande59',
-        fullName: 'Snehal Hande',
-        email: 'snehalhande59@gmail.com',
-        phone: '+91 8459368256',
+        username: 'rohitdeshmukh',
+        fullName: 'Rohit Deshmukh',
+        email: 'rohit.deshmukh@example.com',
+        phone: '+91 9820123456',
         tier: 'VIP',
         totalBookings: 8,
         totalSpend: 11492,

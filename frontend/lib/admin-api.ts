@@ -395,4 +395,41 @@ export const adminApi = {
       body: JSON.stringify({ role }),
     });
   },
+
+  // Payments & Revenue
+  async getPayments(params: { page?: number; pageSize?: number; status?: string; search?: string } = {}) {
+    const q = new URLSearchParams();
+    if (params.page) q.set('page', String(params.page));
+    if (params.pageSize) q.set('pageSize', String(params.pageSize));
+    if (params.status) q.set('status', params.status);
+    if (params.search) q.set('search', params.search);
+    return adminRequest<{ success: boolean; data: any[]; metrics: any; meta: any }>(`/api/admin/payments?${q.toString()}`);
+  },
+
+  // Astrology Tools Analytics
+  async getToolsAnalytics(params: { range?: string } = {}) {
+    const q = new URLSearchParams();
+    if (params.range) q.set('range', params.range);
+    return adminRequest<{ success: boolean; data: any }>(`/api/admin/tools-analytics?${q.toString()}`);
+  },
+
+  // Subscriptions & Coupons
+  async getSubscriptions() {
+    return adminRequest<{ success: boolean; data: any }>('/api/admin/subscriptions');
+  },
+
+  async createCoupon(data: any) {
+    return adminRequest<{ success: boolean; data: any }>('/api/admin/subscriptions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Audit Logs
+  async getAuditLogs(params: { module?: string; search?: string } = {}) {
+    const q = new URLSearchParams();
+    if (params.module) q.set('module', params.module);
+    if (params.search) q.set('search', params.search);
+    return adminRequest<{ success: boolean; data: any[]; meta: any }>(`/api/admin/audit-logs?${q.toString()}`);
+  },
 };

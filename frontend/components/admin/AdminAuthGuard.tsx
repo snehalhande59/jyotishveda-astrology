@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAdminToken, getAdminUser } from '@/lib/admin-auth';
+import { isAdminAuthenticated, getAdminUser, clearAdminSession } from '@/lib/admin-auth';
 import { Sparkles, Loader2 } from 'lucide-react';
 
 export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
@@ -10,10 +10,11 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const token = getAdminToken();
+    const isAuthed = isAdminAuthenticated();
     const user = getAdminUser();
 
-    if (!token || !user) {
+    if (!isAuthed || !user) {
+      clearAdminSession();
       router.replace('/admin/login');
       return;
     }

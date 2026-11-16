@@ -10,8 +10,8 @@ export async function GET(req: NextRequest) {
       {
         id: 1,
         ticketNumber: 'TKT-2026-081',
-        customerName: 'Snehal Hande',
-        customerEmail: 'snehalhande59@gmail.com',
+        customerName: 'Rohit Deshmukh',
+        customerEmail: 'rohit.deshmukh@example.com',
         category: 'Consultation Appointment',
         priority: 'high',
         status: 'open',
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
           {
             authorName: 'Astro Support Lead',
             authorRole: 'support',
-            message: 'Namaste Snehal ji, checking pandit ji schedule for 4:00 PM slot right away.',
+            message: 'Namaste Rohit ji, checking pandit ji schedule for 4:00 PM slot right away.',
             createdAt: '2026-11-05T11:45:00Z',
           },
         ],
