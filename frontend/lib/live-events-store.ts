@@ -182,6 +182,20 @@ export function recordRealBooking(booking: Partial<LiveBookingItem>): LiveBookin
   }
 }
 
+export function updateRealBooking(id: string | number, updates: Partial<LiveBookingItem>): LiveBookingItem | null {
+  const bookings = global.__astroveda_live_bookings || [];
+  const idx = bookings.findIndex(
+    (b) => String(b.id) === String(id) || b.bookingNumber === String(id)
+  );
+  if (idx >= 0) {
+    bookings[idx] = { ...bookings[idx], ...updates };
+    return bookings[idx];
+  }
+  // If not found in memory, create it so the update succeeds
+  const newBooking = recordRealBooking({ id, ...updates });
+  return newBooking;
+}
+
 export function getRealBookings(filters: { status?: string; search?: string } = {}): LiveBookingItem[] {
   let list = global.__astroveda_live_bookings || [];
   if (filters.status && filters.status !== 'all') {

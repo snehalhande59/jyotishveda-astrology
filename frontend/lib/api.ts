@@ -557,6 +557,14 @@ export const api = {
     return res.data;
   },
 
+  async updateBirthProfile(id: number, profileData: any) {
+    const res = await request<{ data: any }>(`/api/birth-profiles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ data: profileData }),
+    });
+    return res.data;
+  },
+
   // Panchang Calculation
   async calculatePanchang(details: { date?: string; time?: string; latitude?: number; longitude?: number; timezoneOffset?: number }) {
     const res = await request<{ data: any }>('/api/kundli/panchang', {
@@ -689,7 +697,11 @@ export const api = {
     return res.data;
   },
 
-  async startPaidChatSession(astrologerIdOrBookingId: number, durationMinutes?: number) {
+  async startPaidChatSession(
+    astrologerIdOrBookingId: number,
+    durationMinutes?: number,
+    details?: { date?: string; timeSlot?: string; topic?: string }
+  ) {
     const res = await request<{ success: boolean; data: any; message: string }>(
       '/api/chat/start-paid-session',
       {
@@ -698,6 +710,9 @@ export const api = {
           bookingId: astrologerIdOrBookingId,
           astrologerId: astrologerIdOrBookingId,
           durationMinutes: durationMinutes || 15,
+          date: details?.date,
+          timeSlot: details?.timeSlot,
+          topic: details?.topic,
         }),
       }
     );

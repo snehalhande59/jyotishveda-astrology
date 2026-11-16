@@ -455,6 +455,13 @@ export default function Navbar() {
                     {language === 'mr' ? '💑 कुंडली मिलन (३६ गुणमेलन)' : '💑 Kundli Milan (36 Guna Match)'}
                   </Link>
                   <Link
+                    href="/family-kundli"
+                    onClick={closeMenu}
+                    className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
+                  >
+                    {language === 'mr' ? '👨‍👩‍👧‍👦 कुटुंब कुंडली तिजोरी (Family Vault)' : '👨‍👩‍👧‍👦 Family Kundli Vault'}
+                  </Link>
+                  <Link
                     href="/panchang"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"

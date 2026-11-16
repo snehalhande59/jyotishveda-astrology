@@ -26,6 +26,7 @@ module.exports = createCoreController('api::birth-profile.birth-profile', ({ str
 
     const entryData = {
       ...body,
+      relationship: body.relationship || 'Self',
       latitude: lat,
       longitude: lon,
       chartData,
@@ -71,6 +72,54 @@ module.exports = createCoreController('api::birth-profile.birth-profile', ({ str
     }
 
     return { data: entry };
+  },
+
+  async update(ctx) {
+    const { id } = ctx.params;
+    const user = ctx.state.user;
+
+    if (!user) {
+      return ctx.unauthorized('Authentication required to update a profile');
+    }
+
+    const entry = await strapi.entityService.findOne('api::birth-profile.birth-profile', id, {
+      populate: ['user'],
+    });
+
+    if (!entry) {
+      return ctx.notFound('Birth profile not found');
+    }
+
+    if (entry.user && entry.user.id !== user.id && user.role?.name !== 'Admin') {
+      return ctx.forbidden('You can only update your own birth profiles');
+    }
+
+    const body = ctx.request.body.data || ctx.request.body;
+    let chartData = entry.chartData;
+
+    // Re-calculate chart if birth coordinates or date/time change
+    if (body.dateOfBirth || body.timeOfBirth || body.placeOfBirth || body.latitude || body.longitude) {
+      const lat = parseFloat(body.latitude || entry.latitude) || 28.6139;
+      const lon = parseFloat(body.longitude || entry.longitude) || 77.2090;
+      chartData = vedicEngine.calculateKundli({
+        fullName: body.fullName || entry.fullName,
+        dateOfBirth: body.dateOfBirth || entry.dateOfBirth,
+        timeOfBirth: body.timeOfBirth || entry.timeOfBirth,
+        placeOfBirth: body.placeOfBirth || entry.placeOfBirth,
+        latitude: lat,
+        longitude: lon,
+        timezoneOffsetHours: parseFloat(body.timezoneOffset || entry.timezoneOffset) || 5.5,
+      });
+    }
+
+    const updated = await strapi.entityService.update('api::birth-profile.birth-profile', id, {
+      data: {
+        ...body,
+        chartData,
+      },
+    });
+
+    return { data: updated };
   },
 
   async delete(ctx) {

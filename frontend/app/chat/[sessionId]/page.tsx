@@ -359,7 +359,7 @@ export default function ActiveChatSessionPage() {
   const isChatDisabled = isExpired || isMessageLimitReached || session?.status === 'completed';
 
   return (
-    <div className="bg-[#FAF7F2] h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] text-[#2D1810] flex flex-col font-sans overflow-hidden">
+    <div className="bg-[#FAF7F2] h-[calc(100dvh-105px)] max-h-[calc(100dvh-105px)] text-[#2D1810] flex flex-col font-sans overflow-hidden">
       {/* Astrologer & Session Top Bar */}
       <header className="bg-white border-b border-[#EAE1D2] text-[#2D1810] px-3 sm:px-4 py-2.5 sm:py-3 shrink-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">
@@ -626,7 +626,7 @@ export default function ActiveChatSessionPage() {
       </main>
 
       {/* Message Input Footer */}
-      <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 shrink-0 z-20 shadow-md">
+      <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 shrink-0 sticky bottom-0 z-20 shadow-md">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
             <input

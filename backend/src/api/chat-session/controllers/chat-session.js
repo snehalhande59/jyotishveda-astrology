@@ -378,7 +378,7 @@ module.exports = {
       return ctx.unauthorized('Authentication required');
     }
 
-    const { bookingId, astrologerId, durationMinutes } = ctx.request.body || {};
+    const { bookingId, astrologerId, durationMinutes, date, timeSlot, topic } = ctx.request.body || {};
 
     let booking = null;
     let astrologer = null;
@@ -461,6 +461,33 @@ module.exports = {
       });
       if (profiles && profiles.length > 0 && profiles[0].chartData) {
         chartSummary = profiles[0].chartData;
+      }
+    }
+
+    if (!booking && astrologer) {
+      try {
+        const bookingNumber = `BK-${Date.now().toString(36).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+        const todayIso = new Date().toISOString().split('T')[0];
+        const nowTimeStr = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        booking = await strapi.entityService.create('api::consultation-booking.consultation-booking', {
+          data: {
+            bookingNumber,
+            date: date || todayIso,
+            timeSlot: timeSlot || nowTimeStr,
+            status: 'confirmed',
+            topic: topic || 'Detailed Kundli & Life Forecast',
+            durationMinutes: resolvedDuration,
+            consultationFee: (astrologer.perMinuteRate || 25) * resolvedDuration,
+            sessionType: 'paid_consultation',
+            meetingLink: `https://meet.google.com/vedic-${Math.random().toString(36).substring(2, 8)}`,
+            user: user.id,
+            astrologer: resolvedAstrologerId,
+            publishedAt: new Date(),
+          },
+        });
+      } catch (bkErr) {
+        strapi.log.warn('Auto booking record creation notice:', bkErr);
       }
     }
 

@@ -5,7 +5,7 @@
     "singularName": "birth-profile",
     "pluralName": "birth-profiles",
     "displayName": "Birth Profile",
-    "description": "User Astrological Birth Details"
+    "description": "User Astrological Birth Details & Family Kundli Profiles"
   },
   "options": {
     "draftAndPublish": false
@@ -43,6 +43,14 @@
       "type": "enumeration",
       "enum": ["Male", "Female", "Other", "Prefer not to say"],
       "default": "Prefer not to say"
+    },
+    "relationship": {
+      "type": "enumeration",
+      "enum": ["Self", "Spouse", "Father", "Mother", "Son", "Daughter", "Brother", "Sister", "Friend", "Other"],
+      "default": "Self"
+    },
+    "notes": {
+      "type": "text"
     },
     "chartData": {
       "type": "json"

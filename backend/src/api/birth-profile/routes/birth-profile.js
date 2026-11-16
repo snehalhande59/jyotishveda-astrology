@@ -33,6 +33,14 @@ module.exports = {
       },
     },
     {
+      method: 'PUT',
+      path: '/birth-profiles/:id',
+      handler: 'birth-profile.update',
+      config: {
+        policies: [],
+      },
+    },
+    {
       method: 'DELETE',
       path: '/birth-profiles/:id',
       handler: 'birth-profile.delete',

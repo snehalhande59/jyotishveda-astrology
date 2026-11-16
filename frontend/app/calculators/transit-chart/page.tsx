@@ -13,6 +13,32 @@ export default function TransitChartCalculatorPage() {
   const [lagnaId, setLagnaId] = useState(1); // Aries
   const [result, setResult] = useState<any>(calculateTransits(1));
 
+  React.useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const sp = new URLSearchParams(window.location.search);
+        const qLagna = sp.get('lagna');
+        const rawActive = localStorage.getItem('active_kundli_profile');
+        let targetSignName = qLagna;
+        if (!targetSignName && rawActive) {
+          const parsed = JSON.parse(rawActive);
+          targetSignName = parsed.chartData?.ascendantSign || parsed.chartData?.ascendant?.signName;
+        }
+        if (targetSignName) {
+          const found = ZODIAC_SIGNS.find(
+            (z) =>
+              z.name.toLowerCase() === targetSignName.toLowerCase() ||
+              z.sanskrit.toLowerCase() === targetSignName.toLowerCase()
+          );
+          if (found) {
+            setLagnaId(found.id);
+            setResult(calculateTransits(found.id));
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
   const handleCalculate = (e: React.FormEvent) => {
     e.preventDefault();
     const res = calculateTransits(Number(lagnaId));

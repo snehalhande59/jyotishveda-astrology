@@ -79,16 +79,23 @@ export default function DashboardPage() {
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Link
+              href="/family-kundli"
+              className="px-4 py-2 bg-gradient-to-r from-[#D97706] to-[#B45309] text-white font-bold text-xs rounded-xl shadow-md hover:opacity-95 transition-all flex items-center space-x-1.5"
+            >
+              <Compass className="w-4 h-4" />
+              <span>{language === 'mr' ? 'कुटुंब कुंडली (Family Vault)' : 'Family Kundli Vault'}</span>
+            </Link>
+            <Link
               href="/birth-profile"
-              className="px-4 py-2 bg-[#D97706] hover:bg-[#B45309] text-white font-semibold text-xs rounded-xl shadow-md transition-all"
+              className="px-4 py-2 bg-white border border-[#EAE1D2] hover:border-[#D97706] text-[#2D1810] font-semibold text-xs rounded-xl shadow-xs transition-all"
             >
               {language === 'mr' ? '+ नवीन जन्म प्रोफाइल' : '+ Add Birth Profile'}
             </Link>
             <Link
               href="/kundli"
-              className="px-4 py-2 bg-white border border-[#EAE1D2] text-[#2D1810] text-xs font-semibold rounded-xl hover:border-[#D97706] shadow-sm transition-all"
+              className="px-4 py-2 bg-white border border-[#EAE1D2] text-[#2D1810] text-xs font-semibold rounded-xl hover:border-[#D97706] shadow-xs transition-all"
             >
-              {language === 'mr' ? 'नवीन कुंडली काढा' : 'Calculate New Kundli'}
+              {language === 'mr' ? 'नवीन कुंडली काढा' : 'Calculate Kundli'}
             </Link>
           </div>
         </div>
@@ -134,16 +141,16 @@ export default function DashboardPage() {
           </Link>
 
           <Link
-            href="/dashboard/birth-profiles"
+            href="/family-kundli"
             className="bg-white p-4 sm:p-6 rounded-2xl border border-[#EAE1D2] shadow-sm hover:border-[#D97706] transition-all flex items-center justify-between"
           >
             <div>
               <span className="text-[10px] text-[#786C60] uppercase font-bold tracking-wider">
-                {language === 'mr' ? 'जतन केलेली प्रोफाइल्स' : 'Saved Profiles'}
+                {language === 'mr' ? 'कुटुंब कुंडल्या' : 'Family Kundlis'}
               </span>
               <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#2D1810] mt-1">{profiles.length}</h3>
               <p className="text-xs text-[#D97706] font-semibold mt-1">
-                {language === 'mr' ? 'व्यवस्थापित करा →' : 'Manage profiles →'}
+                {language === 'mr' ? 'कुटुंब तिजोरी उघडा →' : 'Manage family vault →'}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#FFFBEB] flex items-center justify-center text-[#D97706] flex-shrink-0">
@@ -158,10 +165,10 @@ export default function DashboardPage() {
           <div className="bg-white p-4 sm:p-6 md:p-8 rounded-2xl border border-[#EAE1D2] shadow-sm space-y-4">
             <div className="flex justify-between items-center border-b border-[#EAE1D2] pb-3">
               <h3 className="font-serif text-lg font-bold text-[#2D1810]">
-                {language === 'mr' ? 'जतन केलेली जन्म माहिती' : 'Saved Birth Profiles'}
+                {language === 'mr' ? 'कौटुंबिक जन्म पत्रिका (Family Kundlis)' : 'Family Birth Profiles'}
               </h3>
-              <Link href="/birth-profile" className="text-xs font-semibold text-[#D97706] hover:underline">
-                {language === 'mr' ? '+ नवीन प्रोफाइल' : '+ New Profile'}
+              <Link href="/family-kundli" className="text-xs font-bold text-[#D97706] hover:underline">
+                {language === 'mr' ? 'सर्व पहा →' : 'View All Vault →'}
               </Link>
             </div>
 
@@ -170,16 +177,23 @@ export default function DashboardPage() {
                 {profiles.map((p) => (
                   <div key={p.id} className="py-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                      <strong className="text-sm font-semibold text-[#2D1810] block">{p.fullName}</strong>
-                      <span className="text-[#786C60]">
+                      <div className="flex items-center space-x-2">
+                        <strong className="text-sm font-semibold text-[#2D1810]">{p.fullName}</strong>
+                        {p.relationship && (
+                          <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E]">
+                            {p.relationship}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[#786C60] block mt-0.5">
                         {p.dateOfBirth} at {p.timeOfBirth} • {p.placeOfBirth}
                       </span>
                     </div>
                     <Link
-                      href="/kundli"
+                      href={`/family-kundli`}
                       className="px-3 py-1 bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] font-semibold rounded-lg hover:bg-[#FEF3C7] transition-colors self-end sm:self-auto"
                     >
-                      {language === 'mr' ? 'कुंडली पहा' : 'View Kundli'}
+                      {language === 'mr' ? 'कुंडली उघडा' : 'View Kundli'}
                     </Link>
                   </div>
                 ))}

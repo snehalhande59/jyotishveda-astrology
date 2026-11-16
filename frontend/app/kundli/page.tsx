@@ -33,7 +33,7 @@ export default function KundliPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
-  // Load a sample or user's latest calculation on initial view
+  // Load from query params, active family profile, or latest calculation
   useEffect(() => {
     trackEvent({
       eventType: 'tool_view',
@@ -45,6 +45,48 @@ export default function KundliPage() {
     async function initKundli() {
       setLoading(true);
       try {
+        if (typeof window !== 'undefined') {
+          const sp = new URLSearchParams(window.location.search);
+          const qName = sp.get('name');
+          const qDob = sp.get('dob');
+          const qTob = sp.get('tob');
+          const qPlace = sp.get('place');
+          const qLat = parseFloat(sp.get('lat') || '');
+          const qLon = parseFloat(sp.get('lon') || '');
+          const qTz = parseFloat(sp.get('tz') || '5.5');
+
+          if (qName && qDob && qTob && qPlace) {
+            const calculated = await api.generateKundli({
+              fullName: qName,
+              dateOfBirth: qDob,
+              timeOfBirth: qTob,
+              placeOfBirth: qPlace,
+              latitude: isNaN(qLat) ? 28.6139 : qLat,
+              longitude: isNaN(qLon) ? 77.2090 : qLon,
+              timezoneOffset: qTz,
+              ayanamsa: 'Lahiri',
+            });
+            if (calculated && calculated.chartData) {
+              setChartData(calculated.chartData);
+              setLoading(false);
+              return;
+            }
+          }
+
+          // Check stored active family profile
+          const rawActive = localStorage.getItem('active_kundli_profile');
+          if (rawActive) {
+            try {
+              const active = JSON.parse(rawActive);
+              if (active && active.chartData) {
+                setChartData(active.chartData);
+                setLoading(false);
+                return;
+              }
+            } catch {}
+          }
+        }
+
         const latest = await api.getLatestKundli();
         if (latest && latest.chartData) {
           setChartData(latest.chartData);
