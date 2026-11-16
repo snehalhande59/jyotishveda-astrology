@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +51,9 @@ export async function POST(req: NextRequest) {
     const isEmailValid =
       normalizedEmail === defaultAdminEmail ||
       normalizedEmail === 'admin@jyotishveda.com' ||
-      normalizedEmail === 'admin@astroveda.com';
+      normalizedEmail === 'admin@astroveda.com' ||
+      normalizedEmail === 'snehalhande59@gmail.com' ||
+      normalizedEmail === 'snehalhande1620@gmail.com';
 
     if (isEmailValid && acceptedPasswords.includes(password)) {
       // Issue client admin token
