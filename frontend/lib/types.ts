@@ -97,6 +97,7 @@ export interface KundliChartData {
   houses: HouseData[];
   navamsaHouses?: HouseData[];
   summary?: string;
+  panchang?: PanchangData;
   dasha: {
     balanceDashaPlanet: string;
     balanceYears: number;
@@ -183,7 +184,9 @@ export interface SiteSettings {
   siteName: string;
   tagline: string;
   heroTitle: string;
+  heroTitle_mr?: string;
   heroSubtitle: string;
+  heroSubtitle_mr?: string;
   contactEmail: string;
   contactPhone: string;
   address: string;

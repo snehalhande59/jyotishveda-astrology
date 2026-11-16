@@ -1,0 +1,11 @@
+.git
+.github
+node_modules
+.tmp
+.cache
+build
+dist
+.env
+.env.local
+test
+*.md

@@ -46,8 +46,10 @@ export function getLocalizedField(item: any, field: string, lang: Language): str
         return mrLocale[field];
       }
     }
+    // If Marathi requested but no Marathi translation exists, return empty so callers can use Marathi fallbacks
+    return '';
   }
 
-  // Fallback to standard English field
+  // Fallback to standard English field for English locale
   return item[field] || '';
 }

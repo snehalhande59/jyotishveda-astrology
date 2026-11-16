@@ -46,6 +46,38 @@ module.exports = {
         'api::location.location.search',
         'api::kundli.kundli.find',
         'api::chat-session.chat-session.getEligibility',
+        'api::admin.admin.login',
+        'api::admin.admin.getMe',
+        'api::admin.admin.getDashboardStats',
+        'api::admin.admin.getUsers',
+        'api::admin.admin.getUserById',
+        'api::admin.admin.getAstrologers',
+        'api::admin.admin.createAstrologer',
+        'api::admin.admin.updateAstrologer',
+        'api::admin.admin.deleteAstrologer',
+        'api::admin.admin.getBookings',
+        'api::admin.admin.getBookingById',
+        'api::admin.admin.updateBooking',
+        'api::admin.admin.getContent',
+        'api::admin.admin.createContent',
+        'api::admin.admin.updateContent',
+        'api::admin.admin.deleteContent',
+        'api::admin.admin.exportReport',
+        'api::admin.admin.changePassword',
+        'api::user-activity.user-activity.track',
+        'api::user-activity.user-activity.heartbeat',
+        'api::user-activity.user-activity.getLiveUsers',
+        'api::user-activity.user-activity.getAnalytics',
+        'api::user-activity.user-activity.find',
+        'api::support-ticket.support-ticket.find',
+        'api::support-ticket.support-ticket.findOne',
+        'api::support-ticket.support-ticket.create',
+        'api::support-ticket.support-ticket.update',
+        'api::support-ticket.support-ticket.addReply',
+        'api::notification.notification.find',
+        'api::notification.notification.create',
+        'api::notification.notification.sendNow',
+        'api::notification.notification.delete',
       ];
 
       if (publicRole) {
@@ -105,6 +137,28 @@ module.exports = {
             });
           }
         }
+      }
+
+      // 1.5 Ensure Master Admin User exists
+      try {
+        const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'admin@astroveda.com').toLowerCase();
+        const existingAdmin = await strapi.db.query('plugin::users-permissions.user').findOne({
+          where: { email: defaultAdminEmail },
+        });
+
+        if (!existingAdmin) {
+          const authRole = await strapi.db.query('plugin::users-permissions.role').findOne({ where: { type: 'authenticated' } });
+          await strapi.plugin('users-permissions').service('user').add({
+            username: 'astroveda_admin',
+            email: defaultAdminEmail,
+            password: process.env.ADMIN_PASSWORD || 'Admin@AstroVeda2026!',
+            confirmed: true,
+            role: authRole ? authRole.id : undefined,
+          });
+          strapi.log.info(`[Admin] Created master admin account: ${defaultAdminEmail}`);
+        }
+      } catch (err) {
+        strapi.log.warn('[Admin] Master admin initialization skipped/handled:', err.message);
       }
 
       // 2. Seed initial data if empty
@@ -220,58 +274,200 @@ module.exports = {
       }
 
       // Seed Astrologers
-      const existingAstrologers = await strapi.entityService.findMany('api::astrologer.astrologer', { limit: 1 });
-      if (!existingAstrologers || existingAstrologers.length === 0) {
-        const astrologers = [
-          {
-            name: 'Acharya Vidyadhar Shastri',
-            slug: 'acharya-vidyadhar-shastri',
-            title: 'Senior Jyotish Ratna & Vedic Scholar',
-            bio: 'Over 28 years of rigorous classical practice in Parashara and Jaimini systems. Former faculty at Varanasi Sanskrit University.',
-            experienceYears: 28,
-            specialties: ['Kundli Deep-Dive', 'Career Transitions', 'Muhurat Selection', 'Vedic Gemstones'],
-            languages: ['English', 'Hindi', 'Sanskrit'],
-            consultationFee: 2499,
-            rating: 4.98,
-            reviewCount: 1450,
-            avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
-            availableSlots: ['10:00 AM', '11:30 AM', '03:00 PM', '05:00 PM'],
-            isFeatured: true,
-          },
-          {
-            name: 'Dr. Meenakshi Sundaram',
-            slug: 'dr-meenakshi-sundaram',
-            title: 'Gold Medalist Jyotish Visharada',
-            bio: 'Expert in Nadi Jyotish and Prashna Shastra (Horary Astrology). Holds Doctorate in Ancient Indian Astronavigation.',
-            experienceYears: 22,
-            specialties: ['Nadi Astrology', 'Marriage Compatibility', 'Prashna Kundli', 'Medical Astrology'],
-            languages: ['English', 'Hindi', 'Tamil'],
-            consultationFee: 2199,
-            rating: 4.95,
-            reviewCount: 980,
-            avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',
-            availableSlots: ['09:30 AM', '01:00 PM', '04:00 PM', '06:30 PM'],
-            isFeatured: true,
-          },
-          {
-            name: 'Pandit Rajeshwar Joshi',
-            slug: 'pandit-rajeshwar-joshi',
-            title: 'Vedic Astrologer & Vastu Consultant',
-            bio: 'Specialist in corporate astrology, business partner Kundli matching, and residential energy alignment.',
-            experienceYears: 18,
-            specialties: ['Business Kundli', 'Wealth Yogas', 'Vastu Shastra', 'Remedial Yagyas'],
-            languages: ['English', 'Hindi', 'Gujarati'],
-            consultationFee: 1899,
-            rating: 4.91,
-            reviewCount: 720,
-            avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
-            availableSlots: ['11:00 AM', '02:00 PM', '04:30 PM', '07:00 PM'],
-            isFeatured: false,
-          },
-        ];
+      const allAstrologersList = [
+        {
+          name: 'Astro Heena',
+          slug: 'astro-heena',
+          title: 'Certified Vedic Astrologer & Tarot Reader',
+          bio: '12+ years of compassionate counseling in Vedic relationship Kundli matching, Prashna, and career guidance. Over 15,000 satisfied consultations worldwide.',
+          experienceYears: 12,
+          specialties: ['Kundli Analysis', 'Love & Relationships', 'Tarot Reading', 'Career Transitions'],
+          languages: ['English', 'Marathi', 'Hindi'],
+          consultationFee: 810,
+          rating: 4.98,
+          reviewCount: 3420,
+          avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['09:00 AM', '11:00 AM', '02:30 PM', '05:00 PM', '08:00 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Acharya Vidyadhar Shastri',
+          slug: 'acharya-vidyadhar-shastri',
+          title: 'Senior Jyotish Ratna & Vedic Scholar',
+          bio: 'Over 28 years of rigorous classical practice in Parashara and Jaimini systems. Former faculty at Varanasi Sanskrit University.',
+          experienceYears: 28,
+          specialties: ['Kundli Deep-Dive', 'Career Transitions', 'Muhurat Selection', 'Vedic Gemstones'],
+          languages: ['English', 'Hindi', 'Sanskrit'],
+          consultationFee: 2499,
+          rating: 4.98,
+          reviewCount: 1450,
+          avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['10:00 AM', '11:30 AM', '03:00 PM', '05:00 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Dr. Meenakshi Sundaram',
+          slug: 'dr-meenakshi-sundaram',
+          title: 'Gold Medalist Jyotish Visharada',
+          bio: 'Expert in Nadi Jyotish and Prashna Shastra (Horary Astrology). Holds Doctorate in Ancient Indian Astronavigation.',
+          experienceYears: 22,
+          specialties: ['Nadi Astrology', 'Marriage Compatibility', 'Prashna Kundli', 'Medical Astrology'],
+          languages: ['English', 'Hindi', 'Tamil'],
+          consultationFee: 2199,
+          rating: 4.95,
+          reviewCount: 980,
+          avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['09:30 AM', '01:00 PM', '04:00 PM', '06:30 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Pandit Rajeshwar Joshi',
+          slug: 'pandit-rajeshwar-joshi',
+          title: 'Vedic Astrologer & Vastu Consultant',
+          bio: 'Specialist in corporate astrology, business partner Kundli matching, and residential energy alignment.',
+          experienceYears: 18,
+          specialties: ['Business Kundli', 'Wealth Yogas', 'Vastu Shastra', 'Remedial Yagyas'],
+          languages: ['English', 'Hindi', 'Gujarati'],
+          consultationFee: 1899,
+          rating: 4.91,
+          reviewCount: 720,
+          avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['11:00 AM', '02:00 PM', '04:30 PM', '07:00 PM'],
+          isFeatured: false,
+        },
+        {
+          name: 'Acharya Dattatray Kulkarni',
+          slug: 'acharya-dattatray-kulkarni',
+          title: 'KP Astrology & Ashtakvarga Specialist',
+          bio: 'Renowned Maharashtra Jyotish scholar with 25 years specializing in accurate Krishnamurti Paddhati timing of events and progeny analysis.',
+          experienceYears: 25,
+          specialties: ['KP Astrology', 'Kundli Matching', 'Progeny & Family', 'Muhurat Selection'],
+          languages: ['Marathi', 'Hindi', 'English'],
+          consultationFee: 1999,
+          rating: 4.97,
+          reviewCount: 2450,
+          avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['10:00 AM', '01:30 PM', '04:00 PM', '06:30 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Astro Priyadarshini Rao',
+          slug: 'astro-priyadarshini-rao',
+          title: 'Holistic Astrologer & Palmistry Expert',
+          bio: 'Master of Samudrika Shastra (Palmistry) combined with birth chart degrees. Provides realistic, compassionate solutions for youth and professionals.',
+          experienceYears: 14,
+          specialties: ['Palmistry', 'Career & Finance', 'Tarot Reading', 'Gemology'],
+          languages: ['Marathi', 'English', 'Hindi'],
+          consultationFee: 1299,
+          rating: 4.94,
+          reviewCount: 1780,
+          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['11:30 AM', '02:00 PM', '05:30 PM', '07:30 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Pandit Shridhar Deshmukh',
+          slug: 'pandit-shridhar-deshmukh',
+          title: 'Classical Vivaha Kundli & Yagya Acharya',
+          bio: 'Hereditary Vedic priest and astrologer from Nashik. Trusted by thousands for vivaha dosha nivarana, Mangal dosha, and Navagraha shanti.',
+          experienceYears: 20,
+          specialties: ['Marriage Compatibility', 'Mangal Dosha', 'Navagraha Shanti', 'Vedic Rituals'],
+          languages: ['Marathi', 'Sanskrit', 'Hindi'],
+          consultationFee: 1699,
+          rating: 4.95,
+          reviewCount: 2100,
+          avatarUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['08:00 AM', '10:30 AM', '03:30 PM', '06:00 PM'],
+          isFeatured: false,
+        },
+        {
+          name: 'Dr. Ananya Sharma',
+          slug: 'dr-ananya-sharma',
+          title: 'Numerologist & Astro-Vedic Counselor',
+          bio: 'Combines Chaldean Numerology with Sidereal Vedic charts. Specializes in mobile numerology, corporate brand name harmony, and personal life path guidance.',
+          experienceYears: 16,
+          specialties: ['Numerology', 'Name Correction', 'Life Coaching', 'Career Guidance'],
+          languages: ['English', 'Hindi'],
+          consultationFee: 1499,
+          rating: 4.93,
+          reviewCount: 1650,
+          avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['12:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'],
+          isFeatured: false,
+        },
+        {
+          name: 'Pandit Bhaskaran Namboodiri',
+          slug: 'pandit-bhaskaran-namboodiri',
+          title: 'Senior Kerala Horary (Prashna) Jyotish',
+          bio: '30+ years practicing Ashta Mangala Prashna and Kavadi astrology from Thrissur, Kerala. Solves perplexing dilemmas without exact birth time.',
+          experienceYears: 30,
+          specialties: ['Prashna Kundli', 'Remedial Pujas', 'Spiritual Healing', 'Lost Objects & Answers'],
+          languages: ['English', 'Malayalam', 'Hindi'],
+          consultationFee: 2799,
+          rating: 4.99,
+          reviewCount: 3890,
+          avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['09:00 AM', '11:00 AM', '04:00 PM', '06:00 PM'],
+          isFeatured: true,
+        },
+        {
+          name: 'Astro Sunita Patil',
+          slug: 'astro-sunita-patil',
+          title: 'Lal Kitab Acharya & Family Astrologer',
+          bio: 'Dedicated specialist in simple, cost-effective Lal Kitab remedies, resolving domestic tension, children education roadblocks, and chronic bad luck.',
+          experienceYears: 15,
+          specialties: ['Lal Kitab Remedies', 'Family Harmony', 'Education Guidance', 'Evil Eye / Nazar'],
+          languages: ['Marathi', 'Hindi'],
+          consultationFee: 1199,
+          rating: 4.91,
+          reviewCount: 1420,
+          avatarUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['10:00 AM', '02:00 PM', '04:30 PM', '08:00 PM'],
+          isFeatured: false,
+        },
+        {
+          name: 'Acharya Ramanujacharya',
+          slug: 'acharya-ramanujacharya',
+          title: 'Jaimini Astrologer & Spiritual Guide',
+          bio: 'Deep authority on Jaimini Karakas, Chara Dasha, and spiritual Moksha indicators. Teaches meditation and planetary mantra alignment.',
+          experienceYears: 26,
+          specialties: ['Jaimini Astrology', 'Spiritual Guidance', 'Kundli Deep-Dive', 'Mantra Therapy'],
+          languages: ['Hindi', 'Sanskrit', 'English'],
+          consultationFee: 2299,
+          rating: 4.98,
+          reviewCount: 2980,
+          avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['07:30 AM', '11:00 AM', '03:00 PM', '05:30 PM'],
+          isFeatured: false,
+        },
+        {
+          name: 'Astro Vikramaditya Rathore',
+          slug: 'astro-vikramaditya-rathore',
+          title: 'Financial & Stock Market Astrologer',
+          bio: 'Analyzes commodity, equity, and market cycles using Sarvatobhadra Chakra and lunar constellations. Advises entrepreneurs and investors.',
+          experienceYears: 19,
+          specialties: ['Wealth Yogas', 'Business Kundli', 'Financial Astromarkets', 'Stock Timing'],
+          languages: ['Hindi', 'English'],
+          consultationFee: 2999,
+          rating: 4.93,
+          reviewCount: 1830,
+          avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300',
+          availableSlots: ['09:30 AM', '01:00 PM', '03:30 PM', '07:00 PM'],
+          isFeatured: true,
+        },
+      ];
 
-        for (const a of astrologers) {
-          await strapi.entityService.create('api::astrologer.astrologer', { data: a });
+      for (const a of allAstrologersList) {
+        try {
+          const existing = await strapi.entityService.findMany('api::astrologer.astrologer', {
+            filters: { slug: a.slug },
+            limit: 1,
+          });
+          if (!existing || existing.length === 0) {
+            await strapi.entityService.create('api::astrologer.astrologer', { data: a });
+          }
+        } catch (seedErr) {
+          console.warn('Notice seeding astrologer', a.name, seedErr.message);
         }
       }
 

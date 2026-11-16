@@ -1,5 +1,6 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 const vedicEngine = require('../../../services/vedic-engine');
+const geocodingService = require('../../../services/geocoding-service');
 
 module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
   async generate(ctx) {
@@ -10,8 +11,29 @@ module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
       return ctx.badRequest('Missing birth information (fullName, dateOfBirth, timeOfBirth, placeOfBirth)');
     }
 
-    const lat = parseFloat(body.latitude) || 28.6139;
-    const lon = parseFloat(body.longitude) || 77.2090;
+    let lat = parseFloat(body.latitude);
+    let lon = parseFloat(body.longitude);
+    let tz = parseFloat(body.timezoneOffset) || 5.5;
+
+    // Intelligent geocoding fallback: if coordinates are default Delhi or missing, but place is another city (e.g., Sangamner)
+    const placeLower = (body.placeOfBirth || '').toLowerCase();
+    const isDefaultCoords = (!lat || !lon || (Math.abs(lat - 28.6139) < 0.001 && Math.abs(lon - 77.2090) < 0.001));
+    if (isDefaultCoords && !placeLower.includes('delhi')) {
+      try {
+        const places = await geocodingService.searchPlaces(body.placeOfBirth);
+        if (places && places.length > 0) {
+          const match = places[0];
+          lat = match.latitude;
+          lon = match.longitude;
+          if (match.timezoneOffset) tz = match.timezoneOffset;
+        }
+      } catch (geoErr) {
+        console.warn('Server location resolve notice:', geoErr.message);
+      }
+    }
+
+    if (!lat) lat = 28.6139;
+    if (!lon) lon = 77.2090;
 
     const chartData = vedicEngine.calculateKundli({
       fullName: body.fullName,
@@ -127,10 +149,18 @@ module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
       return {
         data: {
           boyChart: {
+            fullName: boyBirth.fullName || 'Boy',
+            dateOfBirth: boyBirth.dateOfBirth,
+            timeOfBirth: boyBirth.timeOfBirth || '12:00',
+            placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
             ascendant: boyChart.ascendant,
             moonSign: boyChart.moonSign,
           },
           girlChart: {
+            fullName: girlBirth.fullName || 'Girl',
+            dateOfBirth: girlBirth.dateOfBirth,
+            timeOfBirth: girlBirth.timeOfBirth || '12:00',
+            placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
             ascendant: girlChart.ascendant,
             moonSign: girlChart.moonSign,
           },

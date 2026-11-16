@@ -13,21 +13,30 @@ module.exports = async function syncGoogleOAuth({ strapi }) {
 
   const hasGoogleClientId = Boolean(googleClientId && googleClientId.trim());
   const hasGoogleClientSecret = Boolean(googleClientSecret && googleClientSecret.trim());
-  const hasGoogleCreds = hasGoogleClientId && hasGoogleClientSecret;
+  const isDummyGoogleCreds =
+    !hasGoogleClientId ||
+    googleClientId.includes('your_clien') ||
+    googleClientId.includes('placeholder') ||
+    googleClientId.includes('xxxx');
+  const hasGoogleCreds = hasGoogleClientId && hasGoogleClientSecret && !isDummyGoogleCreds;
 
   const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
+  const backendUrl = (process.env.PUBLIC_URL || 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io').replace(/\/+$/, '');
+  const defaultFrontend = process.env.NODE_ENV === 'production'
+    ? (process.env.FRONTEND_URL || 'https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io')
+    : 'http://localhost:3000';
   const frontendUrl = process.env.FRONTEND_URL
     ? process.env.FRONTEND_URL.split(',')[0].trim()
-    : 'http://localhost:3001';
+    : defaultFrontend;
   const callbackUrl = process.env.GOOGLE_CALLBACK_URL || `${frontendUrl}/connect/google/redirect`;
 
   // Safe startup diagnostics (never prints secret credentials)
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('🔍 [JyotishVeda Startup Diagnostics: Google OAuth]');
-  console.log(`   • GOOGLE_CLIENT_ID:     ${hasGoogleClientId ? `Configured (Prefix: ${googleClientId.trim().substring(0, 10)}... | Length: ${googleClientId.trim().length})` : 'MISSING (GOOGLE_CLIENT_ID is unset in environment)'}`);
-  console.log(`   • GOOGLE_CLIENT_SECRET: ${hasGoogleClientSecret ? `Configured (Length: ${googleClientSecret.trim().length} chars | Secret Hidden)` : 'MISSING (GOOGLE_CLIENT_SECRET is unset in environment)'}`);
-  console.log(`   • Google Provider:      ${hasGoogleCreds ? '✅ ENABLED (Ready for OAuth sign-in)' : '⚠️ DISABLED (Set GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET in Render environment)'}`);
-  console.log(`   • Backend Callback URL: https://jyotishveda-backend-0epp.onrender.com/api/connect/google/callback`);
+  console.log(`   • GOOGLE_CLIENT_ID:     ${hasGoogleClientId ? (isDummyGoogleCreds ? '⚠️ PLACEHOLDER (your_client_id... must be replaced with real Google Cloud Console Client ID)' : `Configured (...${googleClientId.trim().slice(-20)})`) : 'MISSING'}`);
+  console.log(`   • GOOGLE_CLIENT_SECRET: ${hasGoogleClientSecret ? 'Configured (Secret Hidden)' : 'MISSING'}`);
+  console.log(`   • Google Provider:      ${hasGoogleCreds ? '✅ ENABLED (Ready for OAuth sign-in)' : '⚠️ DISABLED (Valid Google Client ID needed from Google Cloud Console)'}`);
+  console.log(`   • Backend Callback URL: ${backendUrl}/api/connect/google/callback`);
   console.log(`   • Frontend Redirect:    ${callbackUrl}`);
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 

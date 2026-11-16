@@ -1,0 +1,8 @@
+node_modules/
+.tmp/
+build/
+.cache/
+.strapi/
+dist/
+.env
+*.lock

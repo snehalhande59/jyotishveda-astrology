@@ -1,0 +1,28 @@
+[
+  {
+    "dateOfBirth": "2003-10-20",
+    "timeOfBirth": "21:45",
+    "placeOfBirth": "Sangamner, Maharashtra, India",
+    "latitude": 19.5678,
+    "longitude": 74.2115,
+    "timezoneOffset": 5.5,
+    "ayanamsa": "Lahiri",
+    "chartData": {
+      "planets": [
+        {
+          "name": "Sun",
+          "signName": "Gemini",
+          "degreeFormatted": "7°12'",
+          "houseNumber": 4,
+          "nakshatraName": "Ashlesha",
+          "nakshatraLord": "Mercury",
+          "nakshatraPada": 4,
+          "navamsaSignName": "Cancer",
+          "isRetrograde": false,
+          "dignity": "Own Sign"
+        }
+        // ... other planet entries omitted for brevity
+      ]
+    }
+  }
+]

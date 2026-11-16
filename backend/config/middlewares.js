@@ -36,6 +36,16 @@ module.exports = ({ env }) => {
   const allowedPatterns = [
     // All Vercel deployments (production, previews, branch deploys)
     /^https:\/\/[a-zA-Z0-9_.-]+\.vercel\.app$/,
+    // Render frontend services and previews
+    /^https:\/\/[a-zA-Z0-9_.-]+\.onrender\.com$/,
+    // Netlify deployments
+    /^https:\/\/[a-zA-Z0-9_.-]+\.netlify\.app$/,
+    // Cloudflare Pages deployments
+    /^https:\/\/[a-zA-Z0-9_.-]+\.pages\.dev$/,
+    // AWS Amplify
+    /^https:\/\/[a-zA-Z0-9_.-]+\.amplifyapp\.com$/,
+    // GitHub Pages
+    /^https:\/\/[a-zA-Z0-9_.-]+\.github\.io$/,
     // Localhost on any port
     /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
     // Private LAN IPs for local testing on mobile devices over Wi-Fi
@@ -44,6 +54,8 @@ module.exports = ({ env }) => {
     /^http:\/\/172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}(:\d+)?$/,
     // Custom domain variants
     /^https:\/\/(.*\.)?jyotishveda\.com$/,
+    // Dokploy sslip.io deployments
+    /^https?:\/\/[a-zA-Z0-9_.-]+\.sslip\.io(:\d+)?$/,
   ];
 
   const isOriginAllowed = (origin) => {

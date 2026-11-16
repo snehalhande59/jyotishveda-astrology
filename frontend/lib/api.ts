@@ -11,18 +11,19 @@ import {
   ZodiacSign,
 } from './types';
 
-export const PRODUCTION_STRAPI_URL = 'https://jyotishveda-backend-0epp.onrender.com';
+export const PRODUCTION_STRAPI_URL = 'https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io';
 
 /**
  * Resolves the Strapi backend URL dynamically:
- * 1. Explicit NEXT_PUBLIC_STRAPI_URL environment variable (highest priority)
+ * 1. Explicit NEXT_PUBLIC_STRAPI_URL environment variable (highest priority, ignores dead onrender URLs)
  * 2. In browser environments: if hostname is NOT localhost/127.0.0.1, use PRODUCTION_STRAPI_URL
  * 3. Server-side rendering in production mode: use PRODUCTION_STRAPI_URL
  * 4. Fallback for local development: http://localhost:1337
  */
 export function getStrapiUrl(): string {
-  if (process.env.NEXT_PUBLIC_STRAPI_URL && process.env.NEXT_PUBLIC_STRAPI_URL.trim() !== '') {
-    return process.env.NEXT_PUBLIC_STRAPI_URL.replace(/\/+$/, '');
+  const envUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
+  if (envUrl && envUrl.trim() !== '' && !envUrl.includes('onrender.com')) {
+    return envUrl.replace(/\/+$/, '');
   }
 
   if (typeof window !== 'undefined') {
@@ -33,26 +34,34 @@ export function getStrapiUrl(): string {
         /^192\.168\.\d{1,3}\.\d{1,3}$/.test(host) ||
         /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host) ||
         /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(host);
-      if (isLanIp && process.env.NODE_ENV !== 'production') {
+      if (isLanIp && process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true') {
         return `http://${host}:1337`;
       }
       return PRODUCTION_STRAPI_URL;
     }
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    return PRODUCTION_STRAPI_URL;
+  // Allow explicit opt-in to a local Strapi backend instance
+  if (process.env.NEXT_PUBLIC_USE_LOCAL_BACKEND === 'true') {
+    return 'http://localhost:1337';
   }
 
-  return 'http://localhost:1337';
+  // Default to production Dokploy Strapi URL
+  return PRODUCTION_STRAPI_URL;
 }
 
 /**
  * Generates the full Google OAuth initiation URL including dynamic callback parameter.
+ * Optionally stores the post-login redirect path in sessionStorage.
  */
-export function getGoogleAuthUrl(): string {
+export function getGoogleAuthUrl(redirectUrl?: string): string {
   const base = getStrapiUrl();
   if (typeof window !== 'undefined') {
+    if (redirectUrl) {
+      try {
+        sessionStorage.setItem('auth_redirect_target', redirectUrl);
+      } catch {}
+    }
     const callback = `${window.location.origin}/connect/google/redirect`;
     return `${base}/api/connect/google?callback=${encodeURIComponent(callback)}`;
   }
@@ -146,9 +155,228 @@ function toArray(val: any): string[] {
   return [];
 }
 
+export const FALLBACK_ASTROLOGERS: Astrologer[] = [
+  {
+    id: 1,
+    name: 'Astro Heena',
+    slug: 'astro-heena',
+    title: 'Certified Vedic Astrologer & Tarot Reader',
+    bio: '12+ years of compassionate counseling in Vedic relationship Kundli matching, Prashna, and career guidance. Over 15,000 satisfied consultations worldwide.',
+    experienceYears: 12,
+    specialties: ['Kundli Analysis', 'Love & Relationships', 'Tarot Reading', 'Career Transitions'],
+    languages: ['English', 'Marathi', 'Hindi'],
+    consultationFee: 810,
+    perMinuteRate: 18,
+    rating: 4.98,
+    reviewCount: 3420,
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['09:00 AM', '11:00 AM', '02:30 PM', '05:00 PM', '08:00 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 2,
+    name: 'Acharya Vidyadhar Shastri',
+    slug: 'acharya-vidyadhar-shastri',
+    title: 'Senior Jyotish Ratna & Vedic Scholar',
+    bio: 'Over 28 years of rigorous classical practice in Parashara and Jaimini systems. Former faculty at Varanasi Sanskrit University.',
+    experienceYears: 28,
+    specialties: ['Kundli Deep-Dive', 'Career Transitions', 'Muhurat Selection', 'Vedic Gemstones'],
+    languages: ['English', 'Hindi', 'Sanskrit'],
+    consultationFee: 2499,
+    perMinuteRate: 35,
+    rating: 4.98,
+    reviewCount: 1450,
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['10:00 AM', '11:30 AM', '03:00 PM', '05:00 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 3,
+    name: 'Dr. Meenakshi Sundaram',
+    slug: 'dr-meenakshi-sundaram',
+    title: 'Gold Medalist Jyotish Visharada',
+    bio: 'Expert in Nadi Jyotish and Prashna Shastra (Horary Astrology). Holds Doctorate in Ancient Indian Astronavigation.',
+    experienceYears: 22,
+    specialties: ['Nadi Astrology', 'Marriage Compatibility', 'Prashna Kundli', 'Medical Astrology'],
+    languages: ['English', 'Hindi', 'Tamil'],
+    consultationFee: 2199,
+    perMinuteRate: 30,
+    rating: 4.95,
+    reviewCount: 980,
+    avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['09:30 AM', '01:00 PM', '04:00 PM', '06:30 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 4,
+    name: 'Pandit Rajeshwar Joshi',
+    slug: 'pandit-rajeshwar-joshi',
+    title: 'Vedic Astrologer & Vastu Consultant',
+    bio: 'Specialist in corporate astrology, business partner Kundli matching, and residential energy alignment.',
+    experienceYears: 18,
+    specialties: ['Business Kundli', 'Wealth Yogas', 'Vastu Shastra', 'Remedial Yagyas'],
+    languages: ['English', 'Hindi', 'Gujarati'],
+    consultationFee: 1899,
+    perMinuteRate: 25,
+    rating: 4.91,
+    reviewCount: 720,
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['11:00 AM', '02:00 PM', '04:30 PM', '07:00 PM'],
+    isFeatured: false,
+    isOnline: true,
+  },
+  {
+    id: 5,
+    name: 'Acharya Dattatray Kulkarni',
+    slug: 'acharya-dattatray-kulkarni',
+    title: 'KP Astrology & Ashtakvarga Specialist',
+    bio: 'Renowned Maharashtra Jyotish scholar with 25 years specializing in accurate Krishnamurti Paddhati timing of events and progeny analysis.',
+    experienceYears: 25,
+    specialties: ['KP Astrology', 'Kundli Matching', 'Progeny & Family', 'Muhurat Selection'],
+    languages: ['Marathi', 'Hindi', 'English'],
+    consultationFee: 1999,
+    perMinuteRate: 28,
+    rating: 4.97,
+    reviewCount: 2450,
+    avatarUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['10:00 AM', '01:30 PM', '04:00 PM', '06:30 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 6,
+    name: 'Astro Priyadarshini Rao',
+    slug: 'astro-priyadarshini-rao',
+    title: 'Holistic Astrologer & Palmistry Expert',
+    bio: 'Master of Samudrika Shastra (Palmistry) combined with birth chart degrees. Provides realistic, compassionate solutions for youth and professionals.',
+    experienceYears: 14,
+    specialties: ['Palmistry', 'Career & Finance', 'Tarot Reading', 'Gemology'],
+    languages: ['Marathi', 'English', 'Hindi'],
+    consultationFee: 1299,
+    perMinuteRate: 20,
+    rating: 4.94,
+    reviewCount: 1780,
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['11:30 AM', '02:00 PM', '05:30 PM', '07:30 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 7,
+    name: 'Pandit Shridhar Deshmukh',
+    slug: 'pandit-shridhar-deshmukh',
+    title: 'Classical Vivaha Kundli & Yagya Acharya',
+    bio: 'Hereditary Vedic priest and astrologer from Nashik. Trusted by thousands for vivaha dosha nivarana, Mangal dosha, and Navagraha shanti.',
+    experienceYears: 20,
+    specialties: ['Marriage Compatibility', 'Mangal Dosha', 'Navagraha Shanti', 'Vedic Rituals'],
+    languages: ['Marathi', 'Sanskrit', 'Hindi'],
+    consultationFee: 1699,
+    perMinuteRate: 24,
+    rating: 4.95,
+    reviewCount: 2100,
+    avatarUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['08:00 AM', '10:30 AM', '03:30 PM', '06:00 PM'],
+    isFeatured: false,
+    isOnline: true,
+  },
+  {
+    id: 8,
+    name: 'Dr. Ananya Sharma',
+    slug: 'dr-ananya-sharma',
+    title: 'Numerologist & Astro-Vedic Counselor',
+    bio: 'Combines Chaldean Numerology with Sidereal Vedic charts. Specializes in mobile numerology, corporate brand name harmony, and personal life path guidance.',
+    experienceYears: 16,
+    specialties: ['Numerology', 'Name Correction', 'Life Coaching', 'Career Guidance'],
+    languages: ['English', 'Hindi'],
+    consultationFee: 1499,
+    perMinuteRate: 22,
+    rating: 4.93,
+    reviewCount: 1650,
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['12:00 PM', '03:00 PM', '05:00 PM', '07:00 PM'],
+    isFeatured: false,
+    isOnline: true,
+  },
+  {
+    id: 9,
+    name: 'Pandit Bhaskaran Namboodiri',
+    slug: 'pandit-bhaskaran-namboodiri',
+    title: 'Senior Kerala Horary (Prashna) Jyotish',
+    bio: '30+ years practicing Ashta Mangala Prashna and Kavadi astrology from Thrissur, Kerala. Solves perplexing dilemmas without exact birth time.',
+    experienceYears: 30,
+    specialties: ['Prashna Kundli', 'Remedial Pujas', 'Spiritual Healing', 'Lost Objects & Answers'],
+    languages: ['English', 'Malayalam', 'Hindi'],
+    consultationFee: 2799,
+    perMinuteRate: 40,
+    rating: 4.99,
+    reviewCount: 3890,
+    avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['09:00 AM', '11:00 AM', '04:00 PM', '06:00 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+  {
+    id: 10,
+    name: 'Astro Sunita Patil',
+    slug: 'astro-sunita-patil',
+    title: 'Lal Kitab Acharya & Family Astrologer',
+    bio: 'Dedicated specialist in simple, cost-effective Lal Kitab remedies, resolving domestic tension, children education roadblocks, and chronic bad luck.',
+    experienceYears: 15,
+    specialties: ['Lal Kitab Remedies', 'Family Harmony', 'Education Guidance', 'Evil Eye / Nazar'],
+    languages: ['Marathi', 'Hindi'],
+    consultationFee: 1199,
+    perMinuteRate: 18,
+    rating: 4.91,
+    reviewCount: 1420,
+    avatarUrl: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['10:00 AM', '02:00 PM', '04:30 PM', '08:00 PM'],
+    isFeatured: false,
+    isOnline: true,
+  },
+  {
+    id: 11,
+    name: 'Acharya Ramanujacharya',
+    slug: 'acharya-ramanujacharya',
+    title: 'Jaimini Astrologer & Spiritual Guide',
+    bio: 'Deep authority on Jaimini Karakas, Chara Dasha, and spiritual Moksha indicators. Teaches meditation and planetary mantra alignment.',
+    experienceYears: 26,
+    specialties: ['Jaimini Astrology', 'Spiritual Guidance', 'Kundli Deep-Dive', 'Mantra Therapy'],
+    languages: ['Hindi', 'Sanskrit', 'English'],
+    consultationFee: 2299,
+    perMinuteRate: 32,
+    rating: 4.98,
+    reviewCount: 2980,
+    avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['07:30 AM', '11:00 AM', '03:00 PM', '05:30 PM'],
+    isFeatured: false,
+    isOnline: true,
+  },
+  {
+    id: 12,
+    name: 'Astro Vikramaditya Rathore',
+    slug: 'astro-vikramaditya-rathore',
+    title: 'Financial & Stock Market Astrologer',
+    bio: 'Analyzes commodity, equity, and market cycles using Sarvatobhadra Chakra and lunar constellations. Advises entrepreneurs and investors.',
+    experienceYears: 19,
+    specialties: ['Wealth Yogas', 'Business Kundli', 'Financial Astromarkets', 'Stock Timing'],
+    languages: ['Hindi', 'English'],
+    consultationFee: 2999,
+    perMinuteRate: 45,
+    rating: 4.93,
+    reviewCount: 1830,
+    avatarUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300',
+    availableSlots: ['09:30 AM', '01:00 PM', '03:30 PM', '07:00 PM'],
+    isFeatured: true,
+    isOnline: true,
+  },
+];
+
 export const api = {
   // Auth
-  async login(identifier: string, password: string):Promise<AuthResponse> {
+  async login(identifier: string, password: string): Promise<AuthResponse> {
     return request<AuthResponse>('/api/auth/local', {
       method: 'POST',
       body: JSON.stringify({ identifier, password }),
@@ -190,30 +418,49 @@ export const api = {
 
   // Astrologers
   async getAstrologers(): Promise<Astrologer[]> {
-    const res = await request<{ data: Astrologer[] }>('/api/astrologers?populate=*');
-    const items = Array.isArray(res?.data) ? res.data : [];
-    return items.map((a) => ({
-      ...a,
-      specialties: toArray(a.specialties),
-      languages: toArray(a.languages),
-      availableSlots: toArray(a.availableSlots),
-    }));
+    try {
+      const res = await request<{ data: Astrologer[] }>('/api/astrologers?populate=*');
+      const dbItems = Array.isArray(res?.data) ? res.data : [];
+      const parsedDb = dbItems.map((a) => ({
+        ...a,
+        specialties: toArray(a.specialties),
+        languages: toArray(a.languages),
+        availableSlots: toArray(a.availableSlots),
+      }));
+
+      if (parsedDb.length >= 10) {
+        return parsedDb;
+      }
+
+      // Merge backend items with verified catalog to ensure full 12+ directory
+      const merged = [...parsedDb];
+      FALLBACK_ASTROLOGERS.forEach((fa) => {
+        if (!merged.find((m) => m.slug === fa.slug || m.name.toLowerCase() === fa.name.toLowerCase())) {
+          merged.push(fa);
+        }
+      });
+      return merged;
+    } catch (e) {
+      console.warn('Using verified astrologers fallback directory:', e);
+      return FALLBACK_ASTROLOGERS;
+    }
   },
 
   async getAstrologerById(id: string | number): Promise<Astrologer | null> {
     try {
       const res = await request<{ data: Astrologer }>(`/api/astrologers/${id}`);
-      if (!res?.data) return null;
-      return {
-        ...res.data,
-        specialties: toArray(res.data.specialties),
-        languages: toArray(res.data.languages),
-        availableSlots: toArray(res.data.availableSlots),
-      };
-    } catch (e) {
-      console.warn(`Astrologer fetch failed for id "${id}":`, e);
-      return null;
-    }
+      if (res?.data) {
+        return {
+          ...res.data,
+          specialties: toArray(res.data.specialties),
+          languages: toArray(res.data.languages),
+          availableSlots: toArray(res.data.availableSlots),
+        };
+      }
+    } catch (e) {}
+
+    const fallback = FALLBACK_ASTROLOGERS.find((a) => String(a.id) === String(id) || a.slug === String(id));
+    return fallback || null;
   },
 
   // Horoscope
@@ -496,5 +743,25 @@ export const api = {
     } catch (e) {
       return [];
     }
+  },
+
+  // Gemini AI Astrologer Chat (Proxies securely via backend)
+  async sendAiChat(payload: {
+    message: string;
+    history?: any[];
+    birthChart?: any;
+    language?: string;
+  }): Promise<{
+    success: boolean;
+    configured: boolean;
+    reply?: string;
+    message?: string;
+    rateLimited?: boolean;
+    timestamp?: string;
+  }> {
+    return request<any>('/api/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   },
 };

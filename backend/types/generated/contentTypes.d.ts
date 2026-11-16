@@ -391,7 +391,9 @@ export interface ApiAstrologerAstrologer extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
     experienceYears: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<10>;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     isOnline: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     languages: Schema.Attribute.JSON;
@@ -403,6 +405,7 @@ export interface ApiAstrologerAstrologer extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     perMinuteRate: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<25>;
+    phone: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<4.9>;
     reviewCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<120>;
@@ -958,6 +961,52 @@ export interface ApiNakshatraNakshatra extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiNotificationNotification
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'notifications';
+  info: {
+    description: 'Multi-Channel Broadcast & Transactional Notifications';
+    displayName: 'Notification Campaign';
+    pluralName: 'notifications';
+    singularName: 'notification';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    channel: Schema.Attribute.Enumeration<
+      ['email', 'sms', 'whatsapp', 'in_app']
+    > &
+      Schema.Attribute.DefaultTo<'email'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::notification.notification'
+    > &
+      Schema.Attribute.Private;
+    message: Schema.Attribute.Text & Schema.Attribute.Required;
+    metadata: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    scheduledAt: Schema.Attribute.DateTime;
+    sentCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    status: Schema.Attribute.Enumeration<
+      ['draft', 'scheduled', 'sent', 'failed']
+    > &
+      Schema.Attribute.DefaultTo<'draft'>;
+    targetAudience: Schema.Attribute.Enumeration<
+      ['all_users', 'active_clients', 'vip_clients', 'inactive_users']
+    > &
+      Schema.Attribute.DefaultTo<'all_users'>;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPaymentRecordPaymentRecord
   extends Struct.CollectionTypeSchema {
   collectionName: 'payment_records';
@@ -1121,6 +1170,106 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSupportTicketSupportTicket
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'support_tickets';
+  info: {
+    description: 'Customer Support Tickets & Query Resolution';
+    displayName: 'Support Ticket';
+    pluralName: 'support-tickets';
+    singularName: 'support-ticket';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    assignedStaff: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'Unassigned'>;
+    category: Schema.Attribute.Enumeration<
+      [
+        'booking_issue',
+        'payment_issue',
+        'report_query',
+        'astrologer_query',
+        'technical',
+        'other',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'booking_issue'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    customerEmail: Schema.Attribute.Email & Schema.Attribute.Required;
+    customerName: Schema.Attribute.String & Schema.Attribute.Required;
+    customerPhone: Schema.Attribute.String;
+    description: Schema.Attribute.Text & Schema.Attribute.Required;
+    internalNotes: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::support-ticket.support-ticket'
+    > &
+      Schema.Attribute.Private;
+    priority: Schema.Attribute.Enumeration<
+      ['low', 'medium', 'high', 'urgent']
+    > &
+      Schema.Attribute.DefaultTo<'medium'>;
+    publishedAt: Schema.Attribute.DateTime;
+    replies: Schema.Attribute.JSON;
+    status: Schema.Attribute.Enumeration<
+      ['open', 'in_progress', 'pending', 'resolved', 'closed']
+    > &
+      Schema.Attribute.DefaultTo<'open'>;
+    subject: Schema.Attribute.String & Schema.Attribute.Required;
+    ticketNumber: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiUserActivityUserActivity
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'user_activities';
+  info: {
+    description: 'User Activity and Search Analytics Tracking';
+    displayName: 'User Activity';
+    pluralName: 'user-activities';
+    singularName: 'user-activity';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    eventType: Schema.Attribute.String & Schema.Attribute.Required;
+    ipAddress: Schema.Attribute.String;
+    isGuest: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    keyword: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::user-activity.user-activity'
+    > &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    serviceCategory: Schema.Attribute.String;
+    serviceName: Schema.Attribute.String;
+    targetSlug: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    userAgent: Schema.Attribute.Text;
+    userEmail: Schema.Attribute.String;
+    username: Schema.Attribute.String;
   };
 }
 
@@ -1685,10 +1834,13 @@ declare module '@strapi/strapi' {
       'api::horoscope.horoscope': ApiHoroscopeHoroscope;
       'api::kundli.kundli': ApiKundliKundli;
       'api::nakshatra.nakshatra': ApiNakshatraNakshatra;
+      'api::notification.notification': ApiNotificationNotification;
       'api::payment-record.payment-record': ApiPaymentRecordPaymentRecord;
       'api::payment.payment': ApiPaymentPayment;
       'api::pricing-plan.pricing-plan': ApiPricingPlanPricingPlan;
       'api::site-setting.site-setting': ApiSiteSettingSiteSetting;
+      'api::support-ticket.support-ticket': ApiSupportTicketSupportTicket;
+      'api::user-activity.user-activity': ApiUserActivityUserActivity;
       'api::zodiac-sign.zodiac-sign': ApiZodiacSignZodiacSign;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

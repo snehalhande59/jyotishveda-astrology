@@ -10,8 +10,8 @@ export default function NumerologyCalculatorPage() {
   const { language } = useLanguage();
   const isMr = language === 'mr';
 
-  const [name, setName] = useState('Aarav Sharma');
-  const [dob, setDob] = useState('1995-08-15');
+  const [name, setName] = useState('');
+  const [dob, setDob] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleCalculate = (e: React.FormEvent) => {

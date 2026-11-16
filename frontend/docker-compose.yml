@@ -1,0 +1,25 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=productio
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_STRAPI_URL=${NEXT_PUBLIC_STRAPI_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
+      - NEXT_PUBLIC_STRAPI_MEDIA_URL=${NEXT_PUBLIC_STRAPI_MEDIA_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
+    networks:
+      - dokploy-network
+      - default
+
+networks:
+  dokploy-network:
+    name: dokploy-network
+    external: true
+  default:

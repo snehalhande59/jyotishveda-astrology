@@ -130,6 +130,10 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   };
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <>
       <header className="sticky top-0 z-50 bg-[#FFFDF9] border-b border-[#EAE1D2] shadow-sm">
@@ -302,8 +306,12 @@ export default function Navbar() {
                   >
                     <MessageSquare className="w-4 h-4 text-[#16A34A] flex-shrink-0" />
                     <div>
-                      <strong className="block text-xs">Chat with Astrologer</strong>
-                      <span className="text-[10px] text-gray-500">Live text consultation with verified Acharyas</span>
+                      <strong className="block text-xs">
+                        {language === 'mr' ? 'ज्योतिषांशी थेट चॅट' : 'Chat with Astrologer'}
+                      </strong>
+                      <span className="text-[10px] text-gray-500">
+                        {language === 'mr' ? 'प्रमाणित आचार्यांशी थेट संवाद' : 'Live text consultation with verified Acharyas'}
+                      </span>
                     </div>
                   </Link>
 
@@ -314,8 +322,12 @@ export default function Navbar() {
                   >
                     <PhoneCall className="w-4 h-4 text-[#D97706] flex-shrink-0" />
                     <div>
-                      <strong className="block text-xs">Call Astrologer (Schedule)</strong>
-                      <span className="text-[10px] text-gray-500">Private 1-on-1 audio/video appointments</span>
+                      <strong className="block text-xs">
+                        {language === 'mr' ? 'ज्योतिषांशी कॉल / अपॉइंटमेंट' : 'Call Astrologer (Schedule)'}
+                      </strong>
+                      <span className="text-[10px] text-gray-500">
+                        {language === 'mr' ? 'वैयक्तिक ऑडिओ / व्हिडिओ मार्गदर्शन' : 'Private 1-on-1 audio/video appointments'}
+                      </span>
                     </div>
                   </Link>
 
@@ -326,8 +338,12 @@ export default function Navbar() {
                   >
                     <ShieldCheck className="w-4 h-4 text-[#16A34A] flex-shrink-0" />
                     <div>
-                      <strong className="block text-xs">Verified Astrologers Directory</strong>
-                      <span className="text-[10px] text-gray-500">Explore scholars by experience and rating</span>
+                      <strong className="block text-xs">
+                        {language === 'mr' ? 'प्रमाणित ज्योतिषी यादी' : 'Verified Astrologers Directory'}
+                      </strong>
+                      <span className="text-[10px] text-gray-500">
+                        {language === 'mr' ? 'अनुभव व रेटिंगनुसार ज्योतिषी निवडा' : 'Explore scholars by experience and rating'}
+                      </span>
                     </div>
                   </Link>
 
@@ -338,8 +354,12 @@ export default function Navbar() {
                   >
                     <Sparkles className="w-4 h-4 text-[#D97706] flex-shrink-0" />
                     <div>
-                      <strong className="block text-xs">Consultation Plans &amp; Pricing</strong>
-                      <span className="text-[10px] text-gray-500">Transparent rates &amp; express report packages</span>
+                      <strong className="block text-xs">
+                        {language === 'mr' ? 'सल्लामसलत योजना आणि दर' : 'Consultation Plans & Pricing'}
+                      </strong>
+                      <span className="text-[10px] text-gray-500">
+                        {language === 'mr' ? 'पारदर्शक दर व त्वरित अहवाल पॅकेजेस' : 'Transparent rates & express report packages'}
+                      </span>
                     </div>
                   </Link>
                 </div>
@@ -372,28 +392,28 @@ export default function Navbar() {
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
                   >
-                    ☀️ Daily Horoscope (Aaj Ka Rashifal)
+                    {language === 'mr' ? '☀️ दैनिक राशीभविष्य (आजचे राशीफळ)' : '☀️ Daily Horoscope (Aaj Ka Rashifal)'}
                   </Link>
                   <Link
                     href="/horoscope?period=weekly"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    📅 Weekly Horoscope
+                    {language === 'mr' ? '📅 साप्ताहिक राशीभविष्य' : '📅 Weekly Horoscope'}
                   </Link>
                   <Link
                     href="/horoscope?period=yearly"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    ✨ Yearly Predictions 2026
+                    {language === 'mr' ? '✨ वार्षिक भविष्य २०२६' : '✨ Yearly Predictions 2026'}
                   </Link>
                   <Link
                     href="/zodiac-signs"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706] border-t border-[#F3ECE1]"
                   >
-                    ♈ 12 Zodiac Signs (Rashis) Guide
+                    {language === 'mr' ? '♈ १२ राशींची सविस्तर माहिती' : '♈ 12 Zodiac Signs (Rashis) Guide'}
                   </Link>
                 </div>
               )}
@@ -425,28 +445,28 @@ export default function Navbar() {
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
                   >
-                    📜 Free Janam Kundli / Birth Chart
+                    {language === 'mr' ? '📜 मोफत जन्मकुंडली / पत्रिका' : '📜 Free Janam Kundli / Birth Chart'}
                   </Link>
                   <Link
                     href="/compatibility"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    💑 Kundli Milan (36 Guna Match)
+                    {language === 'mr' ? '💑 कुंडली मिलन (३६ गुणमेलन)' : '💑 Kundli Milan (36 Guna Match)'}
                   </Link>
                   <Link
                     href="/panchang"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    📅 Today Vedic Panchang
+                    {language === 'mr' ? '📅 आजचे वैदिक पंचांग' : '📅 Today Vedic Panchang'}
                   </Link>
                   <Link
                     href="/free-chat"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#16A34A] font-bold border-t border-[#F3ECE1]"
                   >
-                    🎁 Free 5-Min First Astrologer Chat
+                    {language === 'mr' ? '🎁 पहिले ५ मिनिटे मोफत चॅट' : '🎁 Free 5-Min First Astrologer Chat'}
                   </Link>
                 </div>
               )}
@@ -556,21 +576,21 @@ export default function Navbar() {
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#2D1810] hover:text-[#D97706] font-semibold"
                   >
-                    📅 Today Vedic Panchang
+                    {language === 'mr' ? '📅 आजचे वैदिक पंचांग' : '📅 Today Vedic Panchang'}
                   </Link>
                   <Link
                     href="/festivals"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    🪔 2026 Festival Calendar
+                    {language === 'mr' ? '🪔 २०२६ सण व उत्सव दिनदर्शिका' : '🪔 2026 Festival Calendar'}
                   </Link>
                   <Link
                     href="/panchang#muhurat"
                     onClick={closeMenu}
                     className="block px-4 py-2 hover:bg-[#FFF9EB] text-[#5C4535] hover:text-[#D97706]"
                   >
-                    ⏰ Auspicious Muhurats
+                    {language === 'mr' ? '⏰ शुभ मुहूर्त आणि चौघडिया' : '⏰ Auspicious Muhurats'}
                   </Link>
                 </div>
               )}
@@ -703,11 +723,21 @@ export default function Navbar() {
                   {t('nav.consultations')}
                 </p>
                 <div className="space-y-1.5 pl-2">
-                  <Link href="/free-chat" onClick={closeMenu} className="block py-1 text-[#16A34A] font-bold">🎁 Free 5-Min First Astrologer Chat</Link>
-                  <Link href="/chat" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Chat with Astrologer</Link>
-                  <Link href="/booking" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Call Astrologer (Appointments)</Link>
-                  <Link href="/astrologers" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Verified Astrologers Directory</Link>
-                  <Link href="/pricing" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Consultation Plans &amp; Pricing</Link>
+                  <Link href="/free-chat" onClick={closeMenu} className="block py-1 text-[#16A34A] font-bold">
+                    {language === 'mr' ? '🎁 पहिले ५ मिनिटे मोफत चॅट' : '🎁 Free 5-Min First Astrologer Chat'}
+                  </Link>
+                  <Link href="/chat" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'ज्योतिषांशी थेट चॅट' : 'Chat with Astrologer'}
+                  </Link>
+                  <Link href="/booking" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'ज्योतिषांशी कॉल / अपॉइंटमेंट' : 'Call Astrologer (Appointments)'}
+                  </Link>
+                  <Link href="/astrologers" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'प्रमाणित ज्योतिषी यादी' : 'Verified Astrologers Directory'}
+                  </Link>
+                  <Link href="/pricing" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'सल्लामसलत योजना आणि दर' : 'Consultation Plans & Pricing'}
+                  </Link>
                 </div>
               </div>
 
@@ -716,24 +746,44 @@ export default function Navbar() {
                   {t('nav.horoscope')} &amp; {t('nav.panchang')}
                 </p>
                 <div className="space-y-1.5 pl-2">
-                  <Link href="/horoscope" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Daily Horoscope (Aaj Ka Rashifal)</Link>
-                  <Link href="/horoscope?period=yearly" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Yearly Predictions 2026</Link>
-                  <Link href="/zodiac-signs" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">12 Zodiac Signs Guide</Link>
-                  <Link href="/panchang" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Today Vedic Panchang</Link>
-                  <Link href="/festivals" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">2026 Festival Calendar</Link>
+                  <Link href="/horoscope" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '☀️ दैनिक राशीभविष्य' : 'Daily Horoscope (Aaj Ka Rashifal)'}
+                  </Link>
+                  <Link href="/horoscope?period=yearly" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '✨ वार्षिक भविष्य २०२६' : 'Yearly Predictions 2026'}
+                  </Link>
+                  <Link href="/zodiac-signs" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '♈ १२ राशींची सविस्तर माहिती' : '12 Zodiac Signs Guide'}
+                  </Link>
+                  <Link href="/panchang" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '📅 आजचे वैदिक पंचांग' : 'Today Vedic Panchang'}
+                  </Link>
+                  <Link href="/festivals" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '🪔 २०२६ सण व उत्सव दिनदर्शिका' : '2026 Festival Calendar'}
+                  </Link>
                 </div>
               </div>
 
               <div>
                 <p className="font-bold text-[#D97706] uppercase text-[10px] tracking-wider mb-2">
-                  {t('nav.freeServices')} &amp; Store
+                  {t('nav.freeServices')} &amp; {t('nav.shop')}
                 </p>
                 <div className="space-y-1.5 pl-2">
-                  <Link href="/kundli" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Free Janam Kundli</Link>
-                  <Link href="/compatibility" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Kundli Milan (36 Guna Match)</Link>
-                  <Link href="/shop" onClick={closeMenu} className="block py-1 hover:text-[#D97706] font-semibold">Astrology Shop (Crystals &amp; Rudraksha)</Link>
-                  <Link href="/cart" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Shopping Cart</Link>
-                  <Link href="/blog" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">Vedic Astrology Blog</Link>
+                  <Link href="/kundli" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '📜 मोफत जन्मकुंडली' : 'Free Janam Kundli'}
+                  </Link>
+                  <Link href="/compatibility" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? '💑 कुंडली मिलन (३६ गुण)' : 'Kundli Milan (36 Guna Match)'}
+                  </Link>
+                  <Link href="/shop" onClick={closeMenu} className="block py-1 hover:text-[#D97706] font-semibold">
+                    {language === 'mr' ? '🛍️ ज्योतिष दुकान (रुद्राक्ष, रत्ने)' : 'Astrology Shop (Crystals & Rudraksha)'}
+                  </Link>
+                  <Link href="/cart" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'खरेदीची गाडी' : 'Shopping Cart'}
+                  </Link>
+                  <Link href="/blog" onClick={closeMenu} className="block py-1 hover:text-[#D97706]">
+                    {language === 'mr' ? 'वैदिक ज्योतिष ब्लॉग' : 'Vedic Astrology Blog'}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -743,10 +793,10 @@ export default function Navbar() {
               {user ? (
                 <div className="flex items-center justify-between p-2 bg-[#FAF7F2] rounded-xl border border-[#EAE1D2]">
                   <Link href="/dashboard" onClick={closeMenu} className="font-bold text-[#2D1810] text-xs">
-                    My Account ({user.username})
+                    {language === 'mr' ? 'माझे खाते' : 'My Account'} ({user.username})
                   </Link>
-                  <button onClick={handleLogout} className="text-red-600 font-semibold text-xs">
-                    Sign Out
+                  <button onClick={handleLogout} className="text-red-600 font-semibold text-xs cursor-pointer">
+                    {t('nav.logout')}
                   </button>
                 </div>
               ) : (
@@ -756,14 +806,14 @@ export default function Navbar() {
                     onClick={closeMenu}
                     className="py-2.5 text-center rounded-xl border border-[#EAE1D2] text-[#2D1810] font-semibold text-xs bg-white"
                   >
-                    Sign In
+                    {t('nav.signIn')}
                   </Link>
                   <Link
                     href="/register"
                     onClick={closeMenu}
                     className="py-2.5 text-center rounded-xl bg-gradient-to-r from-[#FBBF24] to-[#F59E0B] text-[#2D1810] font-bold text-xs"
                   >
-                    Sign Up
+                    {t('nav.signUp')}
                   </Link>
                 </div>
               )}

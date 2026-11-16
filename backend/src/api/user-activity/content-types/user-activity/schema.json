@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_activities",
+  "info": {
+    "singularName": "user-activity",
+    "pluralName": "user-activities",
+    "displayName": "User Activity",
+    "description": "User Activity and Search Analytics Tracking"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "eventType": {
+      "type": "string",
+      "required": true
+    },
+    "serviceName": {
+      "type": "string"
+    },
+    "serviceCategory": {
+      "type": "string"
+    },
+    "keyword": {
+      "type": "string"
+    },
+    "targetSlug": {
+      "type": "string"
+    },
+    "userEmail": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
+    },
+    "isGuest": {
+      "type": "boolean",
+      "default": true
+    },
+    "ipAddress": {
+      "type": "string"
+    },
+    "userAgent": {
+      "type": "text"
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

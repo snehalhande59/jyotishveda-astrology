@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, X, Compass, Star, Heart, Calendar, BookOpen, User, Sparkles, ArrowRight } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 interface SearchItem {
   title: string;
@@ -64,6 +65,24 @@ interface SearchModalProps {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const router = useRouter();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Debounced search tracking to backend
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (query.trim().length >= 2) {
+      searchTimeoutRef.current = setTimeout(() => {
+        trackEvent({
+          eventType: 'search',
+          keyword: query.trim(),
+          serviceCategory: 'search',
+        });
+      }, 1000);
+    }
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [query]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -131,7 +150,15 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <Link
                 key={idx}
                 href={item.url}
-                onClick={onClose}
+                onClick={() => {
+                  trackEvent({
+                    eventType: 'service_view',
+                    serviceName: item.title,
+                    serviceCategory: item.category === 'Tools' ? 'free_tool' : 'paid_service',
+                    targetSlug: item.url,
+                  });
+                  onClose();
+                }}
                 className="group flex items-center justify-between p-3 rounded-xl hover:bg-[#FFF9EB] transition-colors"
               >
                 <div className="space-y-0.5">

@@ -392,7 +392,9 @@ export default function ShopHomePage() {
               { id: 'crystal', label: isMr ? 'क्रिस्टल्स व खडे' : 'Crystals' },
               { id: 'zodiac', label: isMr ? 'राशी ब्रेसलेट्स' : 'Zodiac Bracelets' },
               { id: 'rudraksha', label: isMr ? 'रुद्राक्ष' : 'Rudraksha' },
-              { id: 'yantra', label: isMr ? 'यंत्रे' : 'Yantras' },
+              { id: 'yantra', label: isMr ? 'यंत्रे व मंत्र' : 'Yantras & Mantras' },
+              { id: 'book', label: isMr ? 'धार्मिक ग्रंथ व पुस्तके' : 'Sacred Books' },
+              { id: 'mala', label: isMr ? 'जप माळा' : 'Japa Malas' },
             ].map((tab) => (
               <button
                 key={tab.id}

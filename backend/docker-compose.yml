@@ -1,0 +1,79 @@
+services:
+  strapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "1337"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - HOST=0.0.0.0
+      - PORT=1337
+      - PUBLIC_URL=${PUBLIC_URL:-https://jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}
+      - APP_KEYS=${APP_KEYS}
+      - API_TOKEN_SALT=${API_TOKEN_SALT}
+      - ADMIN_JWT_SECRET=${ADMIN_JWT_SECRET}
+      - TRANSFER_TOKEN_SALT=${TRANSFER_TOKEN_SALT}
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_CLIENT=${DATABASE_CLIENT:-sqlite}
+      - DATABASE_FILENAME=${DATABASE_FILENAME:-.tmp/data.db}
+      - DATABASE_URL=${DATABASE_URL:-}
+      - DATABASE_HOST=${DATABASE_HOST:-}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - DATABASE_NAME=${DATABASE_NAME:-}
+      - DATABASE_USERNAME=${DATABASE_USERNAME:-}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-}
+      - DATABASE_SSL=${DATABASE_SSL:-false}
+      - FRONTEND_URL=${FRONTEND_URL:-https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io}
+      - CORS_ORIGINS=${CORS_ORIGINS:-https://jyotishveda-frontend-0o9pvi-4004bd-150-136-66-155.sslip.io}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-}
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL:-}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+      - ADMIN_RESET=${ADMIN_RESET:-false}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-nodemailer}
+      - EMAIL_HOST=${EMAIL_HOST:-smtp.gmail.com}
+      - EMAIL_SMTP_PORT=${EMAIL_SMTP_PORT:-465}
+      - EMAIL_SMTP_SECURE=${EMAIL_SMTP_SECURE:-true}
+      - EMAIL_USER=${EMAIL_USER:-}
+      - EMAIL_PASS=${EMAIL_PASS:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+      - EMAIL_REPLY_TO=${EMAIL_REPLY_TO:-}
+      - TWILIO_SID=${TWILIO_SID:-}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN:-}
+      - TWILIO_PHONE=${TWILIO_PHONE:-}
+      - DEFAULT_COUNTRY_CODE=${DEFAULT_COUNTRY_CODE:-+91}
+      - DEFAULT_AYANAMSA=${DEFAULT_AYANAMSA:-Lahiri}
+    volumes:
+      - strapi_uploads:/opt/app/public/uploads
+      - strapi_data:/opt/app/.tmp
+    networks:
+      - dokploy-network
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=dokploy-network"
+      - "traefik.http.routers.strapi.rule=Host(`${DOMAIN:-jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}`)"
+      - "traefik.http.routers.strapi.entrypoints=web"
+      - "traefik.http.routers.strapi.service=strapi"
+      - "traefik.http.routers.strapi-secure.rule=Host(`${DOMAIN:-jyotishveda-strapi-8f1717-150-136-44-53.sslip.io}`)"
+      - "traefik.http.routers.strapi-secure.entrypoints=websecure"
+      - "traefik.http.routers.strapi-secure.tls=true"
+      - "traefik.http.routers.strapi-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.strapi-secure.service=strapi"
+      - "traefik.http.services.strapi.loadbalancer.server.port=1337"
+
+volumes:
+  strapi_uploads:
+  strapi_data:
+
+networks:
+  dokploy-network:
+    name: dokploy-network
+    external: true
+  default:

@@ -1,0 +1,107 @@
+[
+  {
+    "date": "2027-01-14",
+    "nameEn": "Makar Sankranti",
+    "nameMr": "मकर संक्रांत",
+    "descriptionEn": "Harvest festival marking the sun's transition into Capricorn.",
+    "descriptionMr": "सूर्य मकर राशीत प्रवेश करणारा शरद ऋतूचा पिकवणुकीचा उत्सव."
+  },
+  {
+    "date": "2027-02-18",
+    "nameEn": "Maha Shivaratri",
+    "nameMr": "महाशिवरात्रि",
+    "descriptionEn": "Night of Shiva worship.",
+    "descriptionMr": "शिवाची उपासना केली जाणारी रात्र."
+  },
+  {
+    "date": "2027-03-07",
+    "nameEn": "Holi",
+    "nameMr": "होळी",
+    "descriptionEn": "Festival of colours.",
+    "descriptionMr": "रंगांचा आनंद घेण्याचा उत्सव."
+  },
+  {
+    "date": "2027-04-14",
+    "nameEn": "Baisakhi",
+    "nameMr": "बैशाखी",
+    "descriptionEn": "Punjabi New Year and harvest festival.",
+    "descriptionMr": "पंजाबी नववर्ष व पिकवणुकीचा उत्सव."
+  },
+  {
+    "date": "2027-04-21",
+    "nameEn": "Mahavir Janma Kalyanak",
+    "nameMr": "महावीर जयंती",
+    "descriptionEn": "Birth of Lord Mahavira, Jainism.",
+    "descriptionMr": "जैन धर्मातील महावीर भगवान यांचे जन्मदिन."
+  },
+  {
+    "date": "2027-05-03",
+    "nameEn": "Ram Navami",
+    "nameMr": "राम नवमी",
+    "descriptionEn": "Birth of Lord Rama.",
+    "descriptionMr": "भगवान राम यांचा जन्म दिन."
+  },
+  {
+    "date": "2027-06-02",
+    "nameEn": "Guru Purnima",
+    "nameMr": "गुरु पूर्णिमा",
+    "descriptionEn": "Honouring spiritual teachers.",
+    "descriptionMr": "आत्मिक गुरूंची पूजाआदान."
+  },
+  {
+    "date": "2027-06-24",
+    "nameEn": "Rath Yatra",
+    "nameMr": "रथ यात्रा",
+    "descriptionEn": "Chariot festival of Lord Jagannath.",
+    "descriptionMr": "भगवान जगन्नाथांची रथ यात्रा."
+  },
+  {
+    "date": "2027-08-22",
+    "nameEn": "Janmashtami",
+    "nameMr": "जन्माष्टमी",
+    "descriptionEn": "Birth of Lord Krishna.",
+    "descriptionMr": "भगवान कृष्ण यांचा जन्म दिन."
+  },
+  {
+    "date": "2027-09-12",
+    "nameEn": "Ganesh Chaturthi",
+    "nameMr": "गणेश चतुर्थी",
+    "descriptionEn": "Celebration of Lord Ganesha.",
+    "descriptionMr": "भगवान गणेशाचे उत्सव."
+  },
+  {
+    "date": "2027-10-02",
+    "nameEn": "Mahalaya Amavasya",
+    "nameMr": "माहालय अमावस्या",
+    "descriptionEn": "Beginning of Durga Puja.",
+    "descriptionMr": "दुर्गा पूजा सुरू होणारी अमावस्या."
+  },
+  {
+    "date": "2027-10-17",
+    "nameEn": "Dussehra",
+    "nameMr": "दुर्गा पूजेचा विजय",
+    "descriptionEn": "Victory of good over evil.",
+    "descriptionMr": "धर्माचा व शूरवीराचा विजय."
+  },
+  {
+    "date": "2027-11-03",
+    "nameEn": "Diwali",
+    "nameMr": "दिवाळी",
+    "descriptionEn": "Festival of lights.",
+    "descriptionMr": "प्रकाशांचा उत्सव."
+  },
+  {
+    "date": "2027-11-13",
+    "nameEn": "Chhath Puja",
+    "nameMr": "छठ पूजा",
+    "descriptionEn": "Sun worship festival.",
+    "descriptionMr": "सूर्य देवतेची उपासना."
+  },
+  {
+    "date": "2027-12-25",
+    "nameEn": "Christmas",
+    "nameMr": "ख्रिसमस",
+    "descriptionEn": "Celebration of the birth of Jesus.",
+    "descriptionMr": "यीशूचे जन्मदिन साजरा."
+  }
+]

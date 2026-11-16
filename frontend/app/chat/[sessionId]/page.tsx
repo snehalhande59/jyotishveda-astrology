@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { getCurrentUser } from '@/lib/auth';
+import { getSocket } from '@/lib/socket';
 import { ChatSession, ChatMessage, User } from '@/lib/types';
 import { useLanguage } from '@/context/LanguageContext';
 import {
@@ -22,6 +23,8 @@ import {
   RefreshCw,
   LogOut,
   Calendar,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 
 export default function ActiveChatSessionPage() {
@@ -39,17 +42,21 @@ export default function ActiveChatSessionPage() {
   const [timeLeftSeconds, setTimeLeftSeconds] = useState<number | null>(null);
   const [showChartDrawer, setShowChartDrawer] = useState(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
+  const [astrologerTyping, setAstrologerTyping] = useState(false);
+  const [astrologerOnline, setAstrologerOnline] = useState(true);
+  const [socketConnected, setSocketConnected] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, astrologerTyping, scrollToBottom]);
 
   // Load session and initial message history
   useEffect(() => {
@@ -76,7 +83,12 @@ export default function ActiveChatSessionPage() {
           setTimeLeftSeconds(secs);
         }
       } catch (err: any) {
-        setErrorBanner(err.message || (language === 'mr' ? 'चॅट सत्र लोड करता आले नाही.' : 'Unable to load chat session.'));
+        setErrorBanner(
+          err.message ||
+            (language === 'mr'
+              ? 'चॅट सत्र लोड करता आले नाही.'
+              : 'Unable to load chat session.')
+        );
       } finally {
         setLoading(false);
       }
@@ -86,6 +98,77 @@ export default function ActiveChatSessionPage() {
       fetchSessionData();
     }
   }, [sessionId, router, language]);
+
+  // Real-Time Socket.IO Integration
+  useEffect(() => {
+    if (!sessionId || !currentUser) return;
+
+    let socket: any = null;
+    try {
+      socket = getSocket();
+      setSocketConnected(socket.connected);
+
+      const onConnect = () => {
+        setSocketConnected(true);
+        socket.emit('join_session', { sessionId }, (res: any) => {
+          if (res?.success) {
+            console.log('⚡ [Socket.IO] Joined room for session:', sessionId);
+          }
+        });
+      };
+
+      const onDisconnect = () => {
+        setSocketConnected(false);
+      };
+
+      const onNewMessage = (incomingMsg: any) => {
+        if (!incomingMsg) return;
+        setMessages((prev) => {
+          // Deduplicate message by id or unique timestamp+content
+          const exists = prev.some(
+            (m) =>
+              (m.id && incomingMsg.id && m.id === incomingMsg.id) ||
+              (m.timestamp === incomingMsg.timestamp && m.message === incomingMsg.message)
+          );
+          if (exists) return prev;
+          return [...prev, incomingMsg];
+        });
+        setAstrologerTyping(false);
+      };
+
+      const onUserTyping = (data: { senderName: string; isTyping: boolean }) => {
+        if (data.senderName !== currentUser?.username) {
+          setAstrologerTyping(Boolean(data.isTyping));
+        }
+      };
+
+      const onUserStatus = (data: { role: string; status: string }) => {
+        if (data.role === 'astrologer') {
+          setAstrologerOnline(data.status === 'online');
+        }
+      };
+
+      socket.on('connect', onConnect);
+      socket.on('disconnect', onDisconnect);
+      socket.on('new_message', onNewMessage);
+      socket.on('user_typing', onUserTyping);
+      socket.on('user_status', onUserStatus);
+
+      if (socket.connected) {
+        onConnect();
+      }
+
+      return () => {
+        socket.off('connect', onConnect);
+        socket.off('disconnect', onDisconnect);
+        socket.off('new_message', onNewMessage);
+        socket.off('user_typing', onUserTyping);
+        socket.off('user_status', onUserStatus);
+      };
+    } catch (socketErr) {
+      console.warn('Socket.IO connection notice:', socketErr);
+    }
+  }, [sessionId, currentUser]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -115,7 +198,7 @@ export default function ActiveChatSessionPage() {
     };
   }, [timeLeftSeconds, session]);
 
-  // Periodic polling for incoming messages if active
+  // Resilient fallback HTTP polling (every 6 seconds if active)
   useEffect(() => {
     if (!session || session.status !== 'active') return;
 
@@ -126,12 +209,26 @@ export default function ActiveChatSessionPage() {
           setMessages(msgs);
         }
       } catch (e) {
-        // silent poll fail
+        // silent fallback poll fail
       }
-    }, 4000);
+    }, 6000);
 
     return () => clearInterval(pollInterval);
   }, [sessionId, session, messages.length]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    try {
+      const socket = getSocket();
+      socket.emit('typing', { sessionId, isTyping: true });
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        try {
+          socket.emit('typing', { sessionId, isTyping: false });
+        } catch {}
+      }, 2000);
+    } catch {}
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,8 +238,9 @@ export default function ActiveChatSessionPage() {
     const userText = newMessage.trim();
     setNewMessage('');
     setSending(true);
+    setErrorBanner(null);
 
-    // Optimistically add user message
+    // Optimistically add user message immediately to the UI
     const tempUserMsg: ChatMessage = {
       id: Date.now(),
       senderType: 'user',
@@ -153,22 +251,61 @@ export default function ActiveChatSessionPage() {
     setMessages((prev) => [...prev, tempUserMsg]);
 
     try {
-      const res = await api.sendChatMessage(sessionId, userText);
-      const astrologerMsg = res?.astrologerResponse || (res as any)?.astrologerReply;
-      if (astrologerMsg) {
-        setMessages((prev) => [...prev, astrologerMsg]);
+      // 1. Try sending via Socket.IO for real-time speed
+      let sentViaSocket = false;
+      try {
+        const socket = getSocket();
+        if (socket && socket.connected) {
+          socket.emit(
+            'send_message',
+            { sessionId, message: userText, mode: session.sessionType === 'free_intro' ? 'ai' : 'human' },
+            (ack: any) => {
+              if (ack?.success && ack?.astrologerResponse) {
+                setMessages((prev) => {
+                  if (prev.some((m) => m.id === ack.astrologerResponse.id)) return prev;
+                  return [...prev, ack.astrologerResponse];
+                });
+              }
+            }
+          );
+          sentViaSocket = true;
+        }
+      } catch {}
+
+      // 2. Also ensure REST persistence / fallback if socket is disconnected
+      if (!sentViaSocket) {
+        const res = await api.sendChatMessage(sessionId, userText);
+        const astrologerMsg = res?.astrologerResponse || (res as any)?.astrologerReply;
+        if (astrologerMsg) {
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === astrologerMsg.id)) return prev;
+            return [...prev, astrologerMsg];
+          });
+        }
       }
-      // Update session message count
+
       setSession((prev) => (prev ? { ...prev, messageCount: prev.messageCount + 1 } : null));
     } catch (err: any) {
-      setErrorBanner(err.message || (language === 'mr' ? 'संदेश पाठवता आला नाही.' : 'Message delivery failed.'));
+      setErrorBanner(
+        err.message ||
+          (language === 'mr'
+            ? 'संदेश पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा.'
+            : 'Message delivery failed. Please retry.')
+      );
     } finally {
       setSending(false);
     }
   };
 
   const handleEndSession = async () => {
-    if (!confirm(language === 'mr' ? 'आपण ही ज्योतिष सल्लामसलत समाप्त करू इच्छिता?' : 'Are you sure you want to end this astrological consultation?')) return;
+    if (
+      !confirm(
+        language === 'mr'
+          ? 'आपण ही ज्योतिष सल्लामसलत समाप्त करू इच्छिता?'
+          : 'Are you sure you want to end this astrological consultation?'
+      )
+    )
+      return;
     try {
       await api.endChatSession(sessionId);
       setSession((prev) => (prev ? { ...prev, status: 'completed' } : null));
@@ -198,35 +335,51 @@ export default function ActiveChatSessionPage() {
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink">
             <Link
               href="/chat"
-              className="text-[#786C60] hover:text-[#D97706] text-xs font-semibold flex items-center pr-2 sm:pr-3 border-r border-[#EAE1D2] flex-shrink-0"
+              className="text-xs text-[#786C60] hover:text-[#D97706] transition-colors p-1"
+              title={language === 'mr' ? 'मागे जा' : 'Go back'}
             >
-              <span>&larr;</span>
+              <MessageSquare className="w-4 h-4" />
             </Link>
-
-            <div className="relative flex-shrink-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] flex items-center justify-center font-serif font-bold text-xs sm:text-sm">
-                {session?.astrologer?.name ? session.astrologer.name.charAt(0) : 'A'}
+            <div className="relative">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FFFBEB] border border-[#FDE68A] flex items-center justify-center text-[#D97706] font-bold text-xs shadow-2xs">
+                {session?.astrologer?.name?.charAt(0) || 'A'}
               </div>
-              <span className="absolute bottom-0 right-0 w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-emerald-500 border border-white" />
+              <span
+                className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                  astrologerOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'
+                }`}
+                title={astrologerOnline ? 'Online' : 'Offline'}
+              />
             </div>
-
             <div className="min-w-0">
-              <div className="flex items-center space-x-1.5 sm:space-x-2">
-                <h2 className="font-serif text-xs sm:text-base font-bold text-[#2D1810] truncate max-w-[120px] sm:max-w-none">
-                  {session?.astrologer?.name || (language === 'mr' ? 'वैदिक ज्योतिष आचार्य' : 'Vedic Jyotish Acharya')}
-                </h2>
-                <span className="text-[9px] sm:text-[10px] bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] px-1.5 sm:px-2 py-0.5 rounded-full font-bold flex-shrink-0">
-                  {session?.sessionType === 'free_intro' ? t('room.freeIntroBadge') : t('room.paidBadge')}
-                </span>
+              <div className="flex items-center space-x-1.5">
+                <h1 className="font-serif text-xs sm:text-sm font-bold text-[#2D1810] truncate max-w-[140px] sm:max-w-[200px]">
+                  {session?.astrologer?.name || (language === 'mr' ? 'ज्योतिष आचार्य' : 'Vedic Scholar')}
+                </h1>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               </div>
-              <p className="text-[10px] sm:text-[11px] text-[#786C60] truncate">
-                #{session?.sessionNumber}
-              </p>
+              <div className="flex items-center space-x-1.5 text-[10px] text-[#786C60]">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="truncate">
+                  {astrologerOnline
+                    ? language === 'mr'
+                      ? 'थेट सक्रिय'
+                      : 'Live Online'
+                    : language === 'mr'
+                    ? 'ऑफलाइन'
+                    : 'Offline'}
+                </span>
+                {socketConnected && (
+                  <span className="hidden sm:inline-flex items-center text-emerald-600 font-semibold text-[9px] bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                    Realtime
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Timer & Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-3 ml-auto flex-shrink-0">
+          {/* Session Badges & Actions */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Live Timer Pill */}
             {timeLeftSeconds !== null && (
               <div
@@ -249,7 +402,11 @@ export default function ActiveChatSessionPage() {
               className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#FAF7F2] border border-[#EAE1D2] text-[11px] sm:text-xs font-bold text-[#4A2E18] rounded-xl hover:border-[#F59E0B] flex items-center space-x-1 cursor-pointer"
             >
               <span>{language === 'mr' ? 'कुंडली' : 'Chart'}</span>
-              {showChartDrawer ? <ChevronUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" /> : <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
+              {showChartDrawer ? (
+                <ChevronUp className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              ) : (
+                <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              )}
             </button>
 
             {/* End session */}
@@ -273,28 +430,39 @@ export default function ActiveChatSessionPage() {
             <div className="flex items-center justify-between text-[#2D1810] font-bold">
               <span className="flex items-center space-x-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-[#D97706]" />
-                <span>{t('room.chartDrawer')}: {session.birthChartSummary.fullName}</span>
+                <span>
+                  {t('room.chartDrawer')}: {session.birthChartSummary.fullName || currentUser?.username}
+                </span>
               </span>
-              <span className="text-[#D97706]">{language === 'mr' ? 'लाहिरी अयनांश' : 'Lahiri Ephemeris'}</span>
+              <span className="text-[#D97706] font-mono text-[11px]">
+                {language === 'mr' ? 'लाहिरी अयनांश' : 'Lahiri Ephemeris'}
+              </span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
                 <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.lagna')}</span>
-                <strong className="text-[#2D1810]">{translateSign(session.birthChartSummary.ascendantSign)}</strong>
+                <strong className="text-[#2D1810]">
+                  {translateSign(session.birthChartSummary.ascendantSign || session.birthChartSummary.ascendant?.signName || 'Mesha')}
+                </strong>
               </div>
               <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
                 <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.rashi')}</span>
-                <strong className="text-[#2D1810]">{translateSign(session.birthChartSummary.moonSign)}</strong>
+                <strong className="text-[#2D1810]">
+                  {translateSign(session.birthChartSummary.moonSign || session.birthChartSummary.moonSign?.signName || 'Vrishabha')}
+                </strong>
               </div>
               <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
                 <span className="text-[10px] text-[#786C60] block font-semibold">{t('kundli.nakshatra')}</span>
                 <strong className="text-[#2D1810]">
-                  {session.birthChartSummary.nakshatra} ({t('kundli.pada')} {formatNumber(session.birthChartSummary.pada)})
+                  {session.birthChartSummary.nakshatra || 'Rohini'} ({t('kundli.pada')}{' '}
+                  {formatNumber(session.birthChartSummary.pada || 1)})
                 </strong>
               </div>
               <div className="bg-white p-2.5 rounded-xl border border-[#EAE1D2]">
                 <span className="text-[10px] text-[#786C60] block font-semibold">{t('form.birthPlace')}</span>
-                <strong className="text-[#2D1810] truncate block">{session.birthChartSummary.placeOfBirth}</strong>
+                <strong className="text-[#2D1810] truncate block">
+                  {session.birthChartSummary.placeOfBirth || session.birthChartSummary.place || 'India'}
+                </strong>
               </div>
             </div>
           </div>
@@ -335,7 +503,9 @@ export default function ActiveChatSessionPage() {
           </div>
         ) : messages.length === 0 ? (
           <div className="py-16 text-center text-[#786C60] text-xs">
-            {language === 'mr' ? 'अद्याप कोणतेही संदेश नाहीत. सुरू करण्यासाठी खाली आपला पहिला प्रश्न विचारा!' : 'No messages yet. Send your first question below to begin!'}
+            {language === 'mr'
+              ? 'अद्याप कोणतेही संदेश नाहीत. सुरू करण्यासाठी खाली आपला पहिला प्रश्न विचारा!'
+              : 'No messages yet. Send your first question below to begin!'}
           </div>
         ) : (
           messages.map((msg, idx) => {
@@ -348,7 +518,9 @@ export default function ActiveChatSessionPage() {
                 <div className="flex items-center space-x-1 text-[10px] text-[#786C60] px-1">
                   <span className="font-semibold">{msg.senderName}</span>
                   <span>•</span>
-                  <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
                 </div>
 
                 <div
@@ -365,8 +537,24 @@ export default function ActiveChatSessionPage() {
           })
         )}
 
-        {/* Typing / Thinking indicator */}
-        {sending && (
+        {/* Real-time Astrologer Typing Indicator */}
+        {astrologerTyping && (
+          <div className="flex items-start space-y-1 animate-fadeIn">
+            <div className="bg-white border border-[#EAE1D2] rounded-2xl rounded-bl-none p-3 shadow-xs flex items-center space-x-2 text-xs text-[#786C60]">
+              <div className="flex space-x-1">
+                <span className="w-1.5 h-1.5 bg-[#D97706] rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-1.5 bg-[#D97706] rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-1.5 bg-[#D97706] rounded-full animate-bounce" />
+              </div>
+              <span className="text-[11px] font-medium text-[#786C60]">
+                {language === 'mr' ? 'आचार्य टायपिंग करत आहेत...' : 'Acharya is typing...'}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Sending indicator */}
+        {sending && !astrologerTyping && (
           <div className="flex items-start space-y-1">
             <div className="bg-white border border-[#EAE1D2] rounded-2xl rounded-bl-none p-3 shadow-xs flex items-center space-x-2 text-xs text-[#786C60]">
               <Sparkles className="w-4 h-4 text-[#D97706] animate-spin" />
@@ -381,9 +569,7 @@ export default function ActiveChatSessionPage() {
             <div className="w-12 h-12 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] flex items-center justify-center mx-auto shadow-2xs">
               <Clock className="w-6 h-6" />
             </div>
-            <h3 className="font-serif text-lg font-bold text-[#2D1810]">
-              {t('room.concludedTitle')}
-            </h3>
+            <h3 className="font-serif text-lg font-bold text-[#2D1810]">{t('room.concludedTitle')}</h3>
             <p className="text-xs text-[#6B5A4E] max-w-md mx-auto leading-relaxed">
               {isExpired ? t('room.concludedDesc') : t('room.concludedQuestions')}
             </p>
@@ -415,7 +601,7 @@ export default function ActiveChatSessionPage() {
               type="text"
               value={newMessage}
               disabled={isChatDisabled || sending}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleInputChange}
               placeholder={isChatDisabled ? t('room.inputDisabled') : t('room.inputPlaceholder')}
               className="flex-1 px-4 py-3 bg-[#FAF7F2] border border-[#EAE1D2] rounded-xl text-xs sm:text-sm text-[#2D1810] focus:outline-none focus:border-[#F59E0B] focus:bg-white placeholder-gray-400 disabled:opacity-50 transition-colors"
             />
@@ -430,7 +616,11 @@ export default function ActiveChatSessionPage() {
           </form>
           <div className="mt-1.5 flex justify-between items-center text-[10px] text-[#786C60] px-1">
             <span>{t('room.encryptedNotice')}</span>
-            <span>{language === 'mr' ? 'पराशर सिद्धान्तावर आधारित' : 'All responses grounded in Vedic principles'}</span>
+            <span>
+              {language === 'mr'
+                ? 'वैदिक सिद्धांतांवर आधारित आणि सुरक्षित'
+                : 'All responses grounded in Vedic principles'}
+            </span>
           </div>
         </div>
       </footer>

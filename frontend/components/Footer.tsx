@@ -2,12 +2,18 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Sparkles, Mail, Phone, MapPin, ShieldCheck, Heart, Lock, CheckCircle, Award } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const pathname = usePathname();
   const { t, formatNumber } = useLanguage();
   const currentYear = formatNumber(new Date().getFullYear());
+
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <footer className="relative bg-[#FAF7F2] text-[#4A2E18] border-t border-[#EAE1D2] pt-16 pb-12 font-sans overflow-hidden">

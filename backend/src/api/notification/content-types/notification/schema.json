@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notifications",
+  "info": {
+    "singularName": "notification",
+    "pluralName": "notifications",
+    "displayName": "Notification Campaign",
+    "description": "Multi-Channel Broadcast & Transactional Notifications"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "message": {
+      "type": "text",
+      "required": true
+    },
+    "channel": {
+      "type": "enumeration",
+      "enum": ["email", "sms", "whatsapp", "in_app"],
+      "default": "email"
+    },
+    "targetAudience": {
+      "type": "enumeration",
+      "enum": ["all_users", "active_clients", "vip_clients", "inactive_users"],
+      "default": "all_users"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "scheduled", "sent", "failed"],
+      "default": "draft"
+    },
+    "scheduledAt": {
+      "type": "datetime"
+    },
+    "sentCount": {
+      "type": "integer",
+      "default": 0
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

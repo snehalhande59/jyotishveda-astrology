@@ -7,8 +7,11 @@ import { AstrologyService, Astrologer, FAQ, SiteSettings } from '@/lib/types';
 import { getWalletBalance } from '@/lib/auth';
 import BirthDetailsForm, { BirthFormData } from '@/components/BirthDetailsForm';
 import NorthIndianChart from '@/components/NorthIndianChart';
+import MobileChatPreview from '@/components/MobileChatPreview';
+import FeaturedMediaTicker from '@/components/FeaturedMediaTicker';
 import { useLanguage } from '@/context/LanguageContext';
 import { getLocalizedField } from '@/lib/translations';
+import { trackEvent, sendHeartbeat } from '@/lib/analytics';
 import {
   Sparkles,
   Compass,
@@ -338,6 +341,99 @@ const TESTIMONIALS = [
   },
 ];
 
+const ASTRO_REPORT_BOOKS = [
+  {
+    id: 'accurate-kundli',
+    title: 'Accurate Kundli Report',
+    titleMr: 'अचूक जन्मकुंडली अहवाल',
+    author: 'By Astrologer Surendra Tiwari Ji',
+    authorMr: 'आचार्य सुरेंद्र तिवारी जी',
+    price: 799,
+    originalPrice: 1599,
+    discount: '50% OFF',
+    theme: 'bg-gradient-to-br from-[#F59E0B] via-[#D97706] to-[#B45309]',
+    border: 'border-[#FCD34D]',
+    accent: '#FDE68A',
+    symbol: '🕉️',
+    deity: 'श्री गणेशाय नमः',
+    subtext: '50+ Pages Detailed Dasha, Dosha & Career Analysis',
+    subtextMr: '५०+ पानांचे सविस्तर महादशा, दोष व भविष्य विश्लेषण',
+    href: '/reports/premium-kundli',
+  },
+  {
+    id: 'lal-kitab',
+    title: 'Lal Kitab Kundli Report',
+    titleMr: 'लाल किताब अमृत कुंडली',
+    author: 'By Acharya Vedprakash Kaushik Ji',
+    authorMr: 'आचार्य वेदप्रकाश कौशिक जी',
+    price: 1299,
+    originalPrice: 2599,
+    discount: '50% OFF',
+    theme: 'bg-gradient-to-br from-[#7F1D1D] via-[#991B1B] to-[#450A0A]',
+    border: 'border-[#FCA5A5]',
+    accent: '#FECACA',
+    symbol: '📖',
+    deity: 'अचूक लाल किताब तोडगे',
+    subtext: 'Ancient Remedies, House-wise Secrets & Karmic Debts',
+    subtextMr: 'प्राचीन चमत्कारी उपाय, ऋण मुक्ती व ग्रह शांती',
+    href: '/reports',
+  },
+  {
+    id: 'bhagya-kundli',
+    title: 'Bhagya Kundli',
+    titleMr: 'भाग्य व भविष्य कुंडली',
+    author: 'Astrologer Bhagwat Vats Ji',
+    authorMr: 'ज्योतिषाचार्य भागवत वत्स जी',
+    price: 999,
+    originalPrice: 3999,
+    discount: '75% OFF',
+    theme: 'bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#F59E0B]',
+    border: 'border-[#F59E0B]',
+    accent: '#78350F',
+    symbol: '⭐',
+    deity: '१२ राशी चक्र रहस्य',
+    subtext: 'Fortunes, Auspicious Periods & Destiny Blueprint',
+    subtextMr: 'भाग्योदय वर्ष, राजयोग व प्रगतीचा सुवर्ण मार्ग',
+    href: '/reports/career',
+  },
+  {
+    id: 'karz-mukti',
+    title: 'Karz Mukti Kundli',
+    titleMr: 'कर्ज मुक्ती व धनलाभ कुंडली',
+    author: 'By Acharya Sumedh Mittal Ji',
+    authorMr: 'आचार्य सुमेध मित्तल जी',
+    price: 1199,
+    originalPrice: 2399,
+    discount: '50% OFF',
+    theme: 'bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#020617]',
+    border: 'border-[#F59E0B]',
+    accent: '#FBBF24',
+    symbol: '🚩',
+    deity: 'संकटमोचन हनुमत् कृपा',
+    subtext: 'Financial Recovery, Debt Clearance & Wealth Yogas',
+    subtextMr: 'आर्थिक संकटातून मुक्ती, कर्जमुक्ती व धनवृद्धी योग',
+    href: '/reports/finance',
+  },
+  {
+    id: 'dhan-yog',
+    title: 'Dhan Yog Kundli',
+    titleMr: 'महालक्ष्मी धन योग पत्रिका',
+    author: 'By Pramod Tiwari Ji',
+    authorMr: 'पंडित प्रमोद तिवारी जी',
+    price: 1299,
+    originalPrice: 2599,
+    discount: '50% OFF',
+    theme: 'bg-gradient-to-br from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB]',
+    border: 'border-[#F59E0B]',
+    accent: '#92400E',
+    symbol: '🪷',
+    deity: 'श्री महालक्ष्मी वरदान',
+    subtext: 'Laxmi Yoga, Business Growth & Prosperity Matrix',
+    subtextMr: 'कुबेर योग, व्यापार वृद्धी व अखंड ऐश्वर्य प्राप्ती',
+    href: '/reports/finance',
+  },
+];
+
 export default function HomePage() {
   const router = useRouter();
   const { t, language, formatNumber, formatCurrency, translateSign } = useLanguage();
@@ -353,6 +449,7 @@ export default function HomePage() {
   const [walletBal, setWalletBal] = useState<number>(500);
 
   const carouselRef = useRef<HTMLDivElement>(null);
+  const booksCarouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setWalletBal(getWalletBalance());
@@ -375,6 +472,16 @@ export default function HomePage() {
       }
     }
     loadData();
+
+    // Track homepage visitor and send live heartbeat
+    try {
+      trackEvent({
+        eventType: 'page_view',
+        serviceName: 'AstroVeda Homepage',
+        serviceCategory: 'free_tool',
+      });
+      sendHeartbeat();
+    } catch {}
   }, []);
 
   const handleQuickKundli = async (formData: BirthFormData) => {
@@ -382,6 +489,27 @@ export default function HomePage() {
     try {
       const res = await api.generateKundli(formData);
       setPreviewChart(res.chartData);
+
+      // Track Kundli Generation Live Event for Admin Dashboard
+      try {
+        trackEvent({
+          eventType: 'tool_usage',
+          serviceName: 'Janam Kundli Calculator',
+          serviceCategory: 'free_tool',
+          metadata: {
+            name: formData.fullName || 'Devotee',
+            place: formData.placeOfBirth || 'India',
+            gender: formData.gender,
+            dob: formData.dateOfBirth,
+            tob: formData.timeOfBirth,
+            lagna: res.chartData?.ascendant?.signName || 'Aries',
+            rashi: res.chartData?.moonSign?.signName || 'Taurus',
+            nakshatra: res.chartData?.moonSign?.nakshatra || 'Rohini',
+          },
+        });
+      } catch (trackErr) {
+        console.warn('Live tracking notice:', trackErr);
+      }
     } catch (err: any) {
       alert(err.message || 'Calculation error');
     } finally {
@@ -396,16 +524,22 @@ export default function HomePage() {
     }
   };
 
+  const scrollBooksCarousel = (direction: 'left' | 'right') => {
+    if (booksCarouselRef.current) {
+      const scrollAmount = direction === 'left' ? -290 : 290;
+      booksCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   const heroTitle =
-    getLocalizedField(siteSettings, 'heroTitle', language) ||
-    (language === 'mr'
-      ? 'आपली खरी ग्रहस्थिती आणि वैश्विक नशीब जाणून घ्या'
-      : 'Discover Your True Celestial Destiny');
+    language === 'mr'
+      ? ((siteSettings as any)?.heroTitle_mr || 'आपली खरी ग्रहस्थिती आणि वैश्विक नशीब जाणून घ्या')
+      : (siteSettings?.heroTitle || 'Discover Your True Celestial Blueprint');
+
   const heroSubtitle =
-    getLocalizedField(siteSettings, 'heroSubtitle', language) ||
-    (language === 'mr'
-      ? 'अचूक वैदिक ग्रहगणित, लाहिरी अयनांश आणि सखोल ज्योतिषीय मार्गदर्शनाने आपले जीवन समृद्ध करा.'
-      : 'Authentic karmic trajectory, planetary alignments, and profound Jyotish insights computed strictly with the Lahiri Sidereal ephemeris.');
+    language === 'mr'
+      ? ((siteSettings as any)?.heroSubtitle_mr || 'अचूक वैदिक ग्रहगणित, लाहिरी अयनांश आणि सखोल ज्योतिषीय मार्गदर्शनाने आपले जीवन समृद्ध करा.')
+      : (siteSettings?.heroSubtitle || 'Uncover your authentic karmic trajectory, planetary alignments, and profound Jyotish insights computed strictly with the Lahiri Sidereal ephemeris.');
 
   return (
     <div className="bg-[#FAF7F2] min-h-screen text-[#2D1810] font-sans antialiased selection:bg-[#FDE68A] selection:text-[#78350F]">
@@ -527,6 +661,7 @@ export default function HomePage() {
               onSubmit={handleQuickKundli}
               isLoading={isCalculating}
               buttonText={language === 'mr' ? 'झटपट जन्मकुंडली गणना करा' : 'Calculate Instant Kundli'}
+              showGender={true}
             />
           </div>
         </div>
@@ -571,8 +706,20 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6 items-center">
-              <div className="lg:col-span-7 flex justify-center">
+              <div className="lg:col-span-7 flex flex-col md:flex-row items-center justify-center gap-6">
                 <NorthIndianChart chartData={previewChart} />
+                <div className="flex flex-col items-center p-3.5 bg-[#FAF7F2] border border-[#EAE1D2] rounded-2xl max-w-[220px] text-center shadow-xs">
+                  <div className="w-40 h-40 rounded-xl overflow-hidden shadow-xs border border-[#EAE1D2] bg-white p-1 flex items-center justify-center">
+                    <img
+                      src="/images/kundli-scroll.png"
+                      alt="Traditional Vedic Kundli Scroll"
+                      className="w-full h-full object-contain hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <span className="text-[11px] font-bold text-[#92400E] mt-2 block">
+                    {language === 'mr' ? '📜 पारंपरिक हस्तलिखित पत्रिका' : '📜 Traditional Vedic Scroll'}
+                  </span>
+                </div>
               </div>
               <div className="lg:col-span-5 space-y-4">
                 <div className="bg-[#FFFDF9] p-5 rounded-2xl border border-[#EAE1D2] space-y-3">
@@ -631,6 +778,11 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ========================================================
+          3.5 FEATURED IN / MEDIA LOGOS TICKER
+         ======================================================== */}
+      <FeaturedMediaTicker />
 
       {/* ========================================================
           4. FOUR PROMINENT SERVICE / CONSULTATION CARDS
@@ -907,6 +1059,18 @@ export default function HomePage() {
                       {/* Outlined Green Chat Button */}
                       <Link
                         href={`/chat`}
+                        onClick={() => {
+                          trackEvent({
+                            eventType: 'astrologer_view',
+                            serviceName: astrologer.name,
+                            serviceCategory: 'astrologer',
+                            targetSlug: String(astrologer.id),
+                            metadata: {
+                              action: 'chat_initiated',
+                              rate: astrologer.consultationFee,
+                            },
+                          });
+                        }}
                         className="border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                       >
                         <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
@@ -916,6 +1080,18 @@ export default function HomePage() {
                       {/* Outlined Green Call Button */}
                       <Link
                         href={`/booking?astrologerId=${astrologer.id}`}
+                        onClick={() => {
+                          trackEvent({
+                            eventType: 'astrologer_view',
+                            serviceName: astrologer.name,
+                            serviceCategory: 'astrologer',
+                            targetSlug: String(astrologer.id),
+                            metadata: {
+                              action: 'call_booking',
+                              rate: astrologer.consultationFee,
+                            },
+                          });
+                        }}
                         className="border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                       >
                         <Phone className="w-3.5 h-3.5 text-emerald-600" />
@@ -929,6 +1105,11 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ========================================================
+          5.5 LIVE INTERACTIVE MOBILE CHAT PREVIEW (Astro Heena)
+         ======================================================== */}
+      <MobileChatPreview />
 
       {/* ========================================================
           6. MAIN 2-COLUMN PORTAL SECTION
@@ -969,7 +1150,15 @@ export default function HomePage() {
                   return (
                     <button
                       key={z.name}
-                      onClick={() => setSelectedZodiac(z)}
+                      onClick={() => {
+                        setSelectedZodiac(z);
+                        trackEvent({
+                          eventType: 'tool_view',
+                          serviceName: `${z.name} (${z.sanskrit}) Rashifal`,
+                          serviceCategory: 'free_tool',
+                          metadata: { sign: z.name, sanskrit: z.sanskrit },
+                        });
+                      }}
                       className={`py-2 px-1 rounded-xl border text-center transition-all flex flex-col items-center justify-center ${
                         isSelected
                           ? 'bg-[#FFFBEB] border-2 border-[#F59E0B] text-[#92400E] shadow-sm scale-105 font-bold'
@@ -1062,6 +1251,14 @@ export default function HomePage() {
                     <Link
                       key={idx}
                       href={tool.link}
+                      onClick={() => {
+                        trackEvent({
+                          eventType: 'tool_view',
+                          serviceName: title,
+                          serviceCategory: 'free_tool',
+                          metadata: { path: tool.link },
+                        });
+                      }}
                       className="group bg-white p-5 rounded-2xl border border-[#EAE1D2] shadow-sm hover:shadow-md hover:border-[#F59E0B] hover:-translate-y-1 transition-all flex flex-col justify-between"
                     >
                       <div>
@@ -1083,6 +1280,124 @@ export default function HomePage() {
                         <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </div>
                     </Link>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* PERSONALIZED ASTROLOGY REPORT BOOKS SLIDESHOW (AstroTalk-Inspired) */}
+            <section className="bg-white p-6 sm:p-8 rounded-3xl border border-[#EAE1D2] shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 pb-4 border-b border-[#F5EFE6]">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#D97706] bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A]">
+                    {language === 'mr' ? 'वैयक्तिक जन्मकुंडली पुस्तके' : 'Detailed Birth Chart Reports'}
+                  </span>
+                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810] mt-2">
+                    {language === 'mr'
+                      ? 'तुमच्या जन्मकुंडलीवरून तयार केलेले सविस्तर, वैयक्तिक अहवाल व पुस्तके'
+                      : 'Detailed, personalised reports prepared from your birth chart.'}
+                  </h2>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => scrollBooksCarousel('left')}
+                    className="w-8 h-8 rounded-full border border-[#EAE1D2] flex items-center justify-center text-[#786C60] hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors cursor-pointer"
+                    aria-label="Previous Book"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => scrollBooksCarousel('right')}
+                    className="w-8 h-8 rounded-full border border-[#EAE1D2] flex items-center justify-center text-[#786C60] hover:text-[#D97706] hover:bg-[#FFF9EB] transition-colors cursor-pointer"
+                    aria-label="Next Book"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Horizontal Scrollable Books Carousel */}
+              <div
+                ref={booksCarouselRef}
+                className="flex gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1"
+              >
+                {ASTRO_REPORT_BOOKS.map((book) => {
+                  const bTitle = language === 'mr' ? book.titleMr : book.title;
+                  const bAuthor = language === 'mr' ? book.authorMr : book.author;
+                  return (
+                    <div
+                      key={book.id}
+                      className="min-w-[240px] sm:min-w-[270px] max-w-[270px] bg-[#FAF7F2] border border-[#EAE1D2] rounded-2xl p-4 flex flex-col justify-between hover:border-[#D97706] hover:shadow-lg transition-all group shrink-0"
+                    >
+                      {/* Hardcover Book Mockup Presentation */}
+                      <div className="relative mb-4">
+                        <div
+                          className={`aspect-[3/4] w-full rounded-xl ${book.theme} p-4 text-center flex flex-col justify-between shadow-md border-2 ${book.border} relative overflow-hidden group-hover:scale-[1.02] transition-transform`}
+                        >
+                          {/* Book Spine 3D Effect */}
+                          <div className="absolute left-0 top-0 bottom-0 w-3 bg-black/20 border-r border-white/20" />
+                          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/10" />
+
+                          <div className="pt-2">
+                            <span className="text-2xl block mb-1">{book.symbol}</span>
+                            <span
+                              className="text-[9px] uppercase tracking-widest font-bold block"
+                              style={{ color: book.accent }}
+                            >
+                              {book.deity}
+                            </span>
+                          </div>
+
+                          <div className="py-2">
+                            <h4
+                              className="font-serif text-base sm:text-lg font-extrabold tracking-wide leading-tight drop-shadow-xs"
+                              style={{ color: book.accent }}
+                            >
+                              {bTitle}
+                            </h4>
+                            <p className="text-[10px] text-white/80 mt-1 line-clamp-2">
+                              {language === 'mr' ? book.subtextMr : book.subtext}
+                            </p>
+                          </div>
+
+                          <div className="pb-1 border-t border-white/20 pt-2">
+                            <span className="text-[9px] text-white/90 font-medium block truncate">
+                              {bAuthor}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Details & Price Bottom Bar (Image 1 reference) */}
+                      <div className="space-y-3">
+                        <h4 className="font-serif text-sm font-bold text-[#2D1810] truncate">
+                          {bTitle}
+                        </h4>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-baseline space-x-1.5">
+                            <span className="font-serif text-base sm:text-lg font-bold text-[#B45309]">
+                              {formatCurrency(book.price)}
+                            </span>
+                            <span className="text-xs text-[#786C60]/60 line-through">
+                              {formatCurrency(book.originalPrice)}
+                            </span>
+                            <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              {book.discount}
+                            </span>
+                          </div>
+
+                          <Link
+                            href={book.href}
+                            className="w-9 h-9 rounded-full bg-[#FACC15] hover:bg-[#EAB308] flex items-center justify-center text-[#2D1810] font-bold shadow-xs hover:scale-110 active:scale-95 transition-all shrink-0"
+                            title={language === 'mr' ? 'अहवाल पहा' : 'View Report'}
+                          >
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   );
                 })}
               </div>

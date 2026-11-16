@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { api } from '@/lib/api';
 import { openRazorpayModal } from '@/lib/razorpay';
+import { getCurrentUser } from '@/lib/auth';
 import { useLanguage } from '@/context/LanguageContext';
 import { ShieldCheck, CreditCard, Sparkles, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 
@@ -40,15 +41,26 @@ export default function PaymentModal({
       const order = await api.createPaymentOrder(amount, serviceType, referenceId);
       setOrderData(order);
 
-      // Try opening official Razorpay checkout modal (amount must be in paise: ₹1 = 100 paise)
+      const currentUser = getCurrentUser();
+      const activeKey = order.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Sx9dDPssrGbVKO';
+
+      // Open official Razorpay checkout modal (amount must be in paise: ₹1 = 100 paise)
       try {
         await openRazorpayModal({
-          key: order.keyId,
+          key: activeKey,
           amount: Math.round(order.amount * 100),
           currency: order.currency || 'INR',
           name: language === 'mr' ? 'ज्योतिषवेदा सुरक्षित देयक' : 'JyotishVeda Astrology',
           description: serviceTitle,
           order_id: order.orderId,
+          prefill: {
+            name: currentUser?.username || 'Devotee',
+            email: currentUser?.email || 'devotee@jyotishveda.com',
+            contact: (currentUser as any)?.phone || '9876543210',
+          },
+          theme: {
+            color: '#D97706',
+          },
           handler: async (response) => {
             setStep('processing');
             try {
@@ -102,14 +114,25 @@ export default function PaymentModal({
   const handleReopenCheckout = async () => {
     if (!orderData) return;
     setErrorMsg('');
+    const currentUser = getCurrentUser();
+    const activeKey = orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Sx9dDPssrGbVKO';
+
     try {
       await openRazorpayModal({
-        key: orderData.keyId,
+        key: activeKey,
         amount: Math.round(orderData.amount * 100),
         currency: orderData.currency || 'INR',
         name: language === 'mr' ? 'ज्योतिषवेदा सुरक्षित देयक' : 'JyotishVeda Astrology',
         description: serviceTitle,
         order_id: orderData.orderId,
+        prefill: {
+          name: currentUser?.username || 'Devotee',
+          email: currentUser?.email || 'devotee@jyotishveda.com',
+          contact: (currentUser as any)?.phone || '9876543210',
+        },
+        theme: {
+          color: '#D97706',
+        },
         handler: async (response) => {
           setStep('processing');
           try {

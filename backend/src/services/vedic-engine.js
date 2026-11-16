@@ -304,14 +304,28 @@ function calculateKundli({
   timezoneOffsetHours = 5.5, // Default IST
   ayanamsaType = "Lahiri",
 }) {
-  const [yearStr, monthStr, dayStr] = dateOfBirth.split("-");
-  const [hourStr, minuteStr] = timeOfBirth.split(":");
+  // Parse date flexibly (supporting both YYYY-MM-DD and DD-MM-YYYY or / separators)
+  const dateParts = dateOfBirth.includes('/') ? dateOfBirth.split('/') : dateOfBirth.split('-');
+  let year, month, day;
+  if (dateParts[0] && dateParts[0].length === 4) {
+    // YYYY-MM-DD
+    year = parseInt(dateParts[0], 10);
+    month = parseInt(dateParts[1], 10);
+    day = parseInt(dateParts[2], 10);
+  } else if (dateParts[2] && dateParts[2].length === 4) {
+    // DD-MM-YYYY
+    day = parseInt(dateParts[0], 10);
+    month = parseInt(dateParts[1], 10);
+    year = parseInt(dateParts[2], 10);
+  } else {
+    year = parseInt(dateParts[0], 10);
+    month = parseInt(dateParts[1], 10);
+    day = parseInt(dateParts[2], 10);
+  }
 
-  const year = parseInt(yearStr, 10);
-  const month = parseInt(monthStr, 10);
-  const day = parseInt(dayStr, 10);
-  const localHour = parseInt(hourStr, 10);
-  const localMinute = parseInt(minuteStr, 10);
+  const [hourStr, minuteStr] = (timeOfBirth || '12:00').split(':');
+  const localHour = parseInt(hourStr, 10) || 0;
+  const localMinute = parseInt(minuteStr, 10) || 0;
 
   // Convert to UTC
   const totalLocalHours = localHour + localMinute / 60;
@@ -447,8 +461,18 @@ function calculateKundli({
     });
   }
 
-  const birthDateObj = new Date(`${dateOfBirth}T${timeOfBirth}:00Z`);
+  const normalizedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const normalizedTime = `${String(localHour).padStart(2, '0')}:${String(localMinute).padStart(2, '0')}`;
+  const birthDateObj = new Date(`${normalizedDate}T${normalizedTime}:00Z`);
   const dasha = calculateVimshottariDasha(moonSid, birthDateObj);
+
+  const panchang = calculatePanchang({
+    date: normalizedDate,
+    time: normalizedTime,
+    latitude,
+    longitude,
+    timezoneOffsetHours,
+  });
 
   return {
     meta: {
@@ -473,6 +497,7 @@ function calculateKundli({
       signSanskrit: ascendantDetails.signSanskrit,
       degreeFormatted: ascendantDetails.degreeFormatted,
       nakshatra: ascendantDetails.nakshatraName,
+      nakshatraLord: ascendantDetails.nakshatraLord || SIGN_LORDS[ascendantDetails.signNumber - 1],
       pada: ascendantDetails.nakshatraPada,
       navamsa: ascendantDetails.navamsa,
     },
@@ -495,6 +520,7 @@ function calculateKundli({
       pada: planets[0].nakshatraPada,
       navamsa: planets[0].navamsa,
     },
+    panchang,
     planets,
     houses,
     navamsaHouses,
@@ -502,79 +528,308 @@ function calculateKundli({
   };
 }
 
+// 27 Nakshatras Yoni & Gana & Nadi reference tables
+const NAKSHATRA_ATTRIBUTES = [
+  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi" },
+  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya" },
+  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya" },
+  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya" },
+  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya" },
+  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi" },
+  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi" },
+  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya" },
+  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya" },
+  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya" },
+  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya" },
+  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi" },
+  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi" },
+  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya" },
+  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya" },
+  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya" },
+  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya" },
+  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi" },
+  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi" },
+  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya" },
+  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya" },
+  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya" },
+  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya" },
+  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi" },
+  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi" },
+  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya" },
+  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya" },
+];
+
+const SIGN_LORDS = [
+  "Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury",
+  "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"
+];
+
+const SIGN_NAMES_ENG = [
+  "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+  "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+];
+
+const SIGN_NAMES_SAN = [
+  "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya",
+  "Tula", "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena"
+];
+
 /**
  * Vedic Ashta Kuta (Guna Milan) Kundli Matching Engine
  * 36 points total across 8 Kutas:
  * Varna (1), Vashya (2), Tara (3), Yoni (4), Graha Maitri (5), Gana (6), Bhakoot (7), Nadi (8)
  */
 function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
-  const boyNak = Math.floor(norm360(boyMoonDeg) / (360 / 27));
-  const girlNak = Math.floor(norm360(girlMoonDeg) / (360 / 27));
-  const boySign = Math.floor(norm360(boyMoonDeg) / 30);
-  const girlSign = Math.floor(norm360(girlMoonDeg) / 30);
+  const boyNakIdx = Math.min(26, Math.max(0, Math.floor(norm360(boyMoonDeg) / (360 / 27))));
+  const girlNakIdx = Math.min(26, Math.max(0, Math.floor(norm360(girlMoonDeg) / (360 / 27))));
+  const boySignIdx = Math.min(11, Math.max(0, Math.floor(norm360(boyMoonDeg) / 30)));
+  const girlSignIdx = Math.min(11, Math.max(0, Math.floor(norm360(girlMoonDeg) / 30)));
+
+  const boyNakAttr = NAKSHATRA_ATTRIBUTES[boyNakIdx];
+  const girlNakAttr = NAKSHATRA_ATTRIBUTES[girlNakIdx];
 
   // 1. Varna (Max 1 pt)
-  const boyVarna = boySign % 4;
-  const girlVarna = girlSign % 4;
-  const varnaScore = boyVarna >= girlVarna ? 1 : 0;
+  // Brahmin: Cancer(3), Scorpio(7), Pisces(11) -> 4
+  // Kshatriya: Aries(0), Leo(4), Sagittarius(8) -> 3
+  // Vaishya: Taurus(1), Virgo(5), Capricorn(9) -> 2
+  // Shudra: Gemini(2), Libra(6), Aquarius(10) -> 1
+  const getVarnaRank = (sIdx) => {
+    if ([3, 7, 11].includes(sIdx)) return { rank: 4, name: 'Brahmin' };
+    if ([0, 4, 8].includes(sIdx)) return { rank: 3, name: 'Kshatriya' };
+    if ([1, 5, 9].includes(sIdx)) return { rank: 2, name: 'Vaishya' };
+    return { rank: 1, name: 'Shudra' };
+  };
+  const boyVarna = getVarnaRank(boySignIdx);
+  const girlVarna = getVarnaRank(girlSignIdx);
+  const varnaScore = boyVarna.rank >= girlVarna.rank ? 1 : 0;
 
   // 2. Vashya (Max 2 pts)
+  // Chatushpada: Aries(0), Taurus(1), Cap 2nd half, Sag 2nd half
+  // Manava: Gemini(2), Virgo(5), Libra(6), Sag 1st(8), Aqu(10)
+  // Jalachara: Cancer(3), Pisces(11), Cap 2nd(9)
+  // Vanachara: Leo(4)
+  // Keeta: Scorpio(7)
   let vashyaScore = 1;
-  if (boySign === girlSign) vashyaScore = 2;
+  if (boySignIdx === girlSignIdx) vashyaScore = 2;
+  else if (([3, 11].includes(boySignIdx) && girlSignIdx === 7) || ([3, 11].includes(girlSignIdx) && boySignIdx === 7)) {
+    vashyaScore = 1; // Jalachara & Keeta
+  }
 
-  // 3. Tara (Max 3 pts)
-  const diffNak1 = (girlNak - boyNak + 27) % 9;
-  const diffNak2 = (boyNak - girlNak + 27) % 9;
+  // 3. Tara / Dina (Max 3 pts)
+  const diffNak1 = (girlNakIdx - boyNakIdx + 27) % 9;
+  const diffNak2 = (boyNakIdx - girlNakIdx + 27) % 9;
+  const isAuspiciousTara = (diff) => [1, 3, 5, 7].includes(diff);
   let taraScore = 0;
-  if (diffNak1 % 2 === 0 && diffNak2 % 2 === 0) taraScore = 3;
-  else if (diffNak1 % 2 === 0 || diffNak2 % 2 === 0) taraScore = 1.5;
+  if (isAuspiciousTara(diffNak1) && isAuspiciousTara(diffNak2)) taraScore = 3;
+  else if (isAuspiciousTara(diffNak1) || isAuspiciousTara(diffNak2)) taraScore = 1.5;
+  else taraScore = 1.5; // Neutral balance
 
   // 4. Yoni (Max 4 pts)
-  const yoniScore = (boyNak % 14 === girlNak % 14) ? 4 : 2;
+  const boyYoni = boyNakAttr.yoni;
+  const girlYoni = girlNakAttr.yoni;
+  let yoniScore = 2; // Neutral default
+  if (boyYoni === girlYoni) yoniScore = 4;
+  else {
+    const enemyYonis = [
+      ['Horse', 'Buffalo'], ['Elephant', 'Lion'], ['Sheep', 'Monkey'],
+      ['Serpent', 'Mongoose'], ['Dog', 'Deer'], ['Cat', 'Rat'], ['Cow', 'Tiger']
+    ];
+    const isEnemy = enemyYonis.some(([a, b]) => (boyYoni === a && girlYoni === b) || (boyYoni === b && girlYoni === a));
+    yoniScore = isEnemy ? 0 : 2;
+  }
 
   // 5. Graha Maitri (Max 5 pts)
-  const grahaScore = (boySign % 3 === girlSign % 3) ? 5 : 3;
+  const boyLord = SIGN_LORDS[boySignIdx];
+  const girlLord = SIGN_LORDS[girlSignIdx];
+  let grahaScore = 3; // Neutral baseline
+  if (boyLord === girlLord) {
+    grahaScore = 5;
+  } else {
+    const friendsMap = {
+      Sun: ['Moon', 'Mars', 'Jupiter'],
+      Moon: ['Sun', 'Mercury', 'Mars', 'Jupiter'],
+      Mars: ['Sun', 'Moon', 'Jupiter'],
+      Mercury: ['Sun', 'Venus'],
+      Jupiter: ['Sun', 'Moon', 'Mars'],
+      Venus: ['Mercury', 'Saturn'],
+      Saturn: ['Mercury', 'Venus']
+    };
+    const bFriends = friendsMap[boyLord] || [];
+    const gFriends = friendsMap[girlLord] || [];
+    const bLikesG = bFriends.includes(girlLord);
+    const gLikesB = gFriends.includes(boyLord);
 
-  // 6. Gana (Max 6 pts) - Deva, Manushya, Rakshasa
-  const boyGana = boyNak % 3;
-  const girlGana = girlNak % 3;
+    if (bLikesG && gLikesB) grahaScore = 5;
+    else if (bLikesG || gLikesB) grahaScore = 4;
+    else grahaScore = 1;
+  }
+
+  // 6. Gana (Max 6 pts)
+  const boyGana = boyNakAttr.gana;
+  const girlGana = girlNakAttr.gana;
   let ganaScore = 0;
   if (boyGana === girlGana) ganaScore = 6;
-  else if ((boyGana === 0 && girlGana === 1) || (boyGana === 1 && girlGana === 0)) ganaScore = 5;
-  else if (girlGana === 2 && boyGana !== 2) ganaScore = 0;
+  else if ((boyGana === 'Deva' && girlGana === 'Manushya') || (boyGana === 'Manushya' && girlGana === 'Deva')) ganaScore = 5;
+  else if (boyGana === 'Deva' && girlGana === 'Rakshasa') ganaScore = 1;
+  else if (boyGana === 'Manushya' && girlGana === 'Rakshasa') ganaScore = 0;
   else ganaScore = 1;
 
   // 7. Bhakoot (Max 7 pts)
-  const signDistance = Math.abs(boySign - girlSign) + 1;
+  const signDistance = Math.abs(boySignIdx - girlSignIdx) + 1;
   let bhakootScore = 7;
   if ([2, 12, 6, 8, 9, 5].includes(signDistance)) bhakootScore = 0;
 
-  // 8. Nadi (Max 8 pts) - Aadi, Madhya, Antya
-  const boyNadi = boyNak % 3;
-  const girlNadi = girlNak % 3;
+  // 8. Nadi (Max 8 pts)
+  const boyNadi = boyNakAttr.nadi;
+  const girlNadi = girlNakAttr.nadi;
   const nadiScore = boyNadi !== girlNadi ? 8 : 0;
 
   const totalPoints = varnaScore + vashyaScore + taraScore + yoniScore + grahaScore + ganaScore + bhakootScore + nadiScore;
 
   let recommendation = "Low Compatibility - Consultation Advised";
-  if (totalPoints >= 28) recommendation = "Excellent Compatibility (Uttama Milan)";
-  else if (totalPoints >= 18) recommendation = "Good Compatibility (Madhyama Milan - Approved)";
+  let matchStatus = "AVERAGE MATCH";
+  if (totalPoints >= 28) {
+    recommendation = "Excellent Compatibility (Uttama Milan)";
+    matchStatus = "EXCELLENT MATCH";
+  } else if (totalPoints >= 18) {
+    recommendation = "Good Compatibility (Madhyama Milan - Approved)";
+    matchStatus = "GOOD MATCH";
+  }
+
+  const kutasArray = [
+    {
+      id: 'varna',
+      name: 'Natural Refinement / Work (Varna)',
+      sanskrit: 'वर्ण',
+      shortName: 'Varna',
+      obtainedPoints: varnaScore,
+      maxPoints: 1,
+      boyValue: boyVarna.name,
+      girlValue: girlVarna.name,
+      description: 'Varna refers to the mental compatibility of the two persons involved. It holds nominal effect in the matters of marriage compatibility.',
+      analysis: varnaScore === 1
+        ? 'Auspicious mental and professional harmony. Both partners share mutual respect in spiritual and intellectual pursuits.'
+        : 'Slight difference in inherent work tendencies; mutual understanding advised.'
+    },
+    {
+      id: 'vashya',
+      name: 'Innate Dominance / Control (Vashya)',
+      sanskrit: 'वश्य',
+      shortName: 'Vashya',
+      obtainedPoints: vashyaScore,
+      maxPoints: 2,
+      boyValue: SIGN_NAMES_SAN[boySignIdx],
+      girlValue: SIGN_NAMES_SAN[girlSignIdx],
+      description: 'Vashya indicates the mutual attraction, power equation and degree of influence one partner has on the other.',
+      analysis: vashyaScore >= 1
+        ? 'Harmonious power balance and mutual affection with positive domestic understanding.'
+        : 'May require conscious effort to avoid dominant tendencies.'
+    },
+    {
+      id: 'tara',
+      name: 'Birth Star Alignment / Destiny (Tara / Dina)',
+      sanskrit: 'तारा',
+      shortName: 'Tara',
+      obtainedPoints: taraScore,
+      maxPoints: 3,
+      boyValue: boyNakAttr.name,
+      girlValue: girlNakAttr.name,
+      description: 'Tara represents health, well-being, and longevity compatibility between the bride and groom.',
+      analysis: taraScore >= 1.5
+        ? 'Benefic cosmic alignment supporting mutual health, longevity, and prosperity.'
+        : 'Neutral star influence; regular prayers and health awareness beneficial.'
+    },
+    {
+      id: 'yoni',
+      name: 'Animal Symbol / Intimacy (Yoni)',
+      sanskrit: 'योनि',
+      shortName: 'Yoni',
+      obtainedPoints: yoniScore,
+      maxPoints: 4,
+      boyValue: `${boyYoni} Yoni`,
+      girlValue: `${girlYoni} Yoni`,
+      description: 'Yoni measures sexual compatibility, physical attraction, and mutual biological affinity.',
+      analysis: yoniScore >= 2
+        ? 'Mutual physical harmony and affectionate romantic connection between partners.'
+        : 'May require patience and open communication for deeper physical bonding.'
+    },
+    {
+      id: 'grahaMaitri',
+      name: 'Planetary Friendship / Temperament (Graha Maitri)',
+      sanskrit: 'ग्रहमैत्री',
+      shortName: 'Graha Maitri',
+      obtainedPoints: grahaScore,
+      maxPoints: 5,
+      boyValue: `${boyLord} (${SIGN_NAMES_SAN[boySignIdx]})`,
+      girlValue: `${girlLord} (${SIGN_NAMES_SAN[girlSignIdx]})`,
+      description: 'Graha Maitri assesses psychological harmony, intellectual resonance, and friendship between the Moon sign lords.',
+      analysis: grahaScore >= 4
+        ? 'Excellent mutual friendship between rashi lords ensuring peace, deep trust, and affection.'
+        : 'Moderate planetary resonance; shared goals help maintain mental peace.'
+    },
+    {
+      id: 'gana',
+      name: 'Temperament / Disposition (Gana)',
+      sanskrit: 'गण',
+      shortName: 'Gana',
+      obtainedPoints: ganaScore,
+      maxPoints: 6,
+      boyValue: `${boyGana} Gana`,
+      girlValue: `${girlGana} Gana`,
+      description: 'Gana analyzes behavior, temperament, and spiritual attitude (Deva, Manushya, Rakshasa).',
+      analysis: ganaScore >= 5
+        ? 'High temperamental synergy with shared social and ethical outlooks.'
+        : 'Deva and Rakshasa disposition; mutual respect for individual perspectives required.'
+    },
+    {
+      id: 'bhakoot',
+      name: 'Emotional & Family Compatibility (Bhakoot / Rashi)',
+      sanskrit: 'भकूट',
+      shortName: 'Bhakoot',
+      obtainedPoints: bhakootScore,
+      maxPoints: 7,
+      boyValue: `${SIGN_NAMES_ENG[boySignIdx]} (${SIGN_NAMES_SAN[boySignIdx]})`,
+      girlValue: `${SIGN_NAMES_ENG[girlSignIdx]} (${SIGN_NAMES_SAN[girlSignIdx]})`,
+      description: 'Bhakoot evaluates overall emotional connection, financial prosperity, and marital longevity.',
+      analysis: bhakootScore === 7
+        ? 'Supreme emotional connection and family growth following the marriage.'
+        : 'Navam-Panchama axis; mitigated by benefic planetary friendship of Moon and Mars.'
+    },
+    {
+      id: 'nadi',
+      name: 'Physiological / Genetic Harmony (Nadi)',
+      sanskrit: 'नाडी',
+      shortName: 'Nadi',
+      obtainedPoints: nadiScore,
+      maxPoints: 8,
+      boyValue: `${boyNadi} Nadi`,
+      girlValue: `${girlNadi} Nadi`,
+      description: 'Nadi indicates genetic compatibility, nervous system harmony, and progeny prospects.',
+      analysis: nadiScore === 8
+        ? 'Flawless Nadi alignment (No Nadi Dosha). Outstanding physiological harmony and blessed progeny.'
+        : 'Nadi dosha indicated; traditional remedies and medical guidance recommended.'
+    },
+  ];
+
+  const kutasMap = {
+    varna: { points: varnaScore, max: 1 },
+    vashya: { points: vashyaScore, max: 2 },
+    tara: { points: taraScore, max: 3 },
+    yoni: { points: yoniScore, max: 4 },
+    grahaMaitri: { points: grahaScore, max: 5 },
+    gana: { points: ganaScore, max: 6 },
+    bhakoot: { points: bhakootScore, max: 7 },
+    nadi: { points: nadiScore, max: 8 },
+  };
 
   return {
-    kutas: {
-      varna: { points: varnaScore, max: 1 },
-      vashya: { points: vashyaScore, max: 2 },
-      tara: { points: taraScore, max: 3 },
-      yoni: { points: yoniScore, max: 4 },
-      grahaMaitri: { points: grahaScore, max: 5 },
-      gana: { points: ganaScore, max: 6 },
-      bhakoot: { points: bhakootScore, max: 7 },
-      nadi: { points: nadiScore, max: 8 },
-    },
+    kutas: kutasArray,
+    kutasMap,
     totalScore: Number(totalPoints.toFixed(1)),
     maxScore: 36,
     percentage: Number(((totalPoints / 36) * 100).toFixed(1)),
     recommendation,
+    matchStatus,
   };
 }
 
@@ -710,24 +965,50 @@ function calculatePanchang({ date, time = "06:00", latitude = 28.6139, longitude
     karanaName = MOVABLE_KARANAS[(karanaIndex - 1) % 7];
   }
 
-  // Sunrise/Sunset approximation
-  const dayOfYear = Math.floor((dateObj - new Date(year, 0, 0)) / 86400000);
-  const declination = 23.45 * Math.sin(toRad((360 / 365) * (dayOfYear - 81)));
-  const latRad = toRad(latitude);
-  const decRad = toRad(declination);
-  let hourAngle = toDeg(Math.acos(-Math.tan(latRad) * Math.tan(decRad)));
-  if (isNaN(hourAngle)) hourAngle = 90;
-  const solarNoonHours = 12.0 - (longitude - timezoneOffsetHours * 15) / 15;
-  const sunriseHours = solarNoonHours - hourAngle / 15;
-  const sunsetHours = solarNoonHours + hourAngle / 15;
+  // High-precision NOAA Sunrise/Sunset algorithm with Equation of Time & Atmospheric Refraction
+  const startOfYear = new Date(Date.UTC(year, 0, 0));
+  const dayOfYear = Math.floor((dateObj - startOfYear) / 86400000);
 
-  const fmtTime = (decHours) => {
-    let h = Math.floor(decHours);
-    let m = Math.round((decHours - h) * 60);
-    if (m === 60) { h += 1; m = 0; }
+  // Fractional year in radians
+  const gamma = (2 * Math.PI / 365) * (dayOfYear - 1);
+
+  // Equation of Time in minutes (accounts for Earth's orbital eccentricity and obliquity)
+  const eqtime = 229.18 * (0.000075 + 0.001868 * Math.cos(gamma) - 0.032077 * Math.sin(gamma)
+    - 0.014615 * Math.cos(2 * gamma) - 0.040849 * Math.sin(2 * gamma));
+
+  // Solar declination in radians
+  const decl = 0.006918 - 0.399912 * Math.cos(gamma) + 0.070257 * Math.sin(gamma)
+    - 0.006758 * Math.cos(2 * gamma) + 0.000907 * Math.sin(2 * gamma)
+    - 0.002697 * Math.cos(3 * gamma) + 0.00148 * Math.sin(3 * gamma);
+
+  const latRad = toRad(latitude);
+  // Standard astronomical zenith angle (90° 50' = 90.833° including 34' refraction + 16' solar semi-diameter)
+  const zenith = 90.833 * Math.PI / 180;
+
+  const cosHA = (Math.cos(zenith) - Math.sin(latRad) * Math.sin(decl)) / (Math.cos(latRad) * Math.cos(decl));
+  const haRad = Math.acos(Math.max(-1, Math.min(1, cosHA)));
+  const haDeg = toDeg(haRad);
+
+  // Solar noon in minutes from local midnight
+  const solarNoonMin = 720 - 4 * longitude - eqtime + timezoneOffsetHours * 60;
+  const sunriseMin = solarNoonMin - haDeg * 4;
+  const sunsetMin = solarNoonMin + haDeg * 4;
+
+  const fmtTime = (min) => {
+    const totalSec = Math.round(min * 60);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
     const period = h >= 12 ? "PM" : "AM";
     const h12 = h % 12 === 0 ? 12 : h % 12;
     return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${period}`;
+  };
+
+  const fmtTimeExact = (min) => {
+    const totalSec = Math.round(min * 60);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${h}:${m}:${s}`;
   };
 
   return {
@@ -763,8 +1044,10 @@ function calculatePanchang({ date, time = "06:00", latitude = 28.6139, longitude
       type: karanaType,
     },
     timings: {
-      sunrise: fmtTime(sunriseHours),
-      sunset: fmtTime(sunsetHours),
+      sunrise: fmtTime(sunriseMin),
+      sunset: fmtTime(sunsetMin),
+      sunriseExact: fmtTimeExact(sunriseMin),
+      sunsetExact: fmtTimeExact(sunsetMin),
       rahuKalam: vaara.rahuKalam,
       yamaganda: vaara.yamaganda,
       gulikaKalam: vaara.gulika,

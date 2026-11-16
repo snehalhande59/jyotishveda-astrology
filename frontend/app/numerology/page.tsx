@@ -7,8 +7,8 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function NumerologyPage() {
   const { language } = useLanguage();
-  const [fullName, setFullName] = useState('Aryavarta Sharma');
-  const [birthDate, setBirthDate] = useState('1995-08-15');
+  const [fullName, setFullName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [result, setResult] = useState<any>(null);
 
   const handleCalculate = (e: React.FormEvent) => {

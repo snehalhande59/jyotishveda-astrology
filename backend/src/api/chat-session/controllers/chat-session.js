@@ -563,6 +563,10 @@ module.exports = {
       },
     });
 
+    if (strapi.io) {
+      strapi.io.to(`session_${session.id}`).emit('new_message', userMsg);
+    }
+
     let astrologerReply = null;
     let newCount = session.messageCount + 1;
 
@@ -575,11 +579,21 @@ module.exports = {
           limit: 6,
         });
 
-        const aiResult = await callGeminiAstrology({
-          message: message.trim(),
-          chartSummary: session.birthChartSummary,
-          history: history.reverse(),
-        });
+        let aiResult;
+        if (strapi.service('api::ai.ai')) {
+          aiResult = await strapi.service('api::ai.ai').generateAstrologyGuidance({
+            message: message.trim(),
+            history: history.reverse(),
+            birthChart: session.birthChartSummary,
+            language: 'en',
+          });
+        } else {
+          aiResult = await callGeminiAstrology({
+            message: message.trim(),
+            chartSummary: session.birthChartSummary,
+            history: history.reverse(),
+          });
+        }
 
         if (aiResult.configured && aiResult.reply) {
           astrologerReply = await strapi.entityService.create('api::chat-message.chat-message', {
@@ -592,6 +606,9 @@ module.exports = {
             },
           });
           newCount += 1;
+          if (strapi.io) {
+            strapi.io.to(`session_${session.id}`).emit('new_message', astrologerReply);
+          }
         } else if (!aiResult.configured) {
           // Provide authentic configuration notice without faking
           astrologerReply = {
@@ -601,6 +618,9 @@ module.exports = {
             message: aiResult.message,
             timestamp: new Date().toISOString(),
           };
+          if (strapi.io) {
+            strapi.io.to(`session_${session.id}`).emit('new_message', astrologerReply);
+          }
         }
       } catch (aiErr) {
         console.warn('AI astrology generation notice:', aiErr.message);

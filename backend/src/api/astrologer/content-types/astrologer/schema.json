@@ -71,6 +71,16 @@
     "perMinuteRate": {
       "type": "decimal",
       "default": 25
+    },
+    "email": {
+      "type": "email"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
     }
   }
 }

@@ -1014,3 +1014,347 @@ export function calculateNameMatch(name1: string, name2: string) {
     explanation,
   };
 }
+
+// 21. FULL ASTROLOGICAL ASHTAKOOTA GUNA MILAN (36 GUNAS)
+const NAKSHATRA_ATTRIBUTES_LIST = [
+  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi" },
+  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya" },
+  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya" },
+  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya" },
+  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya" },
+  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi" },
+  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi" },
+  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya" },
+  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya" },
+  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya" },
+  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya" },
+  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi" },
+  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi" },
+  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya" },
+  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya" },
+  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya" },
+  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya" },
+  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi" },
+  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi" },
+  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya" },
+  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya" },
+  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya" },
+  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya" },
+  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi" },
+  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi" },
+  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya" },
+  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya" },
+];
+
+const SIGN_LORDS_LIST = [
+  "Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury",
+  "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"
+];
+
+const SIGN_SAN_LIST = [
+  "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya",
+  "Tula", "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena"
+];
+
+function norm360Deg(deg: number): number {
+  const v = deg % 360;
+  return v < 0 ? v + 360 : v;
+}
+
+function getSiderealMoonDeg(dob: string, tob: string): number {
+  const [year, month, day] = (dob || '2000-01-01').split('-').map(Number);
+  const [hour, min] = (tob || '12:00').split(':').map(Number);
+  const utHour = (hour || 12) + (min || 0) / 60 - 5.5;
+  let y = year || 2000;
+  let m = month || 1;
+  let d = (day || 1) + utHour / 24;
+  if (m <= 2) {
+    y -= 1;
+    m += 12;
+  }
+  const A = Math.floor(y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+  const T = (jd - 2451545.0) / 36525.0;
+
+  const ayanamsa = 23.85 + (T * 100 * 0.01397);
+
+  const Lprime = 218.3164477 + 481267.88123421 * T - 0.0015786 * T * T + (T * T * T) / 538841.0;
+  const D = 297.8501921 + 445267.1114034 * T - 0.0018819 * T * T;
+  const M = 357.5291092 + 35999.0502909 * T - 0.0001536 * T * T;
+  const Mprime = 134.9633964 + 477198.8675055 * T + 0.0087414 * T * T;
+  const sin = (degVal: number) => Math.sin((degVal * Math.PI) / 180);
+
+  const l = Lprime +
+    6.288774 * sin(Mprime) +
+    1.274027 * sin(2 * D - Mprime) +
+    0.658314 * sin(2 * D) +
+    0.213618 * sin(2 * Mprime) -
+    0.185116 * sin(M) -
+    0.114332 * sin(2 * D - M);
+
+  return norm360Deg(l - ayanamsa);
+}
+
+export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
+  const boyMoonDeg = getSiderealMoonDeg(boyBirth.dateOfBirth, boyBirth.timeOfBirth);
+  const girlMoonDeg = getSiderealMoonDeg(girlBirth.dateOfBirth, girlBirth.timeOfBirth);
+
+  const boyNakIdx = Math.min(26, Math.max(0, Math.floor(boyMoonDeg / (360 / 27))));
+  const girlNakIdx = Math.min(26, Math.max(0, Math.floor(girlMoonDeg / (360 / 27))));
+  const boySignIdx = Math.min(11, Math.max(0, Math.floor(boyMoonDeg / 30)));
+  const girlSignIdx = Math.min(11, Math.max(0, Math.floor(girlMoonDeg / 30)));
+
+  const boyNakAttr = NAKSHATRA_ATTRIBUTES_LIST[boyNakIdx];
+  const girlNakAttr = NAKSHATRA_ATTRIBUTES_LIST[girlNakIdx];
+
+  // 1. Varna (Max 1 pt)
+  const getVarnaRank = (sIdx: number) => {
+    if ([3, 7, 11].includes(sIdx)) return { rank: 4, name: 'Brahmin' };
+    if ([0, 4, 8].includes(sIdx)) return { rank: 3, name: 'Kshatriya' };
+    if ([1, 5, 9].includes(sIdx)) return { rank: 2, name: 'Vaishya' };
+    return { rank: 1, name: 'Shudra' };
+  };
+  const boyVarna = getVarnaRank(boySignIdx);
+  const girlVarna = getVarnaRank(girlSignIdx);
+  const varnaScore = boyVarna.rank >= girlVarna.rank ? 1 : 0;
+
+  // 2. Vashya (Max 2 pts)
+  let vashyaScore = 1;
+  if (boySignIdx === girlSignIdx) vashyaScore = 2;
+  else if (([3, 11].includes(boySignIdx) && girlSignIdx === 7) || ([3, 11].includes(girlSignIdx) && boySignIdx === 7)) {
+    vashyaScore = 1;
+  }
+
+  // 3. Tara / Dina (Max 3 pts)
+  const diffNak1 = (girlNakIdx - boyNakIdx + 27) % 9;
+  const diffNak2 = (boyNakIdx - girlNakIdx + 27) % 9;
+  const isAuspiciousTara = (diff: number) => [1, 3, 5, 7].includes(diff);
+  let taraScore = 1.5;
+  if (isAuspiciousTara(diffNak1) && isAuspiciousTara(diffNak2)) taraScore = 3;
+  else if (isAuspiciousTara(diffNak1) || isAuspiciousTara(diffNak2)) taraScore = 1.5;
+
+  // 4. Yoni (Max 4 pts)
+  const boyYoni = boyNakAttr.yoni;
+  const girlYoni = girlNakAttr.yoni;
+  let yoniScore = 2;
+  if (boyYoni === girlYoni) yoniScore = 4;
+  else {
+    const enemyYonis = [
+      ['Horse', 'Buffalo'], ['Elephant', 'Lion'], ['Sheep', 'Monkey'],
+      ['Serpent', 'Mongoose'], ['Dog', 'Deer'], ['Cat', 'Rat'], ['Cow', 'Tiger']
+    ];
+    const isEnemy = enemyYonis.some(([a, b]) => (boyYoni === a && girlYoni === b) || (boyYoni === b && girlYoni === a));
+    yoniScore = isEnemy ? 0 : 2;
+  }
+
+  // 5. Graha Maitri (Max 5 pts)
+  const boyLord = SIGN_LORDS_LIST[boySignIdx];
+  const girlLord = SIGN_LORDS_LIST[girlSignIdx];
+  let grahaScore = 3;
+  if (boyLord === girlLord) {
+    grahaScore = 5;
+  } else {
+    const friendsMap: Record<string, string[]> = {
+      Sun: ['Moon', 'Mars', 'Jupiter'],
+      Moon: ['Sun', 'Mercury', 'Mars', 'Jupiter'],
+      Mars: ['Sun', 'Moon', 'Jupiter'],
+      Mercury: ['Sun', 'Venus'],
+      Jupiter: ['Sun', 'Moon', 'Mars'],
+      Venus: ['Mercury', 'Saturn'],
+      Saturn: ['Mercury', 'Venus']
+    };
+    const bFriends = friendsMap[boyLord] || [];
+    const gFriends = friendsMap[girlLord] || [];
+    const bLikesG = bFriends.includes(girlLord);
+    const gLikesB = gFriends.includes(boyLord);
+
+    if (bLikesG && gLikesB) grahaScore = 5;
+    else if (bLikesG || gLikesB) grahaScore = 4;
+    else grahaScore = 1;
+  }
+
+  // 6. Gana (Max 6 pts)
+  const boyGana = boyNakAttr.gana;
+  const girlGana = girlNakAttr.gana;
+  let ganaScore = 0;
+  if (boyGana === girlGana) ganaScore = 6;
+  else if ((boyGana === 'Deva' && girlGana === 'Manushya') || (boyGana === 'Manushya' && girlGana === 'Deva')) ganaScore = 5;
+  else if (boyGana === 'Deva' && girlGana === 'Rakshasa') ganaScore = 1;
+  else if (boyGana === 'Manushya' && girlGana === 'Rakshasa') ganaScore = 0;
+  else ganaScore = 1;
+
+  // 7. Bhakoot (Max 7 pts)
+  const signDistance = Math.abs(boySignIdx - girlSignIdx) + 1;
+  let bhakootScore = 7;
+  if ([2, 12, 6, 8, 9, 5].includes(signDistance)) bhakootScore = 0;
+
+  // 8. Nadi (Max 8 pts)
+  const boyNadi = boyNakAttr.nadi;
+  const girlNadi = girlNakAttr.nadi;
+  const nadiScore = boyNadi !== girlNadi ? 8 : 0;
+
+  const totalPoints = varnaScore + vashyaScore + taraScore + yoniScore + grahaScore + ganaScore + bhakootScore + nadiScore;
+
+  let recommendation = "Low Compatibility - Astrologer Consultation Advised";
+  let matchStatus = "AVERAGE MATCH";
+  if (totalPoints >= 28) {
+    recommendation = "Excellent Compatibility (Uttama Milan - Highly Auspicious)";
+    matchStatus = "EXCELLENT MATCH";
+  } else if (totalPoints >= 18) {
+    recommendation = "Good Compatibility (Madhyama Milan - Approved for Marriage)";
+    matchStatus = "GOOD MATCH";
+  }
+
+  const kutasArray = [
+    {
+      id: 'varna',
+      name: 'Natural Refinement / Work (Varna)',
+      sanskrit: 'वर्ण',
+      shortName: 'Varna',
+      obtainedPoints: varnaScore,
+      maxPoints: 1,
+      boyValue: boyVarna.name,
+      girlValue: girlVarna.name,
+      description: 'Varna refers to the mental compatibility of the two persons involved. It holds nominal effect in the matters of marriage compatibility.',
+      analysis: varnaScore === 1
+        ? 'Auspicious mental and professional harmony. Both partners share mutual respect in spiritual and intellectual pursuits.'
+        : 'Slight difference in inherent work tendencies; mutual understanding advised.'
+    },
+    {
+      id: 'vashya',
+      name: 'Innate Dominance / Control (Vashya)',
+      sanskrit: 'वश्य',
+      shortName: 'Vashya',
+      obtainedPoints: vashyaScore,
+      maxPoints: 2,
+      boyValue: SIGN_SAN_LIST[boySignIdx],
+      girlValue: SIGN_SAN_LIST[girlSignIdx],
+      description: 'Vashya indicates the mutual attraction, power equation and degree of influence one partner has on the other.',
+      analysis: vashyaScore >= 1
+        ? 'Harmonious power balance and mutual affection with positive domestic understanding.'
+        : 'May require conscious effort to avoid dominant tendencies.'
+    },
+    {
+      id: 'tara',
+      name: 'Birth Star Alignment / Destiny (Tara / Dina)',
+      sanskrit: 'तारा',
+      shortName: 'Tara',
+      obtainedPoints: taraScore,
+      maxPoints: 3,
+      boyValue: boyNakAttr.name,
+      girlValue: girlNakAttr.name,
+      description: 'Tara represents health, well-being, and longevity compatibility between the bride and groom.',
+      analysis: taraScore >= 1.5
+        ? 'Benefic cosmic alignment supporting mutual health, longevity, and prosperity.'
+        : 'Neutral star influence; regular prayers and health awareness beneficial.'
+    },
+    {
+      id: 'yoni',
+      name: 'Physical & Biological Harmony (Yoni)',
+      sanskrit: 'योनि',
+      shortName: 'Yoni',
+      obtainedPoints: yoniScore,
+      maxPoints: 4,
+      boyValue: boyYoni,
+      girlValue: girlYoni,
+      description: 'Yoni kula reflects biological compatibility, intimacy levels and physical attraction of the couple.',
+      analysis: yoniScore >= 2
+        ? 'Comfortable biological affinity with mutual affection and natural compatibility.'
+        : 'Differing temperaments; mutual patience and intimacy communication suggested.'
+    },
+    {
+      id: 'grahaMaitri',
+      name: 'Mental Friendship & Bonding (Graha Maitri)',
+      sanskrit: 'ग्रह मैत्री',
+      shortName: 'Graha Maitri',
+      obtainedPoints: grahaScore,
+      maxPoints: 5,
+      boyValue: `${SIGN_SAN_LIST[boySignIdx]} (${boyLord})`,
+      girlValue: `${SIGN_SAN_LIST[girlSignIdx]} (${girlLord})`,
+      description: 'Graha Maitri analyzes mental outlook, friendship, and intellectual companionship between Moon lords.',
+      analysis: grahaScore >= 4
+        ? 'Strong mental rapport and genuine friendship. The couple easily resolve misunderstandings through conversation.'
+        : 'Differing thinking patterns; mutual listening and respect will strengthen the bond.'
+    },
+    {
+      id: 'gana',
+      name: 'Temperament / Behavior (Gana)',
+      sanskrit: 'गण',
+      shortName: 'Gana',
+      obtainedPoints: ganaScore,
+      maxPoints: 6,
+      boyValue: boyGana,
+      girlValue: girlGana,
+      description: 'Gana relates to the behavioral temperaments (Deva, Manushya, Rakshasa) and social outlook of the partners.',
+      analysis: ganaScore >= 5
+        ? 'Excellent temperament alignment. Mutual lifestyles, habits, and priorities resonate naturally.'
+        : 'Complementary temperaments; giving personal space brings long-term peace.'
+    },
+    {
+      id: 'bhakoot',
+      name: 'Love & Family Prosperity (Bhakoot)',
+      sanskrit: 'भकूट',
+      shortName: 'Bhakoot',
+      obtainedPoints: bhakootScore,
+      maxPoints: 7,
+      boyValue: SIGN_SAN_LIST[boySignIdx],
+      girlValue: SIGN_SAN_LIST[girlSignIdx],
+      description: 'Bhakoot governs marital bliss, financial growth, emotional longevity, and family prosperity.',
+      analysis: bhakootScore === 7
+        ? 'Strong Bhakoot compatibility promotes family prosperity, joint wealth accumulation, and emotional joy.'
+        : 'Bhakoot dosha mitigated through Graha Maitri and sincere Vedic remedy rituals.'
+    },
+    {
+      id: 'nadi',
+      name: 'Health, Genetics & Lineage (Nadi)',
+      sanskrit: 'नाडी',
+      shortName: 'Nadi',
+      obtainedPoints: nadiScore,
+      maxPoints: 8,
+      boyValue: boyNadi,
+      girlValue: girlNadi,
+      description: 'Nadi is the single most vital kuta (8 points), indicating physiological and genetic compatibility for healthy progeny.',
+      analysis: nadiScore === 8
+        ? 'No Nadi Dosha detected. Auspicious genetic compatibility for healthy lineage and vibrant well-being.'
+        : 'Same Nadi identified. Consultation with our verified astrologers recommended for Vedic Shanti.'
+    }
+  ];
+
+  return {
+    boyChart: {
+      fullName: boyBirth.fullName || 'Boy',
+      dateOfBirth: boyBirth.dateOfBirth,
+      timeOfBirth: boyBirth.timeOfBirth || '12:00',
+      placeOfBirth: boyBirth.placeOfBirth || 'Mumbai, Maharashtra, India',
+      moonSign: {
+        signNumber: boySignIdx + 1,
+        signName: ZODIAC_SIGNS[boySignIdx].name,
+        signSanskrit: SIGN_SAN_LIST[boySignIdx],
+        nakshatra: boyNakAttr.name,
+        degreeFormatted: `${(boyMoonDeg % 30).toFixed(1)}°`,
+      }
+    },
+    girlChart: {
+      fullName: girlBirth.fullName || 'Girl',
+      dateOfBirth: girlBirth.dateOfBirth,
+      timeOfBirth: girlBirth.timeOfBirth || '12:00',
+      placeOfBirth: girlBirth.placeOfBirth || 'Pune, Maharashtra, India',
+      moonSign: {
+        signNumber: girlSignIdx + 1,
+        signName: ZODIAC_SIGNS[girlSignIdx].name,
+        signSanskrit: SIGN_SAN_LIST[girlSignIdx],
+        nakshatra: girlNakAttr.name,
+        degreeFormatted: `${(girlMoonDeg % 30).toFixed(1)}°`,
+      }
+    },
+    gunaMilan: {
+      totalScore: totalPoints,
+      maxScore: 36,
+      matchStatus,
+      recommendation,
+      kutas: kutasArray,
+    }
+  };
+}
+

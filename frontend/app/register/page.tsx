@@ -147,7 +147,7 @@ function RegisterContent() {
           </div>
 
           <a
-            href={getGoogleAuthUrl()}
+            href={getGoogleAuthUrl(redirectUrl)}
             className="w-full py-3 px-4 bg-[#FAF7F2] hover:bg-[#FFFDF9] border border-[#EAE1D2] hover:border-[#D97706] rounded-xl text-xs font-bold text-[#2D1810] flex items-center justify-center space-x-2.5 transition-all shadow-2xs"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">

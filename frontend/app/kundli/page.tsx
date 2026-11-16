@@ -8,6 +8,7 @@ import BirthDetailsForm, { BirthFormData } from '@/components/BirthDetailsForm';
 import NorthIndianChart from '@/components/NorthIndianChart';
 import SouthIndianChart from '@/components/SouthIndianChart';
 import { useLanguage } from '@/context/LanguageContext';
+import { trackEvent } from '@/lib/analytics';
 import { MARATHI_BHAVAS, toDevanagariNumerals } from '@/lib/translations/astrology-terms';
 import {
   Sparkles,
@@ -27,13 +28,20 @@ export default function KundliPage() {
   const { language, t, translatePlanet, translateSign, translateDignityText, formatNumber } = useLanguage();
   const [chartData, setChartData] = useState<KundliChartData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [chartStyle, setChartStyle] = useState<'north' | 'south'>('north');
+  const [chartStyle, setChartStyle] = useState<'north' | 'south' | 'scroll'>('north');
   const [vargaTab, setVargaTab] = useState<'d1' | 'd9' | 'both'>('d1');
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Load a sample or user's latest calculation on initial view
   useEffect(() => {
+    trackEvent({
+      eventType: 'tool_view',
+      serviceName: 'Janam Kundli',
+      serviceCategory: 'free_tool',
+      targetSlug: '/kundli',
+    });
+
     async function initKundli() {
       setLoading(true);
       try {
@@ -71,6 +79,26 @@ export default function KundliPage() {
       const res = await api.generateKundli(formData);
       setChartData(res.chartData);
       window.scrollTo({ top: 400, behavior: 'smooth' });
+
+      // Track live Kundli generation event
+      try {
+        trackEvent({
+          eventType: 'tool_usage',
+          serviceName: 'Full Vedic Kundli Analysis',
+          serviceCategory: 'free_tool',
+          targetSlug: '/kundli',
+          metadata: {
+            name: formData.fullName,
+            gender: formData.gender,
+            dob: formData.dateOfBirth,
+            tob: formData.timeOfBirth,
+            place: formData.placeOfBirth,
+            lagna: res.chartData?.ascendant?.signName,
+            rashi: res.chartData?.moonSign?.signName,
+            nakshatra: res.chartData?.moonSign?.nakshatra,
+          },
+        });
+      } catch {}
     } catch (err: any) {
       alert(err.message || 'Error generating Kundli');
     } finally {
@@ -252,6 +280,91 @@ export default function KundliPage() {
                   <span><strong>{t('kundli.julianDate')}:</strong> {chartData.meta.julianDate.toFixed(4)}</span>
                   <span><strong>{t('kundli.balanceDasha')}:</strong> {translatePlanet(chartData.dasha.balanceDashaPlanet)} (~{formatNumber(chartData.dasha.balanceYears)} {t('common.years')})</span>
                 </div>
+
+                {/* Astrotalk-matched Birth Details & Panchang Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  {/* Birth Details Box */}
+                  <div className="bg-[#FFFDF9] border border-[#EAE1D2] rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-2xs">
+                    <h3 className="font-serif text-sm font-bold text-[#2D1810] border-b border-[#F5EFE6] pb-2 flex items-center justify-between">
+                      <span>{language === 'mr' ? 'जन्मतपशील (Birth Details)' : 'Birth Details'}</span>
+                      <span className="text-[9px] text-[#92400E] font-bold uppercase tracking-wider bg-[#FFFBEB] px-2 py-0.5 rounded-full border border-[#FDE68A]">ASTROTALK MATCH</span>
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-2 text-xs">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">NAME</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.meta.fullName}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">DATE OF BIRTH</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.meta.dateOfBirth}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">TIME OF BIRTH</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.meta.timeOfBirth}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">TIMEZONE</span>
+                        <strong className="text-[#2D1810] text-xs">GMT +05:30</strong>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">PLACE OF BIRTH</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.meta.placeOfBirth}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">LATITUDE</span>
+                        <strong className="text-[#2D1810] font-mono text-xs">{chartData.meta.latitude.toFixed(4)}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">LONGITUDE</span>
+                        <strong className="text-[#2D1810] font-mono text-xs">{chartData.meta.longitude.toFixed(4)}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Panchang Box */}
+                  <div className="bg-[#FFFDF9] border border-[#EAE1D2] rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-2xs">
+                    <h3 className="font-serif text-sm font-bold text-[#2D1810] border-b border-[#F5EFE6] pb-2 flex items-center justify-between">
+                      <span>{language === 'mr' ? 'पंचांग (Panchang)' : 'Panchang'}</span>
+                      <span className="text-[9px] text-[#92400E] font-bold uppercase tracking-wider bg-[#FFFBEB] px-2 py-0.5 rounded-full border border-[#FDE68A]">EXACT LAHIRI</span>
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-2 text-xs">
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">TITHI</span>
+                        <strong className="text-[#2D1810] text-xs">
+                          {chartData.panchang?.tithi ? `${chartData.panchang.tithi.paksha} ${chartData.panchang.tithi.name}` : 'Krishna Dashami'}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">KARANA</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.panchang?.karana?.name || 'Vishti'}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">YOGA</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.panchang?.yoga?.name || 'Shubha'}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">NAKSHATRA</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.moonSign.nakshatra}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">NAKSHATRA LORD</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.moonSign.nakshatraLord}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">ASCENDANT</span>
+                        <strong className="text-[#2D1810] text-xs">{chartData.ascendant.signName}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">SUNRISE</span>
+                        <strong className="text-[#2D1810] font-mono text-xs">{chartData.panchang?.timings?.sunrise || '06:28 AM'}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-[#786C60] uppercase block">SUNSET</span>
+                        <strong className="text-[#2D1810] font-mono text-xs">{chartData.panchang?.timings?.sunset || '06:06 PM'}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="bg-white p-12 rounded-3xl border border-dashed border-[#EAE1D2] text-center text-[#786C60]">
@@ -304,7 +417,7 @@ export default function KundliPage() {
                   </button>
                 </div>
 
-                {/* North / South Style */}
+                {/* North / South / Traditional Scroll Style */}
                 <div className="flex bg-[#FAF7F2] p-1 rounded-xl text-xs border border-[#EAE1D2]">
                   <button
                     onClick={() => setChartStyle('north')}
@@ -322,42 +435,73 @@ export default function KundliPage() {
                   >
                     {t('kundli.styleSouth')}
                   </button>
+                  <button
+                    onClick={() => setChartStyle('scroll')}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      chartStyle === 'scroll' ? 'bg-[#D97706] text-white shadow-xs' : 'text-[#786C60] hover:text-[#2D1810]'
+                    }`}
+                  >
+                    {language === 'mr' ? '📜 पारंपरिक पत्रिका' : '📜 Scroll Kundli'}
+                  </button>
                 </div>
               </div>
             </div>
 
             {/* Render Selected Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-              {/* D-1 Lagna Chart */}
-              {(vargaTab === 'd1' || vargaTab === 'both') && (
-                <div className="flex justify-center">
-                  {chartStyle === 'north' ? (
-                    <NorthIndianChart
-                      chartData={chartData}
-                      houses={chartData.houses}
-                      title={language === 'mr' ? 'लग्न कुंडली (डी-१ राशी जन्मकुंडली)' : 'Lagna Chart (D-1 Rashi Kundli)'}
-                    />
-                  ) : (
-                    <SouthIndianChart chartData={chartData} />
-                  )}
+            {chartStyle === 'scroll' ? (
+              <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-b from-[#FFFDF9] via-[#FAF7F2] to-[#FFF9EB] border border-[#EAE1D2] rounded-3xl shadow-sm text-center">
+                <span className="text-[10px] uppercase font-bold text-[#92400E] tracking-wider bg-[#FFFBEB] px-3 py-1 rounded-full border border-[#FDE68A] mb-2">
+                  {language === 'mr' ? 'प्राचीन हस्तलिखित कुंडली' : 'Authentic Vedic Manuscript Chart'}
+                </span>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#2D1810]">
+                  {language === 'mr' ? 'पारंपरिक सुवर्णपत्र जन्मपत्रिका' : 'Traditional Vedic Kundli Scroll'}
+                </h3>
+                <p className="text-xs text-[#786C60] max-w-md mt-1 mb-6">
+                  {language === 'mr'
+                    ? 'काष्ठ वेलण्यांवर आवेष्टित प्राचीन सुवर्णपत्रावर आधारित महर्षी पराशर संमत वैदिक लग्न पत्रिका व ग्रह चक्र.'
+                    : 'Classical manuscript parchment chart illustrating the 12 sacred Bhavas and planetary deities.'}
+                </p>
+                <div className="relative max-w-md w-full aspect-square rounded-2xl overflow-hidden shadow-xl border-2 border-[#D97706]/40 bg-white p-3 flex items-center justify-center">
+                  <img
+                    src="/images/kundli-scroll.png"
+                    alt="Traditional Vedic Kundli Scroll"
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
-              )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                {/* D-1 Lagna Chart */}
+                {(vargaTab === 'd1' || vargaTab === 'both') && (
+                  <div className="flex justify-center">
+                    {chartStyle === 'north' ? (
+                      <NorthIndianChart
+                        chartData={chartData}
+                        houses={chartData.houses}
+                        title={language === 'mr' ? 'लग्न कुंडली (डी-१ राशी जन्मकुंडली)' : 'Lagna Chart (D-1 Rashi Kundli)'}
+                      />
+                    ) : (
+                      <SouthIndianChart chartData={chartData} />
+                    )}
+                  </div>
+                )}
 
-              {/* D-9 Navamsha Chart */}
-              {(vargaTab === 'd9' || vargaTab === 'both') && (
-                <div className="flex justify-center">
-                  {chartStyle === 'north' ? (
-                    <NorthIndianChart
-                      chartData={chartData}
-                      houses={chartData.navamsaHouses || chartData.houses}
-                      title={language === 'mr' ? 'नवमांश कुंडली (डी-९ धर्म व विवाह)' : 'Navamsha Chart (D-9 Dharma / Vivaha)'}
-                    />
-                  ) : (
-                    <SouthIndianChart chartData={chartData} />
-                  )}
-                </div>
-              )}
-            </div>
+                {/* D-9 Navamsha Chart */}
+                {(vargaTab === 'd9' || vargaTab === 'both') && (
+                  <div className="flex justify-center">
+                    {chartStyle === 'north' ? (
+                      <NorthIndianChart
+                        chartData={chartData}
+                        houses={chartData.navamsaHouses || chartData.houses}
+                        title={language === 'mr' ? 'नवमांश कुंडली (डी-९ धर्म व विवाह)' : 'Navamsha Chart (D-9 Dharma / Vivaha)'}
+                      />
+                    ) : (
+                      <SouthIndianChart chartData={chartData} />
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

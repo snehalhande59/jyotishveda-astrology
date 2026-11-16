@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "support_tickets",
+  "info": {
+    "singularName": "support-ticket",
+    "pluralName": "support-tickets",
+    "displayName": "Support Ticket",
+    "description": "Customer Support Tickets & Query Resolution"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "ticketNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "customerName": {
+      "type": "string",
+      "required": true
+    },
+    "customerEmail": {
+      "type": "email",
+      "required": true
+    },
+    "customerPhone": {
+      "type": "string"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["booking_issue", "payment_issue", "report_query", "astrologer_query", "technical", "other"],
+      "default": "booking_issue"
+    },
+    "priority": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high", "urgent"],
+      "default": "medium"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["open", "in_progress", "pending", "resolved", "closed"],
+      "default": "open"
+    },
+    "subject": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "assignedStaff": {
+      "type": "string",
+      "default": "Unassigned"
+    },
+    "internalNotes": {
+      "type": "text"
+    },
+    "replies": {
+      "type": "json"
+    }
+  }
+}
