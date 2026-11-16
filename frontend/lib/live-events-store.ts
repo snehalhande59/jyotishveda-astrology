@@ -1,4 +1,5 @@
-// In-memory live events buffer for real-time telemetry across Next.js API routes
+// Real-time live events & bookings store for authentic platform telemetry
+// Exclusively reflects REAL user interactions and bookings from the platform
 
 export interface LiveEventItem {
   id: string;
@@ -12,8 +13,27 @@ export interface LiveEventItem {
   metadata?: Record<string, any>;
 }
 
+export interface LiveBookingItem {
+  id: string | number;
+  bookingNumber: string;
+  clientName: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  astrologerId?: string | number;
+  astrologerName: string;
+  date: string;
+  timeSlot: string;
+  topic?: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  fee: number;
+  paymentStatus: 'pending' | 'captured' | 'failed';
+  meetingLink?: string;
+  createdAt: string;
+}
+
 declare global {
   var __astroveda_live_events: LiveEventItem[] | undefined;
+  var __astroveda_live_bookings: LiveBookingItem[] | undefined;
   var __astroveda_event_stats: {
     totalEvents: number;
     totalSearches: number;
@@ -24,80 +44,23 @@ declare global {
   } | undefined;
 }
 
+// Start with 100% clean, authentic data (no fake/demo seeds)
 if (!global.__astroveda_live_events) {
-  global.__astroveda_live_events = [
-    {
-      id: 'evt_init_1',
-      eventType: 'tool_usage',
-      serviceName: 'Janam Kundli Calculator',
-      serviceCategory: 'free_tool',
-      userIdentifier: 'Devotee (Pune)',
-      isGuest: false,
-      timestamp: new Date(Date.now() - 35000).toISOString(),
-      location: 'Pune, Maharashtra',
-      metadata: { lagna: 'Taurus', moonRashi: 'Taurus', nakshatra: 'Rohini' },
-    },
-    {
-      id: 'evt_init_2',
-      eventType: 'tool_usage',
-      serviceName: 'Ashtakoot Kundli Matching',
-      serviceCategory: 'free_tool',
-      userIdentifier: 'Priyanka Sharma & Rahul Verma',
-      isGuest: true,
-      timestamp: new Date(Date.now() - 95000).toISOString(),
-      location: 'Mumbai, Maharashtra',
-      metadata: { gunaScore: '28/36', compatibility: 'Auspicious' },
-    },
-    {
-      id: 'evt_init_3',
-      eventType: 'search',
-      serviceName: 'Keyword Search',
-      serviceCategory: 'search',
-      userIdentifier: 'Guest Devotee (Nashik)',
-      isGuest: true,
-      timestamp: new Date(Date.now() - 160000).toISOString(),
-      location: 'Nashik, Maharashtra',
-      metadata: { keyword: 'Shubh Vivah Muhurat 2026' },
-    },
-    {
-      id: 'evt_init_4',
-      eventType: 'astrologer_view',
-      serviceName: 'Acharya Devendra Shastri',
-      serviceCategory: 'astrologer',
-      userIdentifier: 'Anita Patil',
-      isGuest: false,
-      timestamp: new Date(Date.now() - 240000).toISOString(),
-      location: 'Nagpur, Maharashtra',
-      metadata: { specialty: 'Vedic Kundli & Vastu' },
-    },
-  ];
+  global.__astroveda_live_events = [];
+}
+
+if (!global.__astroveda_live_bookings) {
+  global.__astroveda_live_bookings = [];
 }
 
 if (!global.__astroveda_event_stats) {
   global.__astroveda_event_stats = {
-    totalEvents: 184,
-    totalSearches: 52,
-    totalKundlis: 68,
-    toolCounts: {
-      'Janam Kundli': 68,
-      'Kundli Milan (Compatibility)': 44,
-      'Daily Vedic Panchang': 32,
-      'Numerology Calculator': 22,
-      'Kaal Sarp Dosha Check': 18,
-    },
-    keywordCounts: {
-      'kundli matching': 28,
-      'janam kundli': 24,
-      'shani sade sati': 16,
-      'career report': 12,
-      'panchang today': 9,
-    },
-    astrologerViews: {
-      'Acharya Devendra Shastri': 48,
-      'Dr. Radhika Joshi': 38,
-      'Pandit Suresh Kulkarni': 31,
-      'Astro Heena': 25,
-    },
+    totalEvents: 0,
+    totalSearches: 0,
+    totalKundlis: 0,
+    toolCounts: {},
+    keywordCounts: {},
+    astrologerViews: {},
   };
 }
 
@@ -129,33 +92,122 @@ export function recordLiveEvent(payload: Partial<LiveEventItem> & { metadata?: a
     metadata: payload.metadata || {},
   };
 
-  // Prepend to array, keep latest 150 events
+  // Prepend to array, keep latest 200 events
   store.unshift(newEvent);
-  if (store.length > 150) {
+  if (store.length > 200) {
     store.pop();
   }
 
-  // Update stats
+  // Update real counters
   stats.totalEvents += 1;
 
   if (newEvent.eventType === 'search' || newEvent.serviceCategory === 'search') {
     stats.totalSearches += 1;
-    const kw = (payload.metadata?.keyword || newEvent.serviceName || 'astrology').toLowerCase();
-    stats.keywordCounts[kw] = (stats.keywordCounts[kw] || 0) + 1;
+    const kw = (payload.metadata?.keyword || newEvent.serviceName || 'astrology').toLowerCase().trim();
+    if (kw) {
+      stats.keywordCounts[kw] = (stats.keywordCounts[kw] || 0) + 1;
+    }
   }
 
-  if (newEvent.serviceName.includes('Kundli') || newEvent.serviceCategory === 'free_tool') {
+  if (
+    newEvent.serviceName.includes('Kundli') ||
+    newEvent.serviceCategory === 'free_tool' ||
+    newEvent.eventType === 'tool_usage'
+  ) {
     stats.totalKundlis += 1;
     const toolKey = newEvent.serviceName;
-    stats.toolCounts[toolKey] = (stats.toolCounts[toolKey] || 0) + 1;
+    if (toolKey) {
+      stats.toolCounts[toolKey] = (stats.toolCounts[toolKey] || 0) + 1;
+    }
   }
 
   if (newEvent.eventType === 'astrologer_view' || newEvent.serviceCategory === 'astrologer') {
     const astroName = newEvent.serviceName;
-    stats.astrologerViews[astroName] = (stats.astrologerViews[astroName] || 0) + 1;
+    if (astroName) {
+      stats.astrologerViews[astroName] = (stats.astrologerViews[astroName] || 0) + 1;
+    }
+  }
+
+  // If this event is a booking creation or confirmation, sync into bookings store
+  if (newEvent.eventType === 'booking_created' || newEvent.eventType === 'booking_confirmed') {
+    const meta = payload.metadata || {};
+    recordRealBooking({
+      bookingNumber: meta.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`,
+      clientName: name,
+      clientEmail: meta.clientEmail || meta.email,
+      clientPhone: meta.clientPhone || meta.phone,
+      astrologerId: meta.astrologerId,
+      astrologerName: meta.astrologerName || newEvent.serviceName,
+      date: meta.date || new Date().toISOString().split('T')[0],
+      timeSlot: meta.timeSlot || 'Scheduled',
+      topic: meta.topic || 'Vedic Consultation',
+      status: newEvent.eventType === 'booking_confirmed' ? 'confirmed' : 'pending',
+      fee: Number(meta.fee || meta.amount) || 999,
+      paymentStatus: newEvent.eventType === 'booking_confirmed' ? 'captured' : 'pending',
+      meetingLink: meta.meetingLink || 'https://meet.google.com/vedic-session',
+    });
   }
 
   return newEvent;
+}
+
+export function recordRealBooking(booking: Partial<LiveBookingItem>): LiveBookingItem {
+  const bookings = global.__astroveda_live_bookings!;
+  const newBooking: LiveBookingItem = {
+    id: booking.id || Date.now(),
+    bookingNumber: booking.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`,
+    clientName: booking.clientName || 'Devotee Client',
+    clientEmail: booking.clientEmail,
+    clientPhone: booking.clientPhone,
+    astrologerId: booking.astrologerId,
+    astrologerName: booking.astrologerName || 'Vedic Astrologer',
+    date: booking.date || new Date().toISOString().split('T')[0],
+    timeSlot: booking.timeSlot || '11:00 AM',
+    topic: booking.topic || 'Vedic Kundli Consultation',
+    status: booking.status || 'pending',
+    fee: Number(booking.fee) || 999,
+    paymentStatus: booking.paymentStatus || 'pending',
+    meetingLink: booking.meetingLink || 'https://meet.google.com/vedic-session',
+    createdAt: new Date().toISOString(),
+  };
+
+  // Check if booking already exists
+  const existingIdx = bookings.findIndex((b) => b.bookingNumber === newBooking.bookingNumber);
+  if (existingIdx >= 0) {
+    bookings[existingIdx] = { ...bookings[existingIdx], ...newBooking };
+    return bookings[existingIdx];
+  } else {
+    bookings.unshift(newBooking);
+    return newBooking;
+  }
+}
+
+export function getRealBookings(filters: { status?: string; search?: string } = {}): LiveBookingItem[] {
+  let list = global.__astroveda_live_bookings || [];
+  if (filters.status && filters.status !== 'all') {
+    list = list.filter((b) => b.status === filters.status);
+  }
+  if (filters.search && filters.search.trim()) {
+    const q = filters.search.toLowerCase();
+    list = list.filter(
+      (b) =>
+        b.clientName.toLowerCase().includes(q) ||
+        b.astrologerName.toLowerCase().includes(q) ||
+        b.bookingNumber.toLowerCase().includes(q) ||
+        (b.topic && b.topic.toLowerCase().includes(q))
+    );
+  }
+  return list;
+}
+
+export function updateRealBookingStatus(id: string | number, update: Partial<LiveBookingItem>): boolean {
+  const bookings = global.__astroveda_live_bookings || [];
+  const found = bookings.find((b) => String(b.id) === String(id) || b.bookingNumber === String(id));
+  if (found) {
+    Object.assign(found, update);
+    return true;
+  }
+  return false;
 }
 
 export function getRecentLiveEvents(limit = 25): LiveEventItem[] {
@@ -164,20 +216,30 @@ export function getRecentLiveEvents(limit = 25): LiveEventItem[] {
 
 export function getLiveStats() {
   const stats = global.__astroveda_event_stats!;
+  const bookings = global.__astroveda_live_bookings || [];
 
-  // Format top searched
+  // Calculate real booking metrics
+  const totalBookings = bookings.length;
+  const pendingBookings = bookings.filter((b) => b.status === 'pending').length;
+  const completedBookings = bookings.filter((b) => b.status === 'completed').length;
+  const confirmedBookings = bookings.filter((b) => b.status === 'confirmed').length;
+  const totalRevenue = bookings
+    .filter((b) => b.paymentStatus === 'captured' || b.status === 'confirmed')
+    .reduce((sum, b) => sum + (Number(b.fee) || 0), 0);
+
+  // Format real top searched
   const topSearchedServices = Object.entries(stats.keywordCounts)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  // Format most used tools
+  // Format real most used tools
   const mostUsedFreeTools = Object.entries(stats.toolCounts)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  // Format most viewed astrologers
+  // Format real most viewed astrologers
   const mostViewedAstrologers = Object.entries(stats.astrologerViews)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
@@ -185,14 +247,14 @@ export function getLiveStats() {
 
   return {
     metrics: {
-      totalUsers: 24,
-      totalAstrologers: 12,
-      activeAstrologers: 8,
-      totalBookings: 15,
-      pendingBookings: 3,
-      completedBookings: 9,
-      confirmedBookings: 3,
-      totalRevenue: 28450,
+      totalUsers: 0, // Hydrated from database/Strapi
+      totalAstrologers: 0, // Hydrated from verified astrologers
+      activeAstrologers: 0,
+      totalBookings,
+      pendingBookings,
+      completedBookings,
+      confirmedBookings,
+      totalRevenue,
       totalSearches: stats.totalSearches,
       totalKundlisCalculated: stats.totalKundlis,
       totalEvents: stats.totalEvents,
@@ -200,6 +262,7 @@ export function getLiveStats() {
     topSearchedServices,
     mostUsedFreeTools,
     mostViewedAstrologers,
-    recentEvents: getRecentLiveEvents(10),
+    recentEvents: getRecentLiveEvents(15),
+    recentBookings: bookings.slice(0, 5),
   };
 }

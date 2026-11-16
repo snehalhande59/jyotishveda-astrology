@@ -186,6 +186,28 @@ function BookingContent() {
         clientNotes: notes,
       });
 
+      // Dispatch live telemetry event for real-time admin monitoring
+      const bookingNum = res?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`;
+      fetch('/api/user-activities/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType: 'booking_created',
+          serviceName: `Consultation: ${selectedAstrologer.name}`,
+          serviceCategory: 'booking',
+          userIdentifier: 'Devotee Seeker',
+          metadata: {
+            bookingNumber: bookingNum,
+            astrologerId: selectedAstrologer.id,
+            astrologerName: selectedAstrologer.name,
+            date,
+            timeSlot,
+            topic,
+            fee: selectedAstrologer.consultationFee,
+          },
+        }),
+      }).catch(() => {});
+
       setPendingBooking(res);
       setShowPaymentModal(true);
     } catch (err: any) {
@@ -204,14 +226,40 @@ function BookingContent() {
   // 3. Payment verification completion handler
   const handlePaymentSuccess = (paymentRecord: any) => {
     setShowPaymentModal(false);
+    const finalBookingNumber = pendingBooking?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`;
+    const confirmedFee = selectedAstrologer?.consultationFee || 999;
+
+    // Dispatch real-time booking confirmation & revenue event to admin
+    fetch('/api/user-activities/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        eventType: 'booking_confirmed',
+        serviceName: `Confirmed: ${selectedAstrologer?.name}`,
+        serviceCategory: 'revenue',
+        userIdentifier: 'Devotee Client',
+        metadata: {
+          bookingNumber: finalBookingNumber,
+          astrologerId: selectedAstrologer?.id,
+          astrologerName: selectedAstrologer?.name,
+          date,
+          timeSlot,
+          topic,
+          fee: confirmedFee,
+          amount: confirmedFee,
+          referenceId: paymentRecord?.referenceId || paymentRecord?.paymentId || 'BK-PAID',
+        },
+      }),
+    }).catch(() => {});
+
     setConfirmedBooking({
       id: pendingBooking?.id || paymentRecord?.referenceId || 'BK-VERIFIED',
-      bookingNumber: pendingBooking?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`,
+      bookingNumber: finalBookingNumber,
       astrologer: selectedAstrologer,
       date,
       timeSlot,
       topic,
-      fee: selectedAstrologer?.consultationFee || 999,
+      fee: confirmedFee,
       durationMinutes: 30,
       meetingLink: pendingBooking?.meetingLink || 'https://meet.google.com/vedic-session',
       payment: paymentRecord,

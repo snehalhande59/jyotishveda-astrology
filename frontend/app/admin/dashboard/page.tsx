@@ -152,66 +152,24 @@ export default function AdminDashboardPage() {
   };
 
   const m = stats?.metrics || {
-    totalUsers: 24,
-    totalAstrologers: 12,
-    activeAstrologers: 8,
-    totalBookings: 15,
-    pendingBookings: 3,
-    completedBookings: 9,
-    confirmedBookings: 3,
-    totalRevenue: 28450,
-    totalSearches: 68,
-    totalKundlisCalculated: 72,
-    totalEvents: 186,
+    totalUsers: 0,
+    totalAstrologers: astrologersList.length || 0,
+    activeAstrologers: astrologersList.filter((a) => a.isOnline).length || 0,
+    totalBookings: 0,
+    pendingBookings: 0,
+    completedBookings: 0,
+    confirmedBookings: 0,
+    totalRevenue: 0,
+    totalSearches: 0,
+    totalKundlisCalculated: 0,
+    totalEvents: 0,
   };
 
-  const recentEvents = stats?.recentEvents || [
-    {
-      id: 'evt_1',
-      eventType: 'tool_usage',
-      serviceName: 'Janam Kundli Calculator',
-      userIdentifier: 'Devotee (Pune)',
-      location: 'Pune, Maharashtra',
-      timestamp: new Date().toISOString(),
-      metadata: { lagna: 'Taurus', rashi: 'Taurus', nakshatra: 'Rohini' },
-    },
-    {
-      id: 'evt_2',
-      eventType: 'tool_usage',
-      serviceName: 'Ashtakoot Kundli Matching',
-      userIdentifier: 'Priyanka Sharma & Rahul Verma',
-      location: 'Mumbai, Maharashtra',
-      timestamp: new Date(Date.now() - 45000).toISOString(),
-      metadata: { gunaScore: '28/36' },
-    },
-    {
-      id: 'evt_3',
-      eventType: 'search',
-      serviceName: 'Keyword Search',
-      userIdentifier: 'Guest Devotee (Nashik)',
-      location: 'Nashik, Maharashtra',
-      timestamp: new Date(Date.now() - 110000).toISOString(),
-      metadata: { keyword: 'Shubh Vivah Muhurat' },
-    },
-    {
-      id: 'evt_4',
-      eventType: 'astrologer_view',
-      serviceName: 'Acharya Devendra Shastri',
-      userIdentifier: 'Anita Patil',
-      location: 'Nagpur, Maharashtra',
-      timestamp: new Date(Date.now() - 180000).toISOString(),
-    },
-  ];
+  const recentEvents = stats?.recentEvents || [];
 
   const mostViewedAstrologers = stats?.mostViewedAstrologers?.length
     ? stats.mostViewedAstrologers
-    : [
-        { name: 'Acharya Vidyadhar Shastri', count: 52 },
-        { name: 'Dr. Meenakshi Sundaram', count: 44 },
-        { name: 'Pandit Rajeshwar Joshi', count: 38 },
-        { name: 'Astro Heena', count: 35 },
-        { name: 'Acharya Dattatray Kulkarni', count: 29 },
-      ];
+    : astrologersList.slice(0, 4).map((a) => ({ name: a.name, count: 0 }));
 
   return (
     <AdminLayout
