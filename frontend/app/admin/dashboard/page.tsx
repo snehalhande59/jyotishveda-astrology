@@ -187,17 +187,17 @@ export default function AdminDashboardPage() {
     : effectiveBookings.filter((b: any) => b.status === bookingFilter);
 
   const m = {
-    totalUsers: stats?.metrics?.totalUsers || 5,
-    totalAstrologers: stats?.metrics?.totalAstrologers || astrologersList.length || 12,
-    activeAstrologers: stats?.metrics?.activeAstrologers || astrologersList.filter((a) => a.isOnline).length || 12,
-    totalBookings: totalBookingsCount || 8,
-    pendingBookings: pendingCount || stats?.metrics?.pendingBookings || 6,
-    completedBookings: completedCount || stats?.metrics?.completedBookings || 0,
-    confirmedBookings: confirmedCount || stats?.metrics?.confirmedBookings || 2,
-    totalRevenue: stats?.metrics?.totalRevenue || 6123,
-    totalSearches: stats?.metrics?.totalSearches || 0,
-    totalKundlisCalculated: stats?.metrics?.totalKundlisCalculated || 0,
-    totalEvents: stats?.metrics?.totalEvents || 0,
+    totalUsers: stats?.metrics?.totalUsers ?? 0,
+    totalAstrologers: stats?.metrics?.totalAstrologers ?? (astrologersList.length || 0),
+    activeAstrologers: stats?.metrics?.activeAstrologers ?? (astrologersList.filter((a) => a.isOnline).length || 0),
+    totalBookings: stats?.metrics?.totalBookings ?? totalBookingsCount,
+    pendingBookings: stats?.metrics?.pendingBookings ?? pendingCount,
+    completedBookings: stats?.metrics?.completedBookings ?? completedCount,
+    confirmedBookings: stats?.metrics?.confirmedBookings ?? confirmedCount,
+    totalRevenue: stats?.metrics?.totalRevenue ?? 0,
+    totalSearches: stats?.metrics?.totalSearches ?? 0,
+    totalKundlisCalculated: stats?.metrics?.totalKundlisCalculated ?? 0,
+    totalEvents: stats?.metrics?.totalEvents ?? 0,
   };
 
   const recentEvents = stats?.recentEvents || [];
