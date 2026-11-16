@@ -10,6 +10,9 @@ import type { Astrologer } from '@/lib/types';
 import { useAdminTheme } from '@/context/AdminThemeContext';
 import {
   Users,
+  User,
+  Video,
+  Box,
   Sparkles,
   Calendar,
   IndianRupee,
@@ -41,6 +44,24 @@ import {
   TrendingUp,
   Percent,
 } from 'lucide-react';
+
+function formatBookingTime(iso?: string) {
+  if (!iso) return 'Recent';
+  try {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export default function AdminDashboardPage() {
   const { isDark } = useAdminTheme();
@@ -481,73 +502,152 @@ export default function AdminDashboardPage() {
               <p className="text-[11px] text-gray-500">When visitors book appointments on the main site, they stream here live.</p>
             </div>
           ) : (
-            <div className="divide-y divide-opacity-30">
+            <div className="space-y-3">
               {displayedBookings.map((b: any, i: number) => {
                 const statusColor =
                   b.status === 'confirmed'
                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                     : b.status === 'completed'
                     ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                    : b.status === 'cancelled'
+                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
                     : 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+
+                const clientInitial = (b.user?.username || b.user?.email || 'C').charAt(0).toUpperCase();
 
                 return (
                   <div
                     key={b.id || b.bookingNumber || i}
-                    className={`py-3.5 px-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 rounded-xl transition-colors ${
-                      isDark ? 'hover:bg-amber-500/5' : 'hover:bg-amber-50/50'
+                    className={`p-4 rounded-xl border transition-all ${
+                      isDark
+                        ? 'bg-[#181226] border-[#2C2340] hover:border-amber-500/40 shadow-sm'
+                        : 'bg-slate-50 border-slate-200 hover:border-amber-400 shadow-xs'
                     }`}
                   >
-                    <div className="flex items-start sm:items-center space-x-3.5 flex-1 min-w-0">
-                      <div className="font-mono text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-500/20 shrink-0">
-                        #{b.bookingNumber}
+                    {/* Header Row: Booking #, Live Status, Booked Timestamp, Fee, and Actions */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-opacity-20 border-gray-600">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/30">
+                          #{b.bookingNumber}
+                        </span>
+                        <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-bold uppercase tracking-wider ${statusColor}`}>
+                          {b.status || 'pending'}
+                        </span>
+                        {b.createdAt && (
+                          <span className="text-[11px] text-gray-400 flex items-center space-x-1 ml-1">
+                            <Clock className="w-3 h-3 text-amber-400/70" />
+                            <span>
+                              Booked on:{' '}
+                              <strong className={isDark ? 'text-gray-300' : 'text-slate-700'}>
+                                {formatBookingTime(b.createdAt)}
+                              </strong>
+                            </span>
+                          </span>
+                        )}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <strong className={`text-sm ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                            {b.astrologer?.name || 'Vedic Acharya Consultation'}
-                          </strong>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold uppercase tracking-wider ${statusColor}`}>
-                            {b.status || 'pending'}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-400 flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-                          <span>
-                            Client: <strong className="text-amber-400">{b.user?.email || b.user?.username || 'Client'}</strong>
-                          </span>
-                          <span>•</span>
-                          <span>Topic: <strong className={isDark ? 'text-gray-300' : 'text-slate-700'}>{b.topic || 'Detailed Kundli & Life Forecast'}</strong></span>
-                          <span>•</span>
-                          <span className="flex items-center space-x-1">
-                            <Clock className="w-3 h-3 text-gray-500" />
-                            <span>{b.date || '31 Oct 2026'} at {b.timeSlot || '11:00 AM'}</span>
-                          </span>
-                        </div>
+
+                      <div className="flex items-center space-x-2">
+                        <span className="font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                          ₹{(b.consultationFee || 2499).toLocaleString('en-IN')}
+                        </span>
+                        {b.meetingLink && (
+                          <a
+                            href={b.meetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-semibold transition-colors"
+                            title="Open Google Meet consultation session"
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Google Meet</span>
+                          </a>
+                        )}
+                        <Link
+                          href={`/admin/bookings?search=${encodeURIComponent(b.bookingNumber)}`}
+                          className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 text-xs font-semibold transition-colors"
+                        >
+                          <span>Manage</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3 self-end lg:self-center shrink-0">
-                      <span className="font-mono text-sm font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
-                        ₹{(b.consultationFee || 2499).toLocaleString('en-IN')}
-                      </span>
-                      {b.meetingLink && (
-                        <a
-                          href={b.meetingLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center space-x-1 px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-medium transition-colors"
-                          title="Open Google Meet consultation session"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Meet</span>
-                        </a>
-                      )}
-                      <Link
-                        href={`/admin/bookings?search=${encodeURIComponent(b.bookingNumber)}`}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 text-xs font-semibold transition-colors"
-                      >
-                        <span>Manage</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </Link>
+                    {/* Main 4-Column Grid: Client, Astrologer, Package, Scheduled Slot */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3">
+                      {/* 1. Client Details (कणी बुक केले) */}
+                      <div className={`p-2.5 rounded-lg border ${isDark ? 'bg-[#100D1A] border-[#221B33]' : 'bg-white border-slate-200'}`}>
+                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                          👤 Client / Customer
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs font-bold shrink-0">
+                            {clientInitial}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                              {b.user?.username || b.user?.fullName || b.clientName || 'Registered User'}
+                            </p>
+                            <p className="text-[11px] text-gray-400 truncate">
+                              {b.user?.email || 'email@not-stored.com'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Astrologer Details (कोणता ज्योतिषी) */}
+                      <div className={`p-2.5 rounded-lg border ${isDark ? 'bg-[#100D1A] border-[#221B33]' : 'bg-white border-slate-200'}`}>
+                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                          ✨ Booked Astrologer
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs font-bold shrink-0 overflow-hidden">
+                            {b.astrologer?.avatarUrl ? (
+                              <img src={b.astrologer.avatarUrl} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              (b.astrologer?.name || 'A').charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                              {b.astrologer?.name || 'Vedic Acharya Consultation'}
+                            </p>
+                            <p className="text-[10px] text-amber-400/90 truncate">
+                              {b.astrologer?.title || 'Senior Vedic Astrologer'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. Package & Topic (कोणते पॅकेज) */}
+                      <div className={`p-2.5 rounded-lg border ${isDark ? 'bg-[#100D1A] border-[#221B33]' : 'bg-white border-slate-200'}`}>
+                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                          📦 Package / Topic
+                        </span>
+                        <p className={`text-xs font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {b.topic || 'Detailed Kundli & Life Forecast'}
+                        </p>
+                        <div className="flex items-center space-x-1.5 text-[10px] text-gray-400 mt-0.5">
+                          <span className="bg-amber-500/10 text-amber-400 px-1.5 py-0.2 rounded font-semibold">
+                            {b.durationMinutes || 30} Mins
+                          </span>
+                          <span>•</span>
+                          <span className="capitalize">{b.sessionType ? b.sessionType.replace(/_/g, ' ') : 'Video Session'}</span>
+                        </div>
+                      </div>
+
+                      {/* 4. Scheduled Slot (अपॉइंटमेंट तारीख व वेळ) */}
+                      <div className={`p-2.5 rounded-lg border ${isDark ? 'bg-[#100D1A] border-[#221B33]' : 'bg-white border-slate-200'}`}>
+                        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
+                          📅 Scheduled Slot
+                        </span>
+                        <p className={`text-xs font-bold ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
+                          {b.date || 'Date Pending'}
+                        </p>
+                        <div className="flex items-center space-x-1 text-[11px] text-gray-400 mt-0.5">
+                          <Clock className="w-3 h-3 text-amber-500/70" />
+                          <span className="font-semibold">{b.timeSlot || '11:00 AM'}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );

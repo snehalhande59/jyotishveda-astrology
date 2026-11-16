@@ -167,7 +167,8 @@ function BookingsManagementContent() {
                 <th className="py-3.5 px-4">Booking ID</th>
                 <th className="py-3.5 px-4">Client</th>
                 <th className="py-3.5 px-4">Astrologer</th>
-                <th className="py-3.5 px-4">Date &amp; Slot</th>
+                <th className="py-3.5 px-4">Package / Topic</th>
+                <th className="py-3.5 px-4">Appointment &amp; Booked Time</th>
                 <th className="py-3.5 px-4">Fee</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
@@ -176,7 +177,7 @@ function BookingsManagementContent() {
             <tbody className="divide-y divide-[#211A31] text-[#D6CEE5]">
               {loading && bookings.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-[#8E84A6]">
+                  <td colSpan={8} className="py-12 text-center text-[#8E84A6]">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <RotateCw className="w-6 h-6 animate-spin text-amber-400" />
                       <span>Loading consultation bookings...</span>
@@ -185,7 +186,7 @@ function BookingsManagementContent() {
                 </tr>
               ) : bookings.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-[#8E84A6]">
+                  <td colSpan={8} className="py-12 text-center text-[#8E84A6]">
                     No bookings found in this view.
                   </td>
                 </tr>
@@ -198,25 +199,42 @@ function BookingsManagementContent() {
                     <td className="py-3.5 px-4">
                       <div>
                         <strong className="text-white block font-semibold">
-                          {b.user?.username || 'Client'}
+                          {b.user?.username || b.user?.fullName || b.clientName || 'Client'}
                         </strong>
                         <span className="text-[11px] text-[#8E84A6] font-mono">
                           {b.user?.email || 'guest@astroveda.com'}
                         </span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-white">
-                      {b.astrologer?.name || 'Astro Scholar'}
+                    <td className="py-3.5 px-4">
+                      <strong className="font-semibold text-white block">
+                        {b.astrologer?.name || 'Vedic Acharya Consultation'}
+                      </strong>
+                      <span className="text-[10px] text-amber-400/80 block">
+                        {b.astrologer?.title || 'Vedic Astrology Scholar'}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="text-white font-medium">{b.date}</div>
-                      <div className="text-[10px] text-[#8E84A6] flex items-center space-x-1">
-                        <Clock className="w-3 h-3 text-amber-400" />
-                        <span>{b.timeSlot}</span>
+                      <div className="font-medium text-white max-w-[180px] truncate" title={b.topic || 'Detailed Kundli & Life Forecast'}>
+                        {b.topic || 'Detailed Kundli & Life Forecast'}
+                      </div>
+                      <div className="text-[10px] text-gray-400 flex items-center space-x-1.5 mt-0.5">
+                        <span className="bg-amber-500/10 text-amber-400 px-1 py-0.2 rounded font-semibold">{b.durationMinutes || 30}m</span>
+                        <span>•</span>
+                        <span className="capitalize">{b.sessionType ? b.sessionType.replace(/_/g, ' ') : 'Video'}</span>
                       </div>
                     </td>
+                    <td className="py-3.5 px-4">
+                      <div className="text-amber-300 font-semibold">{b.date} at {b.timeSlot}</div>
+                      {b.createdAt && (
+                        <div className="text-[10px] text-[#8E84A6] flex items-center space-x-1 mt-0.5">
+                          <Clock className="w-3 h-3 text-amber-400/70" />
+                          <span>Booked: {new Date(b.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="py-3.5 px-4 font-mono font-bold text-emerald-400">
-                      ₹{b.consultationFee || 1499}
+                      ₹{(b.consultationFee || 2499).toLocaleString('en-IN')}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <select
@@ -312,6 +330,25 @@ function BookingsManagementContent() {
             <div className="flex items-center justify-between">
               <span className="text-[#8E84A6]">Consultation Fee:</span>
               <span className="text-emerald-400 font-mono font-bold">₹{selectedBooking?.consultationFee}</span>
+            </div>
+            {selectedBooking?.createdAt && (
+              <div className="flex items-center justify-between">
+                <span className="text-[#8E84A6]">Booked On:</span>
+                <span className="text-white">
+                  {new Date(selectedBooking.createdAt).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-[#8E84A6]">Duration &amp; Format:</span>
+              <span className="text-amber-300 font-semibold">{selectedBooking?.durationMinutes || 30} Mins Video Session</span>
             </div>
             {selectedBooking?.topic && (
               <div className="pt-2 border-t border-[#231B34]">
