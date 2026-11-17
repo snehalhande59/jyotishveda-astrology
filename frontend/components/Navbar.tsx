@@ -192,7 +192,7 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   };
 
-  if (pathname?.startsWith('/admin')) {
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/chat/')) {
     return null;
   }
 

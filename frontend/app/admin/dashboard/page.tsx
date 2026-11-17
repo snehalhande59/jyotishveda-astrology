@@ -497,7 +497,6 @@ export default function AdminDashboardPage() {
               : '📅 Filtered: This Year'}
           </span>
         </div>
-        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
