@@ -1,4 +1,4 @@
-import { getAuthToken, clearAuthSession } from './auth';
+import { getAuthToken, clearAuthSession, getCurrentUser } from './auth';
 import {
   Astrologer,
   AstrologyService,
