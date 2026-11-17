@@ -219,6 +219,8 @@ export function calculateRisingSign(dob: string, tob: string, lat = 19.076, lon 
   const pada = Math.floor((siderealAscDeg % (360 / 27)) / (360 / 108)) + 1;
 
   return {
+    signId: sign.id,
+    signName: sign.name,
     sign: sign.name,
     sanskrit: sign.sanskrit,
     degree: degreeInSign.toFixed(2),
@@ -1341,8 +1343,10 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
   // Mars placements and Manglik evaluation
   const boyMarsSignId = ((boySignIdx + 3) % 12) + 1;
   const girlMarsSignId = ((girlSignIdx + 2) % 12) + 1;
-  const boyManglik = calculateMangalDosha(boyLagna.signId, boyMarsSignId, boySignIdx + 1);
-  const girlManglik = calculateMangalDosha(girlLagna.signId, girlMarsSignId, girlSignIdx + 1);
+  const boyLagnaSignId = boyLagna?.signId || (boySignIdx + 1);
+  const girlLagnaSignId = girlLagna?.signId || (girlSignIdx + 1);
+  const boyManglik = calculateMangalDosha(boyLagnaSignId, boyMarsSignId, boySignIdx + 1);
+  const girlManglik = calculateMangalDosha(girlLagnaSignId, girlMarsSignId, girlSignIdx + 1);
 
   const bManglikHas = boyManglik.hasDosha && !boyManglik.isCancelled;
   const gManglikHas = girlManglik.hasDosha && !girlManglik.isCancelled;
@@ -1387,8 +1391,8 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
     return hList;
   };
 
-  const boyHouses = buildHouses(boyLagna.signId, boySignIdx + 1, boyMarsSignId);
-  const girlHouses = buildHouses(girlLagna.signId, girlSignIdx + 1, girlMarsSignId);
+  const boyHouses = buildHouses(boyLagnaSignId, boySignIdx + 1, boyMarsSignId);
+  const girlHouses = buildHouses(girlLagnaSignId, girlSignIdx + 1, girlMarsSignId);
 
   return {
     boyChart: {
@@ -1400,9 +1404,9 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
       latitude: boyBirth.latitude || 19.076,
       longitude: boyBirth.longitude || 72.8777,
       ascendant: {
-        signNumber: boyLagna.signId,
-        signName: boyLagna.signName,
-        signSanskrit: SIGN_SAN_LIST[boyLagna.signId - 1],
+        signNumber: boyLagnaSignId,
+        signName: boyLagna?.signName || ZODIAC_SIGNS[boyLagnaSignId - 1].name,
+        signSanskrit: SIGN_SAN_LIST[boyLagnaSignId - 1],
         degreeFormatted: "15° 00'",
       },
       moonSign: {
@@ -1430,9 +1434,9 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
       latitude: girlBirth.latitude || 18.5204,
       longitude: girlBirth.longitude || 73.8567,
       ascendant: {
-        signNumber: girlLagna.signId,
-        signName: girlLagna.signName,
-        signSanskrit: SIGN_SAN_LIST[girlLagna.signId - 1],
+        signNumber: girlLagnaSignId,
+        signName: girlLagna?.signName || ZODIAC_SIGNS[girlLagnaSignId - 1].name,
+        signSanskrit: SIGN_SAN_LIST[girlLagnaSignId - 1],
         degreeFormatted: "12° 30'",
       },
       moonSign: {
