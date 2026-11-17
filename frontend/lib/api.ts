@@ -528,10 +528,10 @@ export const api = {
   },
 
   // Compatibility (Guna Milan)
-  async calculateCompatibility(boyBirth: any, girlBirth: any) {
+  async calculateCompatibility(boyBirth: any, girlBirth: any, saveReport = false) {
     const res = await request<{ data: any }>('/api/kundli/compatibility', {
       method: 'POST',
-      body: JSON.stringify({ boyBirth, girlBirth }),
+      body: JSON.stringify({ boyBirth, girlBirth, saveReport }),
     });
     return res.data;
   },

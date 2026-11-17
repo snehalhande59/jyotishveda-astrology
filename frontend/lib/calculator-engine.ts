@@ -1017,33 +1017,33 @@ export function calculateNameMatch(name1: string, name2: string) {
 
 // 21. FULL ASTROLOGICAL ASHTAKOOTA GUNA MILAN (36 GUNAS)
 const NAKSHATRA_ATTRIBUTES_LIST = [
-  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi" },
-  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya" },
-  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya" },
-  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya" },
-  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya" },
-  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi" },
-  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi" },
-  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya" },
-  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya" },
-  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya" },
-  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya" },
-  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi" },
-  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi" },
-  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya" },
-  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya" },
-  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya" },
-  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya" },
-  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi" },
-  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi" },
-  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya" },
-  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya" },
-  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya" },
-  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya" },
-  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi" },
-  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi" },
-  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya" },
-  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya" },
+  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi", rajju: "Pada", ruler: "Ketu" },
+  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya", rajju: "Nabhi", ruler: "Sun" },
+  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya", rajju: "Kantha", ruler: "Moon" },
+  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi", rajju: "Kantha", ruler: "Rahu" },
+  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya", rajju: "Pada", ruler: "Mercury" },
+  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya", rajju: "Pada", ruler: "Ketu" },
+  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi", rajju: "Nabhi", ruler: "Sun" },
+  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi", rajju: "Kantha", ruler: "Moon" },
+  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya", rajju: "Kantha", ruler: "Rahu" },
+  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi", rajju: "Pada", ruler: "Mercury" },
+  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi", rajju: "Pada", ruler: "Ketu" },
+  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya", rajju: "Nabhi", ruler: "Sun" },
+  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya", rajju: "Kantha", ruler: "Moon" },
+  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi", rajju: "Kantha", ruler: "Rahu" },
+  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya", rajju: "Pada", ruler: "Mercury" },
 ];
 
 const SIGN_LORDS_LIST = [
@@ -1332,40 +1332,166 @@ export function calculateFullCompatibility(boyBirth: any, girlBirth: any) {
     }
   ];
 
+  // Calculate Lagnas & Sun signs for both
+  const boyLagna = calculateRisingSign(boyBirth.dateOfBirth, boyBirth.timeOfBirth, boyBirth.latitude || 19.076, boyBirth.longitude || 72.8777);
+  const girlLagna = calculateRisingSign(girlBirth.dateOfBirth, girlBirth.timeOfBirth, girlBirth.latitude || 19.076, girlBirth.longitude || 72.8777);
+  const boySun = calculateSunSign(boyBirth.dateOfBirth);
+  const girlSun = calculateSunSign(girlBirth.dateOfBirth);
+
+  // Mars placements and Manglik evaluation
+  const boyMarsSignId = ((boySignIdx + 3) % 12) + 1;
+  const girlMarsSignId = ((girlSignIdx + 2) % 12) + 1;
+  const boyManglik = calculateMangalDosha(boyLagna.signId, boyMarsSignId, boySignIdx + 1);
+  const girlManglik = calculateMangalDosha(girlLagna.signId, girlMarsSignId, girlSignIdx + 1);
+
+  const bManglikHas = boyManglik.hasDosha && !boyManglik.isCancelled;
+  const gManglikHas = girlManglik.hasDosha && !girlManglik.isCancelled;
+  let manglikVerdict = 'Auspicious Match (Neither is Manglik)';
+  let manglikCompatible = true;
+  if (bManglikHas && gManglikHas) {
+    manglikVerdict = 'Excellent Match (Both Manglik - Dosha Nullified)';
+    manglikCompatible = true;
+  } else if (boyManglik.isCancelled || girlManglik.isCancelled) {
+    manglikVerdict = 'Approved Match (Manglik Dosha Cancelled via Parihara)';
+    manglikCompatible = true;
+  } else if (bManglikHas || gManglikHas) {
+    manglikVerdict = 'Conditional Match (One Partner is Manglik - Astrologer Consultation Advised)';
+    manglikCompatible = false;
+  }
+
+  // Rajju & Vedha
+  const boyRajju = boyNakAttr.rajju || 'Kantha';
+  const girlRajju = girlNakAttr.rajju || 'Kantha';
+  const rajjuDosha = boyRajju === girlRajju;
+
+  // Build complete 12 houses array for Chart Visualizer
+  const buildHouses = (ascSignId: number, moonSignId: number, marsSignId: number) => {
+    const hList = [];
+    for (let h = 1; h <= 12; h++) {
+      const sNum = ((ascSignId - 1 + (h - 1)) % 12) + 1;
+      const occ: string[] = [];
+      if (sNum === ascSignId) occ.push('Asc (Lagna)');
+      if (sNum === moonSignId) occ.push('Moon');
+      if (sNum === marsSignId) occ.push('Mars');
+      if (h === 1) occ.push('Jupiter');
+      if (h === 5) occ.push('Venus');
+      if (h === 9) occ.push('Sun');
+      hList.push({
+        houseNumber: h,
+        signNumber: sNum,
+        signName: ZODIAC_SIGNS[sNum - 1].name,
+        signSanskrit: SIGN_SAN_LIST[sNum - 1],
+        occupants: occ,
+      });
+    }
+    return hList;
+  };
+
+  const boyHouses = buildHouses(boyLagna.signId, boySignIdx + 1, boyMarsSignId);
+  const girlHouses = buildHouses(girlLagna.signId, girlSignIdx + 1, girlMarsSignId);
+
   return {
     boyChart: {
-      fullName: boyBirth.fullName || 'Boy',
+      fullName: boyBirth.fullName || 'Groom',
+      gender: 'male',
       dateOfBirth: boyBirth.dateOfBirth,
       timeOfBirth: boyBirth.timeOfBirth || '12:00',
       placeOfBirth: boyBirth.placeOfBirth || 'Mumbai, Maharashtra, India',
+      latitude: boyBirth.latitude || 19.076,
+      longitude: boyBirth.longitude || 72.8777,
+      ascendant: {
+        signNumber: boyLagna.signId,
+        signName: boyLagna.signName,
+        signSanskrit: SIGN_SAN_LIST[boyLagna.signId - 1],
+        degreeFormatted: "15° 00'",
+      },
       moonSign: {
         signNumber: boySignIdx + 1,
         signName: ZODIAC_SIGNS[boySignIdx].name,
         signSanskrit: SIGN_SAN_LIST[boySignIdx],
         nakshatra: boyNakAttr.name,
+        pada: (Math.floor(boyMoonDeg / (360 / 108)) % 4) + 1,
         degreeFormatted: `${(boyMoonDeg % 30).toFixed(1)}°`,
-      }
+      },
+      sunSign: {
+        signName: boySun.signName,
+        signSanskrit: boySun.signSanskrit,
+      },
+      houses: boyHouses,
+      navamsaHouses: boyHouses,
+      manglik: boyManglik,
     },
     girlChart: {
-      fullName: girlBirth.fullName || 'Girl',
+      fullName: girlBirth.fullName || 'Bride',
+      gender: 'female',
       dateOfBirth: girlBirth.dateOfBirth,
       timeOfBirth: girlBirth.timeOfBirth || '12:00',
       placeOfBirth: girlBirth.placeOfBirth || 'Pune, Maharashtra, India',
+      latitude: girlBirth.latitude || 18.5204,
+      longitude: girlBirth.longitude || 73.8567,
+      ascendant: {
+        signNumber: girlLagna.signId,
+        signName: girlLagna.signName,
+        signSanskrit: SIGN_SAN_LIST[girlLagna.signId - 1],
+        degreeFormatted: "12° 30'",
+      },
       moonSign: {
         signNumber: girlSignIdx + 1,
         signName: ZODIAC_SIGNS[girlSignIdx].name,
         signSanskrit: SIGN_SAN_LIST[girlSignIdx],
         nakshatra: girlNakAttr.name,
+        pada: (Math.floor(girlMoonDeg / (360 / 108)) % 4) + 1,
         degreeFormatted: `${(girlMoonDeg % 30).toFixed(1)}°`,
-      }
+      },
+      sunSign: {
+        signName: girlSun.signName,
+        signSanskrit: girlSun.signSanskrit,
+      },
+      houses: girlHouses,
+      navamsaHouses: girlHouses,
+      manglik: girlManglik,
     },
     gunaMilan: {
-      totalScore: totalPoints,
+      totalScore: Number(totalPoints.toFixed(1)),
       maxScore: 36,
+      percentage: Number(((totalPoints / 36) * 100).toFixed(1)),
       matchStatus,
       recommendation,
       kutas: kutasArray,
-    }
+    },
+    manglikMatching: {
+      compatible: manglikCompatible,
+      verdict: manglikVerdict,
+      boyStatus: boyManglik.status,
+      girlStatus: girlManglik.status,
+    },
+    doshaAnalysis: {
+      nadiDosha: { present: nadiScore === 0, cancelled: nadiScore > 0 && boyNadi === girlNadi, reason: kutasArray[7].analysis },
+      bhakootDosha: { present: bhakootScore === 0, cancelled: bhakootScore > 0 && [0, 2, 6, 8, 5, 9].includes(dist1), reason: kutasArray[6].analysis },
+      rajjuDosha: { present: rajjuDosha, boyRajju, girlRajju },
+    },
+    summary: {
+      score: Number(totalPoints.toFixed(1)),
+      maxScore: 36,
+      percentage: Number(((totalPoints / 36) * 100).toFixed(1)),
+      category: matchStatus,
+      recommendation,
+      isApproved: totalPoints >= 18,
+      strengths: [
+        `Guna Score: ${totalPoints}/36 points matched`,
+        `Manglik Status: ${manglikVerdict}`,
+        nadiScore === 8 ? 'Nadi Harmony (8/8 pts): Outstanding genetic and physiological synergy' : 'Nadi guidance available',
+        bhakootScore === 7 ? 'Bhakoot Harmony (7/7 pts): Emotional bonding and family joy' : 'Bhakoot remedies available',
+      ],
+      challenges: [
+        totalPoints < 18 ? 'Score is under 18 points; expert astrologer guidance recommended.' : 'Maintain active mutual communication in daily affairs.',
+      ],
+      traditionalRemedies: [
+        'Perform Gauri-Shankar Puja or Rudrabhishek on Mondays for lasting marital bliss.',
+        'Chant the Maha Mrityunjaya Mantra daily for health, longevity, and family peace.',
+        'Donate green lentils or feed cows on Wednesdays for planetary harmony.',
+      ],
+    },
   };
 }
 

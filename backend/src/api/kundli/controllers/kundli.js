@@ -77,8 +77,8 @@ module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
     const body = ctx.request?.body || {};
     const query = ctx.query || {};
 
-    let boyBirth = body.boyBirth;
-    let girlBirth = body.girlBirth;
+    let boyBirth = body.boyBirth || body.groom || body.person2;
+    let girlBirth = body.girlBirth || body.bride || body.person1;
 
     // Support JSON objects passed in query string or flat query params
     if (!boyBirth && query.boyBirth) {
@@ -94,78 +94,61 @@ module.exports = createCoreController('api::kundli.kundli', ({ strapi }) => ({
 
     if (!boyBirth && (query.boyDate || query.boyDob)) {
       boyBirth = {
-        fullName: query.boyName || 'Boy',
+        fullName: query.boyName || query.groomName || 'Groom',
         dateOfBirth: query.boyDate || query.boyDob,
         timeOfBirth: query.boyTime || '12:00',
         placeOfBirth: query.boyPlace || 'New Delhi',
         latitude: parseFloat(query.boyLat) || 28.6139,
         longitude: parseFloat(query.boyLon) || 77.2090,
+        timezoneOffsetHours: parseFloat(query.boyTz) || 5.5,
       };
     }
 
     if (!girlBirth && (query.girlDate || query.girlDob)) {
       girlBirth = {
-        fullName: query.girlName || 'Girl',
+        fullName: query.girlName || query.brideName || 'Bride',
         dateOfBirth: query.girlDate || query.girlDob,
         timeOfBirth: query.girlTime || '12:00',
         placeOfBirth: query.girlPlace || 'New Delhi',
         latitude: parseFloat(query.girlLat) || 28.6139,
         longitude: parseFloat(query.girlLon) || 77.2090,
+        timezoneOffsetHours: parseFloat(query.girlTz) || 5.5,
       };
     }
 
     if (!boyBirth || !girlBirth) {
-      return ctx.badRequest('Both boyBirth and girlBirth details are required (with dateOfBirth)');
+      return ctx.badRequest('Both bride/girl and groom/boy birth details are required (with dateOfBirth)');
     }
 
     if (!boyBirth.dateOfBirth || !girlBirth.dateOfBirth) {
-      return ctx.badRequest('Valid dateOfBirth (YYYY-MM-DD) is required for both boy and girl');
+      return ctx.badRequest('Valid dateOfBirth (YYYY-MM-DD) is required for both individuals');
     }
 
     try {
-      const boyChart = vedicEngine.calculateKundli({
-        fullName: boyBirth.fullName || 'Boy',
-        dateOfBirth: boyBirth.dateOfBirth,
-        timeOfBirth: boyBirth.timeOfBirth || '12:00',
-        placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
-        latitude: parseFloat(boyBirth.latitude) || 28.6139,
-        longitude: parseFloat(boyBirth.longitude) || 77.2090,
-      });
+      const result = vedicEngine.calculateCompatibilityReport(boyBirth, girlBirth);
 
-      const girlChart = vedicEngine.calculateKundli({
-        fullName: girlBirth.fullName || 'Girl',
-        dateOfBirth: girlBirth.dateOfBirth,
-        timeOfBirth: girlBirth.timeOfBirth || '12:00',
-        placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
-        latitude: parseFloat(girlBirth.latitude) || 28.6139,
-        longitude: parseFloat(girlBirth.longitude) || 77.2090,
-      });
-
-      const matching = vedicEngine.calculateGunaMilan(
-        boyChart.planets[1].longitude,
-        girlChart.planets[1].longitude
-      );
+      // Optionally persist saved matching report for authenticated user
+      if (ctx.state.user && (body.saveReport || query.saveReport)) {
+        try {
+          const reportTitle = `Kundali Milan: ${girlBirth.fullName || 'Bride'} & ${boyBirth.fullName || 'Groom'}`;
+          const savedReport = await strapi.entityService.create('api::astrology-report.astrology-report', {
+            data: {
+              title: reportTitle,
+              reportType: 'marriage',
+              birthDetails: { boyBirth, girlBirth },
+              reportContent: result,
+              user: ctx.state.user.id,
+              isPurchased: false,
+            },
+          });
+          result.savedReportId = savedReport.id;
+        } catch (saveErr) {
+          strapi.log.warn('Could not persist compatibility report to DB:', saveErr.message);
+        }
+      }
 
       return {
-        data: {
-          boyChart: {
-            fullName: boyBirth.fullName || 'Boy',
-            dateOfBirth: boyBirth.dateOfBirth,
-            timeOfBirth: boyBirth.timeOfBirth || '12:00',
-            placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
-            ascendant: boyChart.ascendant,
-            moonSign: boyChart.moonSign,
-          },
-          girlChart: {
-            fullName: girlBirth.fullName || 'Girl',
-            dateOfBirth: girlBirth.dateOfBirth,
-            timeOfBirth: girlBirth.timeOfBirth || '12:00',
-            placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
-            ascendant: girlChart.ascendant,
-            moonSign: girlChart.moonSign,
-          },
-          gunaMilan: matching,
-        },
+        data: result,
       };
     } catch (err) {
       return ctx.badRequest('Failed to calculate compatibility: ' + (err.message || 'Invalid parameters'));

@@ -399,7 +399,7 @@ export default function ActiveChatSessionPage() {
   const isChatDisabled = isExpired || isMessageLimitReached || session?.status === 'completed';
 
   return (
-    <div className="bg-[#FAF7F2] h-[calc(100dvh-105px)] max-h-[calc(100dvh-105px)] text-[#2D1810] flex flex-col font-sans overflow-hidden">
+    <div className="bg-[#FAF7F2] fixed inset-x-0 bottom-0 top-[60px] sm:top-[72px] lg:top-[98px] z-30 text-[#2D1810] flex flex-col font-sans overflow-hidden">
       {/* Astrologer & Session Top Bar */}
       <header className="bg-white border-b border-[#EAE1D2] text-[#2D1810] px-3 sm:px-4 py-2.5 sm:py-3 shrink-0 z-30 shadow-xs">
         <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2 sm:gap-4">

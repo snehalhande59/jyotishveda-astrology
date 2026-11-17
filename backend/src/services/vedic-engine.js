@@ -530,33 +530,33 @@ function calculateKundli({
 
 // 27 Nakshatras Yoni & Gana & Nadi reference tables
 const NAKSHATRA_ATTRIBUTES = [
-  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi" },
-  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya" },
-  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya" },
-  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya" },
-  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya" },
-  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi" },
-  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi" },
-  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya" },
-  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya" },
-  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya" },
-  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya" },
-  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi" },
-  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi" },
-  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya" },
-  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya" },
-  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya" },
-  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya" },
-  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi" },
-  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi" },
-  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya" },
-  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya" },
-  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya" },
-  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya" },
-  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi" },
-  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi" },
-  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya" },
-  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya" },
+  { id: 1, name: "Ashwini", gana: "Deva", yoni: "Horse", nadi: "Aadi", rajju: "Pada", ruler: "Ketu" },
+  { id: 2, name: "Bharani", gana: "Manushya", yoni: "Elephant", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 3, name: "Krittika", gana: "Rakshasa", yoni: "Sheep", nadi: "Antya", rajju: "Nabhi", ruler: "Sun" },
+  { id: 4, name: "Rohini", gana: "Manushya", yoni: "Serpent", nadi: "Antya", rajju: "Kantha", ruler: "Moon" },
+  { id: 5, name: "Mrigashira", gana: "Deva", yoni: "Serpent", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 6, name: "Ardra", gana: "Manushya", yoni: "Dog", nadi: "Aadi", rajju: "Kantha", ruler: "Rahu" },
+  { id: 7, name: "Punarvasu", gana: "Deva", yoni: "Cat", nadi: "Aadi", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 8, name: "Pushya", gana: "Deva", yoni: "Sheep", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 9, name: "Ashlesha", gana: "Rakshasa", yoni: "Cat", nadi: "Antya", rajju: "Pada", ruler: "Mercury" },
+  { id: 10, name: "Magha", gana: "Rakshasa", yoni: "Rat", nadi: "Antya", rajju: "Pada", ruler: "Ketu" },
+  { id: 11, name: "Purva Phalguni", gana: "Manushya", yoni: "Rat", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 12, name: "Uttara Phalguni", gana: "Manushya", yoni: "Cow", nadi: "Aadi", rajju: "Nabhi", ruler: "Sun" },
+  { id: 13, name: "Hasta", gana: "Deva", yoni: "Buffalo", nadi: "Aadi", rajju: "Kantha", ruler: "Moon" },
+  { id: 14, name: "Chitra", gana: "Rakshasa", yoni: "Tiger", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 15, name: "Swati", gana: "Deva", yoni: "Buffalo", nadi: "Antya", rajju: "Kantha", ruler: "Rahu" },
+  { id: 16, name: "Vishakha", gana: "Rakshasa", yoni: "Tiger", nadi: "Antya", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 17, name: "Anuradha", gana: "Deva", yoni: "Deer", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 18, name: "Jyeshtha", gana: "Rakshasa", yoni: "Deer", nadi: "Aadi", rajju: "Pada", ruler: "Mercury" },
+  { id: 19, name: "Mula", gana: "Rakshasa", yoni: "Dog", nadi: "Aadi", rajju: "Pada", ruler: "Ketu" },
+  { id: 20, name: "Purva Ashadha", gana: "Manushya", yoni: "Monkey", nadi: "Madhya", rajju: "Kati", ruler: "Venus" },
+  { id: 21, name: "Uttara Ashadha", gana: "Manushya", yoni: "Mongoose", nadi: "Antya", rajju: "Nabhi", ruler: "Sun" },
+  { id: 22, name: "Shravana", gana: "Deva", yoni: "Monkey", nadi: "Antya", rajju: "Kantha", ruler: "Moon" },
+  { id: 23, name: "Dhanishta", gana: "Rakshasa", yoni: "Lion", nadi: "Madhya", rajju: "Shiro", ruler: "Mars" },
+  { id: 24, name: "Shatabhisha", gana: "Rakshasa", yoni: "Horse", nadi: "Aadi", rajju: "Kantha", ruler: "Rahu" },
+  { id: 25, name: "Purva Bhadrapada", gana: "Manushya", yoni: "Lion", nadi: "Aadi", rajju: "Nabhi", ruler: "Jupiter" },
+  { id: 26, name: "Uttara Bhadrapada", gana: "Manushya", yoni: "Cow", nadi: "Madhya", rajju: "Kati", ruler: "Saturn" },
+  { id: 27, name: "Revati", gana: "Deva", yoni: "Elephant", nadi: "Antya", rajju: "Pada", ruler: "Mercury" },
 ];
 
 const SIGN_LORDS = [
@@ -574,12 +574,18 @@ const SIGN_NAMES_SAN = [
   "Tula", "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena"
 ];
 
+// Incompatible Vedha Nakshatra Pairs
+const VEDHA_PAIRS = [
+  [1, 18], [2, 17], [3, 16], [4, 15], [6, 22], [7, 21],
+  [8, 20], [9, 19], [10, 27], [11, 26], [12, 25], [13, 24]
+];
+
 /**
  * Vedic Ashta Kuta (Guna Milan) Kundli Matching Engine
  * 36 points total across 8 Kutas:
  * Varna (1), Vashya (2), Tara (3), Yoni (4), Graha Maitri (5), Gana (6), Bhakoot (7), Nadi (8)
  */
-function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
+function calculateGunaMilan(boyMoonDeg, girlMoonDeg, boyChart = null, girlChart = null) {
   const boyNakIdx = Math.min(26, Math.max(0, Math.floor(norm360(boyMoonDeg) / (360 / 27))));
   const girlNakIdx = Math.min(26, Math.max(0, Math.floor(norm360(girlMoonDeg) / (360 / 27))));
   const boySignIdx = Math.min(11, Math.max(0, Math.floor(norm360(boyMoonDeg) / 30)));
@@ -594,31 +600,41 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
   // Vaishya: Taurus(1), Virgo(5), Capricorn(9) -> 2
   // Shudra: Gemini(2), Libra(6), Aquarius(10) -> 1
   const getVarnaRank = (sIdx) => {
-    if ([3, 7, 11].includes(sIdx)) return { rank: 4, name: 'Brahmin' };
-    if ([0, 4, 8].includes(sIdx)) return { rank: 3, name: 'Kshatriya' };
-    if ([1, 5, 9].includes(sIdx)) return { rank: 2, name: 'Vaishya' };
-    return { rank: 1, name: 'Shudra' };
+    if ([3, 7, 11].includes(sIdx)) return { rank: 4, name: 'Brahmin', marathi: 'ब्राह्मण' };
+    if ([0, 4, 8].includes(sIdx)) return { rank: 3, name: 'Kshatriya', marathi: 'क्षत्रिय' };
+    if ([1, 5, 9].includes(sIdx)) return { rank: 2, name: 'Vaishya', marathi: 'वैश्य' };
+    return { rank: 1, name: 'Shudra', marathi: 'शूद्र' };
   };
   const boyVarna = getVarnaRank(boySignIdx);
   const girlVarna = getVarnaRank(girlSignIdx);
   const varnaScore = boyVarna.rank >= girlVarna.rank ? 1 : 0;
 
   // 2. Vashya (Max 2 pts)
-  // Chatushpada: Aries(0), Taurus(1), Cap 2nd half, Sag 2nd half
+  // Chatushpada: Aries(0), Taurus(1), Cap 2nd half(9), Sag 2nd half(8)
   // Manava: Gemini(2), Virgo(5), Libra(6), Sag 1st(8), Aqu(10)
   // Jalachara: Cancer(3), Pisces(11), Cap 2nd(9)
   // Vanachara: Leo(4)
   // Keeta: Scorpio(7)
   let vashyaScore = 1;
-  if (boySignIdx === girlSignIdx) vashyaScore = 2;
-  else if (([3, 11].includes(boySignIdx) && girlSignIdx === 7) || ([3, 11].includes(girlSignIdx) && boySignIdx === 7)) {
+  if (boySignIdx === girlSignIdx) {
+    vashyaScore = 2;
+  } else if (
+    ([3, 11].includes(boySignIdx) && girlSignIdx === 7) ||
+    ([3, 11].includes(girlSignIdx) && boySignIdx === 7)
+  ) {
     vashyaScore = 1; // Jalachara & Keeta
+  } else if ([0, 1].includes(boySignIdx) && [2, 5, 6].includes(girlSignIdx)) {
+    vashyaScore = 1;
+  } else if (boySignIdx === 4 && [0, 1, 7].includes(girlSignIdx)) {
+    vashyaScore = 0; // Vanachara vs Chatushpada/Keeta (Bhakshya)
+  } else if (girlSignIdx === 4 && [0, 1, 7].includes(boySignIdx)) {
+    vashyaScore = 0;
   }
 
   // 3. Tara / Dina (Max 3 pts)
   const diffNak1 = (girlNakIdx - boyNakIdx + 27) % 9;
   const diffNak2 = (boyNakIdx - girlNakIdx + 27) % 9;
-  const isAuspiciousTara = (diff) => [0, 2, 4, 6, 8].includes(diff);
+  const isAuspiciousTara = (diff) => [1, 3, 5, 7, 8].includes(diff); // Sampat(1), Kshema(3), Sadhaka(5), Mitra(7), Ati-Mitra(8)
   let taraScore = 0;
   if (isAuspiciousTara(diffNak1) && isAuspiciousTara(diffNak2)) taraScore = 3;
   else if (isAuspiciousTara(diffNak1) || isAuspiciousTara(diffNak2)) taraScore = 1.5;
@@ -628,26 +644,29 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
   const boyYoni = boyNakAttr.yoni;
   const girlYoni = girlNakAttr.yoni;
   let yoniScore = 2; // Neutral default
-  if (boyYoni === girlYoni) yoniScore = 4;
-  else {
+  if (boyYoni === girlYoni) {
+    yoniScore = 4;
+  } else {
     const enemyYonis = [
       ['Horse', 'Buffalo'], ['Elephant', 'Lion'], ['Sheep', 'Monkey'],
       ['Serpent', 'Mongoose'], ['Dog', 'Deer'], ['Cat', 'Rat'], ['Cow', 'Tiger']
     ];
-    const isEnemy = enemyYonis.some(([a, b]) => (boyYoni === a && girlYoni === b) || (boyYoni === b && girlYoni === a));
+    const isEnemy = enemyYonis.some(
+      ([a, b]) => (boyYoni === a && girlYoni === b) || (boyYoni === b && girlYoni === a)
+    );
     yoniScore = isEnemy ? 0 : 2;
   }
 
   // 5. Graha Maitri (Max 5 pts)
   const boyLord = SIGN_LORDS[boySignIdx];
   const girlLord = SIGN_LORDS[girlSignIdx];
-  let grahaScore = 3; // Neutral baseline
+  let grahaScore = 3;
   if (boyLord === girlLord) {
     grahaScore = 5;
   } else {
     const friendsMap = {
       Sun: ['Moon', 'Mars', 'Jupiter'],
-      Moon: ['Sun', 'Mercury', 'Mars', 'Jupiter'],
+      Moon: ['Sun', 'Mercury'],
       Mars: ['Sun', 'Moon', 'Jupiter'],
       Mercury: ['Sun', 'Venus'],
       Jupiter: ['Sun', 'Moon', 'Mars'],
@@ -668,41 +687,125 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
   const boyGana = boyNakAttr.gana;
   const girlGana = girlNakAttr.gana;
   let ganaScore = 0;
-  if (boyGana === girlGana) ganaScore = 6;
-  else if ((boyGana === 'Deva' && girlGana === 'Manushya') || (boyGana === 'Manushya' && girlGana === 'Deva')) ganaScore = 5;
-  else if (boyGana === 'Deva' && girlGana === 'Rakshasa') ganaScore = 1;
-  else if (boyGana === 'Manushya' && girlGana === 'Rakshasa') ganaScore = 0;
-  else ganaScore = 1;
+  if (boyGana === girlGana) {
+    ganaScore = 6;
+  } else if (
+    (boyGana === 'Deva' && girlGana === 'Manushya') ||
+    (boyGana === 'Manushya' && girlGana === 'Deva')
+  ) {
+    ganaScore = 5;
+  } else if (boyGana === 'Deva' && girlGana === 'Rakshasa') {
+    ganaScore = 1;
+  } else if (boyGana === 'Manushya' && girlGana === 'Rakshasa') {
+    ganaScore = 0;
+  } else {
+    ganaScore = 1;
+  }
 
   // 7. Bhakoot (Max 7 pts)
   const dist1 = ((girlSignIdx - boySignIdx + 12) % 12) + 1;
   const dist2 = ((boySignIdx - girlSignIdx + 12) % 12) + 1;
   let bhakootScore = 7;
-  if (SIGN_LORDS[boySignIdx] === SIGN_LORDS[girlSignIdx]) {
-    // Bhakoot Dosha Parihara: Same planetary lord cancels dosha
-    bhakootScore = 7;
-  } else if ((dist1 === 2 && dist2 === 12) || (dist1 === 12 && dist2 === 2)) {
-    bhakootScore = 0; // Dwirdwadash
+  let bhakootDosha = false;
+  let bhakootCancelled = false;
+  let bhakootReason = 'Harmonious Rashi placement promoting mutual emotional fulfillment and prosperity.';
+
+  if ((dist1 === 2 && dist2 === 12) || (dist1 === 12 && dist2 === 2)) {
+    bhakootDosha = true;
+    bhakootScore = 0;
+    bhakootReason = 'Dwirdwadash (2/12) axis indicating potential financial variation or separate residences.';
   } else if ((dist1 === 6 && dist2 === 8) || (dist1 === 8 && dist2 === 6)) {
-    bhakootScore = 0; // Shadashtak
+    bhakootDosha = true;
+    bhakootScore = 0;
+    bhakootReason = 'Shadashtak (6/8) axis requiring conscious health awareness and open communication.';
   } else if ((dist1 === 5 && dist2 === 9) || (dist1 === 9 && dist2 === 5)) {
-    bhakootScore = 0; // Navapancham
+    bhakootDosha = true;
+    bhakootScore = 0;
+    bhakootReason = 'Navapancham (5/9) axis requiring alignment on family planning and mutual creative endeavors.';
+  }
+
+  // Bhakoot Dosha Parihara (Cancellations)
+  if (bhakootDosha) {
+    if (SIGN_LORDS[boySignIdx] === SIGN_LORDS[girlSignIdx]) {
+      bhakootCancelled = true;
+      bhakootScore = 7;
+      bhakootReason = 'Bhakoot Dosha Parihara: Both Rashi lords are identical, neutralizing all Shadashtak/Dwirdwadash afflictions.';
+    } else if (
+      (boySignIdx === 11 && girlSignIdx === 0) || (boySignIdx === 0 && girlSignIdx === 11) || // Pisces & Aries (Jupiter & Mars)
+      (boySignIdx === 3 && girlSignIdx === 4) || (boySignIdx === 4 && girlSignIdx === 3)     // Cancer & Leo (Moon & Sun)
+    ) {
+      bhakootCancelled = true;
+      bhakootScore = 7;
+      bhakootReason = 'Bhakoot Dosha Parihara: Friendly planetary lords of adjacent signs eliminate negative matrimonial effects.';
+    }
   }
 
   // 8. Nadi (Max 8 pts)
   const boyNadi = boyNakAttr.nadi;
   const girlNadi = girlNakAttr.nadi;
-  const nadiScore = boyNadi !== girlNadi ? 8 : 0;
+  let nadiScore = boyNadi !== girlNadi ? 8 : 0;
+  let nadiDosha = boyNadi === girlNadi;
+  let nadiCancelled = false;
+  let nadiReason = nadiDosha
+    ? 'Same Nadi indicated; physiological and genetic synergy requires traditional astrological scrutiny.'
+    : 'Flawless Nadi alignment (No Nadi Dosha). Outstanding physiological harmony and blessed progeny.';
 
-  const totalPoints = varnaScore + vashyaScore + taraScore + yoniScore + grahaScore + ganaScore + bhakootScore + nadiScore;
+  // Nadi Dosha Parihara (Cancellations)
+  if (nadiDosha) {
+    const boyPada = boyChart?.moonSign?.pada || 1;
+    const girlPada = girlChart?.moonSign?.pada || 2;
 
-  let recommendation = "Low Compatibility - Consultation Advised";
+    if (boySignIdx === girlSignIdx && boyNakIdx !== girlNakIdx) {
+      nadiCancelled = true;
+      nadiScore = 8;
+      nadiReason = 'Nadi Dosha Parihara: Both partners share the same Rashi but possess different Nakshatras, nullifying Nadi Dosha.';
+    } else if (boyNakIdx === girlNakIdx && boySignIdx !== girlSignIdx) {
+      nadiCancelled = true;
+      nadiScore = 8;
+      nadiReason = 'Nadi Dosha Parihara: Same Nakshatra across different Rashi signs cancels Nadi Dosha completely.';
+    } else if (boyNakIdx === girlNakIdx && boyPada !== girlPada) {
+      nadiCancelled = true;
+      nadiScore = 8;
+      nadiReason = 'Nadi Dosha Parihara: Same Nakshatra with distinct Padas (quarters) removes genetic affliction according to sage Parashara.';
+    } else if ([3, 4, 5, 17, 20, 21, 23, 25].includes(boyNakIdx)) {
+      // Rohini(3), Mrigashira(4), Ardra(5), Jyeshtha(17), Uttara Ashadha(20), Shravana(21), Shatabhisha(23), Uttara Bhadrapada(25)
+      nadiCancelled = true;
+      nadiScore = 8;
+      nadiReason = 'Nadi Dosha Parihara: Sage Atri exemption applies to these sacred birth stars, releasing Nadi Dosha.';
+    }
+  }
+
+  // Rajju Dosha
+  const boyRajju = boyNakAttr.rajju;
+  const girlRajju = girlNakAttr.rajju;
+  const rajjuDosha = boyRajju === girlRajju;
+  const rajjuDescriptions = {
+    Shiro: 'Shiro (Head) Rajju - Relates to longevity of marriage and mental tranquility.',
+    Kantha: 'Kantha (Neck) Rajju - Relates to physical health, vitality, and partner well-being.',
+    Nabhi: 'Nabhi (Navel) Rajju - Relates to progeny, childbirth, and children’s prosperity.',
+    Kati: 'Kati (Waist) Rajju - Relates to material wealth, accumulation, and home stability.',
+    Pada: 'Pada (Feet) Rajju - Relates to traveling, foreign residency, and stability in occupation.',
+  };
+
+  // Vedha Dosha (Incompatible Nakshatra Pairs)
+  const isVedha = VEDHA_PAIRS.some(
+    ([a, b]) =>
+      (boyNakAttr.id === a && girlNakAttr.id === b) ||
+      (boyNakAttr.id === b && girlNakAttr.id === a)
+  ) || (
+    [5, 14, 23].includes(boyNakAttr.id) && [5, 14, 23].includes(girlNakAttr.id) && boyNakAttr.id !== girlNakAttr.id
+  );
+
+  const totalPoints =
+    varnaScore + vashyaScore + taraScore + yoniScore + grahaScore + ganaScore + bhakootScore + nadiScore;
+
+  let recommendation = "Low Compatibility - Consultation & Remedies Advised";
   let matchStatus = "AVERAGE MATCH";
   if (totalPoints >= 28) {
-    recommendation = "Excellent Compatibility (Uttama Milan)";
+    recommendation = "Excellent Compatibility (Uttama Milan - Highly Recommended)";
     matchStatus = "EXCELLENT MATCH";
   } else if (totalPoints >= 18) {
-    recommendation = "Good Compatibility (Madhyama Milan - Approved)";
+    recommendation = "Good Compatibility (Madhyama Milan - Auspicious & Approved)";
     matchStatus = "GOOD MATCH";
   }
 
@@ -716,21 +819,21 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
       maxPoints: 1,
       boyValue: boyVarna.name,
       girlValue: girlVarna.name,
-      description: 'Varna refers to the mental compatibility of the two persons involved. It holds nominal effect in the matters of marriage compatibility.',
+      description: 'Varna reflects mental ego, professional temperament, and spiritual capability between partners.',
       analysis: varnaScore === 1
         ? 'Auspicious mental and professional harmony. Both partners share mutual respect in spiritual and intellectual pursuits.'
-        : 'Slight difference in inherent work tendencies; mutual understanding advised.'
+        : 'Different vocational instincts; mutual respect and emotional equality preserve domestic harmony.'
     },
     {
       id: 'vashya',
-      name: 'Innate Dominance / Control (Vashya)',
+      name: 'Innate Dominance / Influence (Vashya)',
       sanskrit: 'वश्य',
       shortName: 'Vashya',
       obtainedPoints: vashyaScore,
       maxPoints: 2,
       boyValue: SIGN_NAMES_SAN[boySignIdx],
       girlValue: SIGN_NAMES_SAN[girlSignIdx],
-      description: 'Vashya indicates the mutual attraction, power equation and degree of influence one partner has on the other.',
+      description: 'Vashya indicates the mutual attraction, power equation, and degree of magnetic influence one partner has on the other.',
       analysis: vashyaScore >= 1
         ? 'Harmonious power balance and mutual affection with positive domestic understanding.'
         : 'May require conscious effort to avoid dominant tendencies.'
@@ -751,17 +854,17 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
     },
     {
       id: 'yoni',
-      name: 'Animal Symbol / Intimacy (Yoni)',
+      name: 'Animal Symbol / Biological Intimacy (Yoni)',
       sanskrit: 'योनि',
       shortName: 'Yoni',
       obtainedPoints: yoniScore,
       maxPoints: 4,
       boyValue: `${boyYoni} Yoni`,
       girlValue: `${girlYoni} Yoni`,
-      description: 'Yoni measures sexual compatibility, physical attraction, and mutual biological affinity.',
+      description: 'Yoni measures physiological compatibility, physical attraction, and mutual biological affinity.',
       analysis: yoniScore >= 2
         ? 'Mutual physical harmony and affectionate romantic connection between partners.'
-        : 'May require patience and open communication for deeper physical bonding.'
+        : 'Patience and gentle emotional communication recommended for deeper bonding.'
     },
     {
       id: 'grahaMaitri',
@@ -789,11 +892,11 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
       description: 'Gana analyzes behavior, temperament, and spiritual attitude (Deva, Manushya, Rakshasa).',
       analysis: ganaScore >= 5
         ? 'High temperamental synergy with shared social and ethical outlooks.'
-        : 'Deva and Rakshasa disposition; mutual respect for individual perspectives required.'
+        : 'Different dispositions; mutual respect for individual perspectives required.'
     },
     {
       id: 'bhakoot',
-      name: 'Emotional & Family Compatibility (Bhakoot / Rashi)',
+      name: 'Emotional & Family Growth (Bhakoot / Rashi)',
       sanskrit: 'भकूट',
       shortName: 'Bhakoot',
       obtainedPoints: bhakootScore,
@@ -801,13 +904,11 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
       boyValue: `${SIGN_NAMES_ENG[boySignIdx]} (${SIGN_NAMES_SAN[boySignIdx]})`,
       girlValue: `${SIGN_NAMES_ENG[girlSignIdx]} (${SIGN_NAMES_SAN[girlSignIdx]})`,
       description: 'Bhakoot evaluates overall emotional connection, financial prosperity, and marital longevity.',
-      analysis: bhakootScore === 7
-        ? 'Supreme emotional connection and family growth following the marriage.'
-        : 'Navam-Panchama axis; mitigated by benefic planetary friendship of Moon and Mars.'
+      analysis: bhakootReason,
     },
     {
       id: 'nadi',
-      name: 'Physiological / Genetic Harmony (Nadi)',
+      name: 'Physiological / Genetic Synergy (Nadi)',
       sanskrit: 'नाडी',
       shortName: 'Nadi',
       obtainedPoints: nadiScore,
@@ -815,9 +916,7 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
       boyValue: `${boyNadi} Nadi`,
       girlValue: `${girlNadi} Nadi`,
       description: 'Nadi indicates genetic compatibility, nervous system harmony, and progeny prospects.',
-      analysis: nadiScore === 8
-        ? 'Flawless Nadi alignment (No Nadi Dosha). Outstanding physiological harmony and blessed progeny.'
-        : 'Nadi dosha indicated; traditional remedies and medical guidance recommended.'
+      analysis: nadiReason,
     },
   ];
 
@@ -828,8 +927,8 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
     yoni: { points: yoniScore, max: 4 },
     grahaMaitri: { points: grahaScore, max: 5 },
     gana: { points: ganaScore, max: 6 },
-    bhakoot: { points: bhakootScore, max: 7 },
-    nadi: { points: nadiScore, max: 8 },
+    bhakoot: { points: bhakootScore, max: 7, hasDosha: bhakootDosha, isCancelled: bhakootCancelled },
+    nadi: { points: nadiScore, max: 8, hasDosha: nadiDosha, isCancelled: nadiCancelled },
   };
 
   return {
@@ -840,6 +939,362 @@ function calculateGunaMilan(boyMoonDeg, girlMoonDeg) {
     percentage: Number(((totalPoints / 36) * 100).toFixed(1)),
     recommendation,
     matchStatus,
+    doshas: {
+      nadiDosha: {
+        present: nadiDosha && !nadiCancelled,
+        cancelled: nadiCancelled,
+        boyNadi,
+        girlNadi,
+        reason: nadiReason,
+      },
+      bhakootDosha: {
+        present: bhakootDosha && !bhakootCancelled,
+        cancelled: bhakootCancelled,
+        dist1,
+        dist2,
+        reason: bhakootReason,
+      },
+      rajjuDosha: {
+        present: rajjuDosha,
+        boyRajju,
+        girlRajju,
+        area: rajjuDescriptions[boyRajju] || 'Physical and domestic harmony',
+      },
+      vedhaDosha: {
+        present: isVedha,
+        reason: isVedha
+          ? 'Vedha (Obstruction) detected between birth stars; traditional remedies and chanting advised.'
+          : 'No Vedha affliction between Nakshatras; clear spiritual pathway.',
+      },
+    },
+  };
+}
+
+/**
+ * Classical Manglik (Kuja) Dosha Evaluation
+ * Checks Mars from Lagna and Moon (1, 2, 4, 7, 8, 12) + classical cancellation rules
+ */
+function calculateManglikDosha(chart) {
+  if (!chart || !chart.planets) {
+    return {
+      status: 'No Manglik Dosha',
+      severity: 'None',
+      percentage: 0,
+      hasDosha: false,
+      houseFromLagna: 1,
+      houseFromMoon: 1,
+      isCancelled: false,
+      cancellations: [],
+      remedies: [],
+    };
+  }
+
+  const mars = chart.planets.find((p) => p.name === 'Mars');
+  const ascSign = chart.ascendant ? chart.ascendant.signNumber : 1;
+  const moonSign = chart.moonSign ? chart.moonSign.signNumber : (chart.planets[1]?.signNumber || 1);
+  const marsSign = mars ? mars.signNumber : 1;
+
+  // House of Mars from Lagna
+  const houseFromLagna = mars ? (((marsSign - ascSign + 12) % 12) + 1) : 1;
+  // House of Mars from Moon
+  const houseFromMoon = mars ? (((marsSign - moonSign + 12) % 12) + 1) : 1;
+
+  const doshaHouses = [1, 2, 4, 7, 8, 12];
+  const hasDoshaLagna = doshaHouses.includes(houseFromLagna);
+  const hasDoshaMoon = doshaHouses.includes(houseFromMoon);
+
+  const cancellations = [];
+  let isCancelled = false;
+
+  // Classical Parashari Cancellations
+  if (marsSign === 1 || marsSign === 8) {
+    cancellations.push('Mars in Swakshetra (Aries or Scorpio) neutralizes malefic intensity.');
+    isCancelled = true;
+  }
+  if (marsSign === 10) {
+    cancellations.push('Mars exalted (Uchha) in Capricorn acts as a benefic Yogakaraka.');
+    isCancelled = true;
+  }
+  if (marsSign === 5 || marsSign === 9) {
+    cancellations.push('Mars in friendly fiery signs (Leo or Sagittarius) softens matrimonial severity.');
+  }
+  if (houseFromLagna === 2 && (marsSign === 3 || marsSign === 6)) {
+    cancellations.push('Mars in 2nd house in Mercury sign (Gemini or Virgo) is exempt from Kuja Dosha.');
+    isCancelled = true;
+  }
+  if (houseFromLagna === 4 && (marsSign === 1 || marsSign === 8)) {
+    cancellations.push('Mars in 4th house in its own signs eliminates Sukha Bhava afflictions.');
+    isCancelled = true;
+  }
+  if (houseFromLagna === 7 && (marsSign === 4 || marsSign === 10)) {
+    cancellations.push('Mars in 7th house in Cancer (Neecha Bhanga) or Capricorn has no Kuja Dosha.');
+    isCancelled = true;
+  }
+  if (houseFromLagna === 8 && (marsSign === 9 || marsSign === 12)) {
+    cancellations.push('Mars in 8th house in Jupiter signs (Sagittarius or Pisces) cancels Kuja Dosha.');
+    isCancelled = true;
+  }
+  if (houseFromLagna === 12 && (marsSign === 2 || marsSign === 7)) {
+    cancellations.push('Mars in 12th house in Venus signs (Taurus or Libra) cancels Kuja Dosha.');
+    isCancelled = true;
+  }
+
+  // Jupiter aspect or conjunction
+  const jupiter = chart.planets.find((p) => p.name === 'Jupiter');
+  if (jupiter && mars) {
+    if (jupiter.signNumber === mars.signNumber) {
+      cancellations.push('Guru-Mangala Yoga: Jupiter conjunct Mars completely purifies Kuja Dosha.');
+      isCancelled = true;
+    } else {
+      const distFromJupiter = ((mars.signNumber - jupiter.signNumber + 12) % 12) + 1;
+      if ([5, 7, 9].includes(distFromJupiter)) {
+        cancellations.push('Divine aspect (Drishti) of Jupiter on Mars pacifies matrimonial afflictions.');
+        isCancelled = true;
+      }
+    }
+  }
+
+  let status = 'No Manglik Dosha';
+  let percentage = 0;
+  let severity = 'None';
+
+  if (!hasDoshaLagna && !hasDoshaMoon) {
+    status = 'No Manglik Dosha';
+    percentage = 0;
+    severity = 'None';
+  } else if (isCancelled) {
+    status = 'Manglik Dosha Cancelled (Parihara)';
+    percentage = 15;
+    severity = 'Cancelled';
+  } else if (hasDoshaLagna && hasDoshaMoon) {
+    status = 'Purna (Full) Manglik Dosha';
+    percentage = 85;
+    severity = 'High';
+  } else {
+    status = 'Anshik (Partial) Manglik Dosha';
+    percentage = 45;
+    severity = 'Low';
+  }
+
+  return {
+    status,
+    severity,
+    percentage,
+    hasDosha: hasDoshaLagna || hasDoshaMoon,
+    houseFromLagna,
+    houseFromMoon,
+    marsSignName: mars?.signName || 'Unknown',
+    marsSignNumber: marsSign,
+    hasDoshaLagna,
+    hasDoshaMoon,
+    isCancelled,
+    cancellations,
+    remedies: [
+      'Recite Mangal Gayatri Mantra (ॐ क्षितिपुत्राय विद्महे...) or Hanuman Chalisa on Tuesdays.',
+      'Wear a certified Red Coral (Moonga) in copper or gold after astrological consultation.',
+      'Perform Kumbh Vivah or Vishnu Pratima Vivah before marriage if strongly indicated.',
+      'Donate red lentils (Masoor Dal) and jaggery on Tuesdays to seek Lord Hanuman’s blessings.',
+    ],
+  };
+}
+
+/**
+ * Cross-Chart Manglik Compatibility Evaluation
+ */
+function evaluateManglikMatching(boyManglik, girlManglik) {
+  const bHas = boyManglik.hasDosha && !boyManglik.isCancelled;
+  const gHas = girlManglik.hasDosha && !girlManglik.isCancelled;
+
+  if (bHas && gHas) {
+    return {
+      compatible: true,
+      verdict: 'Excellent Match (Both Manglik - Dosha Nullified)',
+      verdictSanskrit: 'दोष साम्य (दोष निरसन)',
+      description: 'Both individuals possess Manglik Dosha. According to classical Parashari principles, mutual Manglik placement completely neutralizes the affliction (Dosha Samyam), making this union highly auspicious and emotionally balanced.',
+      scoreBonus: 5,
+    };
+  }
+
+  if (!bHas && !gHas) {
+    return {
+      compatible: true,
+      verdict: 'Auspicious Match (Neither is Manglik)',
+      verdictSanskrit: 'शुभ साम्य (दोष रहित)',
+      description: 'Neither bride nor groom is affected by Manglik Dosha. Both birth charts are free from Kuja afflictions in the marital houses, ensuring natural peaceful domestic harmony.',
+      scoreBonus: 5,
+    };
+  }
+
+  if (boyManglik.isCancelled || girlManglik.isCancelled) {
+    return {
+      compatible: true,
+      verdict: 'Approved Match (Manglik Dosha Cancelled via Parihara)',
+      verdictSanskrit: 'दोष परिहार (अनुकूल)',
+      description: 'Manglik affliction is present but successfully cancelled due to classical planetary conditions (exaltation, own house, or Jupiter aspect). The union is safe and approved with minor traditional prayers.',
+      scoreBonus: 3,
+    };
+  }
+
+  return {
+    compatible: false,
+    verdict: 'Conditional Match (One Partner is Manglik - Consultation Advised)',
+    verdictSanskrit: 'एकांगी भौम दोष (परामर्श आवश्यक)',
+    description: 'One partner carries active Manglik Dosha while the other does not. In traditional Vedic Jyotish, remedial measures such as Kumbh Vivah, Tuesday Hanuman prayers, or a detailed astrologer consultation are recommended before finalizing.',
+    scoreBonus: 0,
+  };
+}
+
+/**
+ * Evaluates 7th House, Venus, Jupiter & Navamsha Compatibility
+ */
+function evaluatePlanetaryHarmony(boyChart, girlChart) {
+  const boy7thSign = ((boyChart.ascendant.signNumber + 5) % 12) + 1;
+  const girl7thSign = ((girlChart.ascendant.signNumber + 5) % 12) + 1;
+  const boy7thLord = SIGN_LORDS[boy7thSign - 1];
+  const girl7thLord = SIGN_LORDS[girl7thSign - 1];
+
+  const boyVenus = boyChart.planets.find((p) => p.name === 'Venus');
+  const girlVenus = girlChart.planets.find((p) => p.name === 'Venus');
+  const venusDist = boyVenus && girlVenus ? (((girlVenus.signNumber - boyVenus.signNumber + 12) % 12) + 1) : 1;
+  const isVenusHarmonious = [1, 5, 7, 9, 11].includes(venusDist);
+
+  const boyD9Lagna = boyChart.ascendant?.navamsa?.signNumber || 1;
+  const girlD9Lagna = girlChart.ascendant?.navamsa?.signNumber || 1;
+  const d9LagnaDist = (((girlD9Lagna - boyD9Lagna + 12) % 12) + 1);
+  const isD9Harmonious = [1, 5, 7, 9, 11].includes(d9LagnaDist);
+
+  return {
+    boy7thHouse: {
+      signNumber: boy7thSign,
+      signName: SIGN_NAMES_ENG[boy7thSign - 1],
+      lord: boy7thLord,
+    },
+    girl7thHouse: {
+      signNumber: girl7thSign,
+      signName: SIGN_NAMES_ENG[girl7thSign - 1],
+      lord: girl7thLord,
+    },
+    venusHarmony: isVenusHarmonious
+      ? 'Auspicious Venus Alignment: Harmonious emotional intimacy and mutual aesthetic appreciation.'
+      : 'Venus Placements require mutual patience and regular quality romantic time.',
+    d9Harmony: isD9Harmonious
+      ? 'Strong Navamsha (D9) Harmony: The subtle inner soul charts resonate favorably for long-term spiritual growth.'
+      : 'Navamsha shows complementary life paths that benefit from shared spiritual goals.',
+  };
+}
+
+/**
+ * Master Compatibility Report Generator
+ * Computes full Kundlis, Ashtakoota Guna Milan, Manglik, Doshas, and Planetary Harmony
+ */
+function calculateCompatibilityReport(boyBirth, girlBirth) {
+  const boyChart = calculateKundli({
+    fullName: boyBirth.fullName || 'Groom',
+    dateOfBirth: boyBirth.dateOfBirth,
+    timeOfBirth: boyBirth.timeOfBirth || '12:00',
+    placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
+    latitude: parseFloat(boyBirth.latitude) || 28.6139,
+    longitude: parseFloat(boyBirth.longitude) || 77.2090,
+    timezoneOffsetHours: parseFloat(boyBirth.timezoneOffset ?? boyBirth.timezoneOffsetHours) || 5.5,
+  });
+
+  const girlChart = calculateKundli({
+    fullName: girlBirth.fullName || 'Bride',
+    dateOfBirth: girlBirth.dateOfBirth,
+    timeOfBirth: girlBirth.timeOfBirth || '12:00',
+    placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
+    latitude: parseFloat(girlBirth.latitude) || 28.6139,
+    longitude: parseFloat(girlBirth.longitude) || 77.2090,
+    timezoneOffsetHours: parseFloat(girlBirth.timezoneOffset ?? girlBirth.timezoneOffsetHours) || 5.5,
+  });
+
+  const boyMoonDeg = boyChart.planets[1].longitude;
+  const girlMoonDeg = girlChart.planets[1].longitude;
+
+  const gunaMilan = calculateGunaMilan(boyMoonDeg, girlMoonDeg, boyChart, girlChart);
+  const boyManglik = calculateManglikDosha(boyChart);
+  const girlManglik = calculateManglikDosha(girlChart);
+  const manglikMatching = evaluateManglikMatching(boyManglik, girlManglik);
+  const planetaryHarmony = evaluatePlanetaryHarmony(boyChart, girlChart);
+
+  // Derive top strengths and challenges
+  const strengths = [];
+  const challenges = [];
+
+  gunaMilan.kutas.forEach((k) => {
+    const ratio = k.obtainedPoints / k.maxPoints;
+    if (ratio >= 0.75) {
+      strengths.push(`${k.shortName} (${k.obtainedPoints}/${k.maxPoints} pts): ${k.analysis}`);
+    } else if (ratio < 0.5) {
+      challenges.push(`${k.shortName} (${k.obtainedPoints}/${k.maxPoints} pts): ${k.analysis}`);
+    }
+  });
+
+  if (manglikMatching.compatible) {
+    strengths.push(`Manglik Harmony: ${manglikMatching.verdict}`);
+  } else {
+    challenges.push(`Manglik Consideration: ${manglikMatching.verdict}`);
+  }
+
+  const traditionalRemedies = [
+    'Perform Gauri-Shankar Puja or Rudrabhishek together on Mondays to enhance marital bliss and long-term peace.',
+    'Chant the Maha Mrityunjaya Mantra (ॐ त्र्यम्बकं यजामहे...) 108 times daily for mutual health and longevity.',
+    'Feed green grass or spinach to cows on Wednesdays to invoke the auspicious blessings of Mercury and Jupiter.',
+    'Offer milk and white flowers at a Shiva-Parvati temple on Shukla Paksha Fridays for domestic harmony.',
+  ];
+
+  return {
+    boyChart: {
+      fullName: boyBirth.fullName || 'Groom',
+      gender: 'male',
+      dateOfBirth: boyBirth.dateOfBirth,
+      timeOfBirth: boyBirth.timeOfBirth || '12:00',
+      placeOfBirth: boyBirth.placeOfBirth || 'New Delhi',
+      latitude: parseFloat(boyBirth.latitude) || 28.6139,
+      longitude: parseFloat(boyBirth.longitude) || 77.2090,
+      timezoneOffsetHours: parseFloat(boyBirth.timezoneOffset ?? boyBirth.timezoneOffsetHours) || 5.5,
+      ascendant: boyChart.ascendant,
+      moonSign: boyChart.moonSign,
+      sunSign: boyChart.sunSign,
+      planets: boyChart.planets,
+      houses: boyChart.houses,
+      navamsaHouses: boyChart.navamsaHouses,
+      dasha: boyChart.dasha,
+      manglik: boyManglik,
+    },
+    girlChart: {
+      fullName: girlBirth.fullName || 'Bride',
+      gender: 'female',
+      dateOfBirth: girlBirth.dateOfBirth,
+      timeOfBirth: girlBirth.timeOfBirth || '12:00',
+      placeOfBirth: girlBirth.placeOfBirth || 'New Delhi',
+      latitude: parseFloat(girlBirth.latitude) || 28.6139,
+      longitude: parseFloat(girlBirth.longitude) || 77.2090,
+      timezoneOffsetHours: parseFloat(girlBirth.timezoneOffset ?? girlBirth.timezoneOffsetHours) || 5.5,
+      ascendant: girlChart.ascendant,
+      moonSign: girlChart.moonSign,
+      sunSign: girlChart.sunSign,
+      planets: girlChart.planets,
+      houses: girlChart.houses,
+      navamsaHouses: girlChart.navamsaHouses,
+      dasha: girlChart.dasha,
+      manglik: girlManglik,
+    },
+    gunaMilan,
+    manglikMatching,
+    doshaAnalysis: gunaMilan.doshas,
+    planetaryHarmony,
+    summary: {
+      score: gunaMilan.totalScore,
+      maxScore: 36,
+      percentage: gunaMilan.percentage,
+      category: gunaMilan.matchStatus,
+      recommendation: gunaMilan.recommendation,
+      isApproved: gunaMilan.totalScore >= 18,
+      strengths,
+      challenges,
+      traditionalRemedies,
+    },
   };
 }
 
@@ -1076,8 +1531,16 @@ function calculatePanchang({ date, time = "06:00", latitude = 28.6139, longitude
 module.exports = {
   ZODIAC_SIGNS,
   NAKSHATRAS,
+  NAKSHATRA_ATTRIBUTES,
+  SIGN_LORDS,
+  SIGN_NAMES_ENG,
+  SIGN_NAMES_SAN,
   calculateKundli,
   calculateGunaMilan,
+  calculateManglikDosha,
+  evaluateManglikMatching,
+  evaluatePlanetaryHarmony,
+  calculateCompatibilityReport,
   calculatePanchang,
   mapToVedicDetails,
   getLahiriAyanamsa,
