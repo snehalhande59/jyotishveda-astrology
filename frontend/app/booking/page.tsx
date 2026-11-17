@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { api } from '@/lib/api';
+import { getCurrentUser } from '@/lib/auth';
 import { Astrologer, AstrologyService } from '@/lib/types';
 import PaymentModal from '@/components/PaymentModal';
 import {
@@ -226,14 +227,18 @@ function BookingContent() {
   // 3. Payment verification completion handler
   const handlePaymentSuccess = (paymentRecord: any) => {
     setShowPaymentModal(false);
+    const user = getCurrentUser();
+    const clientName = user?.username || pendingBooking?.clientName || 'Vedic Devotee';
+    const clientEmail = user?.email || pendingBooking?.clientEmail || 'client@astroveda.com';
+    const clientPhone = (user as any)?.phone || pendingBooking?.clientPhone || '+91 98765 43210';
     const finalBookingNumber = pendingBooking?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`;
     const confirmedFee = selectedAstrologer?.consultationFee || 999;
 
     const bookingPayload = {
       bookingNumber: finalBookingNumber,
-      clientName: fullName || 'Vedic Devotee',
-      clientEmail: email,
-      clientPhone: phone,
+      clientName,
+      clientEmail,
+      clientPhone,
       astrologerId: selectedAstrologer?.id,
       astrologerName: selectedAstrologer?.name,
       date,
@@ -278,7 +283,7 @@ function BookingContent() {
         eventType: 'booking_confirmed',
         serviceName: `Confirmed: ${selectedAstrologer?.name}`,
         serviceCategory: 'revenue',
-        userIdentifier: fullName || email || 'Devotee Client',
+        userIdentifier: clientName || clientEmail || 'Devotee Client',
         metadata: {
           bookingNumber: finalBookingNumber,
           astrologerId: selectedAstrologer?.id,
