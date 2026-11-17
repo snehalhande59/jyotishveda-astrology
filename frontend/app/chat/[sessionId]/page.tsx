@@ -121,7 +121,7 @@ export default function ActiveChatSessionPage() {
             },
             expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
             birthChartSummary: {
-              fullName: user.username,
+              fullName: user?.username || 'Client',
               ascendantSign: 'Mesha (Aries)',
               moonSign: 'Vrishabha (Taurus)',
               nakshatra: 'Rohini',
@@ -149,7 +149,7 @@ export default function ActiveChatSessionPage() {
             id: 1,
             senderType: 'astrologer',
             senderName: sess.astrologer?.name || 'Dr. Meenakshi Sundaram',
-            message: `Pranam ${user.username || user.email}. I am ${sess.astrologer?.name || 'Dr. Meenakshi Sundaram'}. Your paid 30-minute private consultation has commenced. I have your complete birth chart and questions ready. What guidance are you seeking today?`,
+            message: `Pranam ${user?.username || user?.email || 'Client'}. I am ${sess.astrologer?.name || 'Dr. Meenakshi Sundaram'}. Your paid 30-minute private consultation has commenced. I have your complete birth chart and questions ready. What guidance are you seeking today?`,
             timestamp: new Date().toISOString(),
           };
           msgs = [welcomeMsg];
