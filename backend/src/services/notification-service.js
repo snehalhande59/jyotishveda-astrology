@@ -167,8 +167,17 @@ class NotificationService {
     return this.sendEmail({ to, subject, html });
   }
 
-  async sendBookingConfirmationEmail({ to, userName, bookingNumber, astrologerName, bookingDate, timeSlot, fee }) {
-    const subject = `Consultation Booked – JyotishVeda #${bookingNumber}`;
+  async sendBookingConfirmationEmail({ to, userName, bookingNumber, astrologerName, bookingDate, timeSlot, fee, meetingLink }) {
+    const subject = `Your Consultation is CONFIRMED – JyotishVeda #${bookingNumber}`;
+    const meetingBlock = meetingLink
+      ? `<div style="margin: 16px 0; text-align: center;">
+           <a href="${meetingLink}" target="_blank" style="display: inline-block; background-color: #D97706; color: #FFFFFF; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 14px;">
+             📹 Join Video Consultation
+           </a>
+           <p style="margin: 8px 0 0 0; font-size: 11px; color: #786C60;">Direct Meeting Link: <a href="${meetingLink}" style="color: #D97706;">${meetingLink}</a></p>
+         </div>`
+      : '';
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #2D1810; background-color: #FFFDF9; border: 1px solid #EAE1D2; border-radius: 16px; overflow: hidden;">
         <div style="background-color: #78350F; padding: 24px; text-align: center; color: #FFFBEB;">
@@ -176,17 +185,47 @@ class NotificationService {
           <p style="margin: 4px 0 0 0; font-size: 13px; color: #FDE68A;">Sacred Vedic Astrological Consultation</p>
         </div>
         <div style="padding: 24px;">
-          <h2 style="font-size: 18px; color: #92400E; margin-top: 0;">Your Consultation is Confirmed</h2>
+          <h2 style="font-size: 18px; color: #047857; margin-top: 0;">🎉 Your Consultation is Officially Confirmed!</h2>
           <p>Pranam <strong>${userName || 'Devotee'}</strong>,</p>
-          <p>Your upcoming Vedic astrological consultation with <strong>${astrologerName || 'our Acharya'}</strong> has been scheduled.</p>
+          <p>We are pleased to inform you that your private Vedic astrological reading with <strong>${astrologerName || 'our Acharya'}</strong> has been reviewed and <strong>CONFIRMED</strong> by our administrative desk.</p>
           <div style="background-color: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px; margin: 20px 0;">
             <p style="margin: 4px 0;"><strong>Booking Number:</strong> ${bookingNumber}</p>
             <p style="margin: 4px 0;"><strong>Astrologer:</strong> ${astrologerName}</p>
             <p style="margin: 4px 0;"><strong>Date:</strong> ${bookingDate}</p>
             <p style="margin: 4px 0;"><strong>Time Slot:</strong> ${timeSlot}</p>
-            <p style="margin: 4px 0;"><strong>Consultation Fee:</strong> ₹${fee}</p>
+            <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #047857; font-weight: bold;">CONFIRMED</span></p>
+            ${fee ? `<p style="margin: 4px 0;"><strong>Fee:</strong> ₹${fee}</p>` : ''}
           </div>
+          ${meetingBlock}
           <p style="font-size: 13px; color: #786C60;">Please have your exact birth date, time, and birth city ready for maximum astrological accuracy during your reading.</p>
+        </div>
+        <div style="background-color: #FAF7F2; padding: 16px; text-align: center; font-size: 11px; color: #786C60; border-top: 1px solid #EAE1D2;">
+          <p style="margin: 0;">© ${new Date().getFullYear()} JyotishVeda Platform.</p>
+        </div>
+      </div>
+    `;
+
+    return this.sendEmail({ to, subject, html });
+  }
+
+  async sendBookingCancellationEmail({ to, userName, bookingNumber, astrologerName, bookingDate, timeSlot, fee, reason }) {
+    const subject = `Consultation Cancelled Notice – JyotishVeda #${bookingNumber}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #2D1810; background-color: #FFFDF9; border: 1px solid #EAE1D2; border-radius: 16px; overflow: hidden;">
+        <div style="background-color: #78350F; padding: 24px; text-align: center; color: #FFFBEB;">
+          <h1 style="margin: 0; font-size: 24px;">ज्योतिषवेदा JyotishVeda</h1>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: #FDE68A;">Sacred Vedic Astrological Consultation</p>
+        </div>
+        <div style="padding: 24px;">
+          <h2 style="font-size: 18px; color: #DC2626; margin-top: 0;">⚠️ Consultation Cancelled Notice</h2>
+          <p>Pranam <strong>${userName || 'Devotee'}</strong>,</p>
+          <p>Your booking with <strong>${astrologerName || 'our Acharya'}</strong> for <strong>${bookingDate} at ${timeSlot}</strong> has been cancelled.</p>
+          <div style="background-color: #FEF2F2; border: 1px solid #FECACA; border-radius: 12px; padding: 16px; margin: 20px 0;">
+            <p style="margin: 4px 0;"><strong>Booking Number:</strong> ${bookingNumber}</p>
+            <p style="margin: 4px 0;"><strong>Status:</strong> <span style="color: #DC2626; font-weight: bold;">CANCELLED</span></p>
+            ${reason ? `<p style="margin: 4px 0;"><strong>Reason / Note:</strong> ${reason}</p>` : ''}
+          </div>
+          <p style="font-size: 13px; color: #786C60;">If any fee was charged, our support team has initiated the refund process to your original payment method. You may also re-schedule a new consultation at your convenience.</p>
         </div>
         <div style="background-color: #FAF7F2; padding: 16px; text-align: center; font-size: 11px; color: #786C60; border-top: 1px solid #EAE1D2;">
           <p style="margin: 0;">© ${new Date().getFullYear()} JyotishVeda Platform.</p>

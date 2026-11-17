@@ -15,6 +15,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Video,
+  AlertCircle,
 } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -101,7 +102,66 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 space-y-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 space-y-6">
+        {/* Real-time Order / Booking Status Notifications */}
+        {bookings
+          .filter((b) => b.status === 'confirmed' && b.meetingLink)
+          .map((cb) => (
+            <div
+              key={cb.id}
+              className="p-5 bg-gradient-to-r from-emerald-50 via-[#F0FDF4] to-emerald-50 border-2 border-emerald-400 rounded-2xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-fadeIn"
+            >
+              <div className="flex items-start space-x-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Video className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-600 text-white tracking-wider">
+                      {language === 'mr' ? 'सल्लामसलत निश्चित (Confirmed)' : 'Appointment Confirmed'}
+                    </span>
+                    <span className="text-[11px] font-mono text-[#786C60]">#{cb.bookingNumber}</span>
+                  </div>
+                  <h3 className="font-serif text-base font-bold text-[#1A4D2E] mt-1">
+                    {language === 'mr' ? 'आपली व्हिडिओ भेट निश्चित झाली आहे:' : 'Your Video Consultation is Confirmed with:'}{' '}
+                    {cb.astrologer?.name || 'Vedic Acharya'}
+                  </h3>
+                  <p className="text-xs text-[#2D5A3C] mt-0.5">
+                    📅 {cb.date} at ⏰ {cb.timeSlot} • {cb.topic || 'Vedic Astrology Consultation'}
+                  </p>
+                </div>
+              </div>
+              <a
+                href={cb.meetingLink}
+                target="_blank"
+                rel="noreferrer"
+                className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center space-x-2 shrink-0 self-stretch sm:self-auto justify-center"
+              >
+                <Video className="w-4 h-4" />
+                <span>{language === 'mr' ? 'व्हिडिओ कॉलमध्ये सामील व्हा' : 'Join Video Consultation'}</span>
+              </a>
+            </div>
+          ))}
+
+        {bookings
+          .filter((b) => b.status === 'cancelled')
+          .slice(0, 1)
+          .map((cb) => (
+            <div
+              key={cb.id}
+              className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between text-xs text-rose-800"
+            >
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>
+                  {language === 'mr'
+                    ? `बुकिंग #${cb.bookingNumber} (${cb.astrologer?.name || 'आचार्य'}) रद्द करण्यात आली आहे. परतावा प्रक्रिया सुरू केली आहे.`
+                    : `Booking #${cb.bookingNumber} with ${cb.astrologer?.name || 'Acharya'} was cancelled. Refund has been initiated.`}
+                </span>
+              </div>
+            </div>
+          ))}
+
         {/* Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <Link

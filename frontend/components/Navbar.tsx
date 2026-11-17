@@ -32,7 +32,11 @@ import {
   ArrowRight,
   ShieldCheck,
   Calculator,
+  Bell,
+  CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
+import { api } from '@/lib/api';
 
 const CALCULATORS_COL_1 = [
   { href: '/calculators/love', label: 'Love Calculator', labelMr: 'लव्ह कॅल्क्युलेटर' },
@@ -69,6 +73,9 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileCalculatorsOpen, setMobileCalculatorsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [userNotifications, setUserNotifications] = useState<any[]>([]);
+  const notifDropdownRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -80,12 +87,58 @@ export default function Navbar() {
     setMobileMenuOpen(false); // Auto-close drawer on navigation
 
     const handleWalletUpdate = () => setWalletBalance(getWalletBalance());
-    const handleAuthUpdate = () => setUser(getCurrentUser());
+    const handleAuthUpdate = () => {
+      const u = getCurrentUser();
+      setUser(u);
+      if (u) loadNotifications();
+    };
     const handleCartUpdate = () => setCartItemCount(getCartTotals().totalItems);
 
     window.addEventListener('wallet-updated', handleWalletUpdate);
     window.addEventListener('auth-updated', handleAuthUpdate);
     window.addEventListener('cart-updated', handleCartUpdate);
+
+    async function loadNotifications() {
+      const curUser = getCurrentUser();
+      if (!curUser) return;
+      try {
+        const bookings = await api.getMyBookings();
+        if (Array.isArray(bookings)) {
+          const mapped = bookings
+            .filter((b) => b.status === 'confirmed' || b.status === 'cancelled')
+            .map((b) => ({
+              id: `booking_${b.id}`,
+              type: b.status === 'confirmed' ? 'confirmed' : 'cancelled',
+              title: b.status === 'confirmed' ? '🎉 Consultation Confirmed' : '⚠️ Consultation Cancelled',
+              message: b.status === 'confirmed'
+                ? `${b.astrologer?.name || 'Vedic Scholar'} on ${b.date} at ${b.timeSlot}`
+                : `Booking #${b.bookingNumber} was cancelled. Refund initiated.`,
+              meetingLink: b.meetingLink,
+              date: b.date,
+              timeSlot: b.timeSlot,
+              read: false,
+            }));
+          setUserNotifications(mapped);
+        }
+      } catch {}
+    }
+    loadNotifications();
+
+    // Cross-tab and live telemetry broadcast listener for instant notification
+    let bc: BroadcastChannel | null = null;
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        bc = new BroadcastChannel('astroveda_telemetry_stream');
+        bc.onmessage = (event) => {
+          const msg = event.data;
+          if (msg?.type === 'USER_NOTIFICATION' && msg.notification) {
+            setUserNotifications((prev) => [msg.notification, ...prev]);
+          } else if (msg?.type === 'BOOKING_STATUS_UPDATED') {
+            loadNotifications();
+          }
+        };
+      } catch {}
+    }
 
     // Continuous live user telemetry heartbeat
     sendHeartbeat();
@@ -95,6 +148,7 @@ export default function Navbar() {
 
     return () => {
       clearInterval(hbInterval);
+      if (bc) bc.close();
       window.removeEventListener('wallet-updated', handleWalletUpdate);
       window.removeEventListener('auth-updated', handleAuthUpdate);
       window.removeEventListener('cart-updated', handleCartUpdate);
@@ -222,6 +276,90 @@ export default function Navbar() {
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
+
+              {/* Real-time Order & Consultation Notification Bell */}
+              {user && (
+                <div className="relative" ref={notifDropdownRef}>
+                  <button
+                    onClick={() => setNotificationsOpen(!notificationsOpen)}
+                    className="p-1 text-[#785D46] hover:text-[#D97706] transition-colors relative cursor-pointer flex items-center justify-center"
+                    title={language === 'mr' ? 'सूचना (Order Status)' : 'Order Notifications'}
+                    aria-label="Order Notifications"
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                    {userNotifications.filter((n) => !n.read).length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-[8px] font-extrabold rounded-full w-3.5 h-3.5 flex items-center justify-center shadow-xs animate-pulse">
+                        {userNotifications.filter((n) => !n.read).length}
+                      </span>
+                    )}
+                  </button>
+
+                  {notificationsOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-72 sm:w-88 bg-white border border-[#EAE1D2] rounded-2xl shadow-xl z-50 p-3 text-xs text-[#2D1810] animate-fadeIn">
+                      <div className="flex items-center justify-between pb-2 border-b border-[#EAE1D2]">
+                        <span className="font-serif font-bold text-xs text-[#2D1810] flex items-center space-x-1.5">
+                          <Bell className="w-3.5 h-3.5 text-[#D97706]" />
+                          <span>{language === 'mr' ? 'ऑर्डर व सल्लामसलत स्थिती' : 'Order & Booking Status'}</span>
+                        </span>
+                        {userNotifications.length > 0 && (
+                          <button
+                            onClick={() => setUserNotifications((prev) => prev.map((n) => ({ ...n, read: true })))}
+                            className="text-[10px] text-[#786C60] hover:text-[#D97706] font-semibold cursor-pointer"
+                          >
+                            {language === 'mr' ? 'वाचले' : 'Clear'}
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="max-h-60 overflow-y-auto divide-y divide-[#EAE1D2] py-1">
+                        {userNotifications.length === 0 ? (
+                          <p className="text-center py-5 text-gray-400 text-xs">
+                            {language === 'mr' ? 'सर्व ऑर्डर्स सुरळीत आहेत.' : 'No new booking status alerts'}
+                          </p>
+                        ) : (
+                          userNotifications.map((n) => (
+                            <div key={n.id} className="py-2.5 space-y-1">
+                              <div className="flex items-start space-x-2">
+                                {n.type === 'confirmed' ? (
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                                ) : (
+                                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-bold text-xs text-[#2D1810]">{n.title}</h4>
+                                  <p className="text-[11px] text-[#6B5A4E] mt-0.5 leading-snug">{n.message}</p>
+                                  {n.meetingLink && (
+                                    <div className="pt-1.5">
+                                      <a
+                                        href={n.meetingLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow-2xs transition-colors"
+                                      >
+                                        <span>📹 {language === 'mr' ? 'व्हिडिओ कॉल सुरू करा' : 'Join Video Call'}</span>
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="pt-2 border-t border-[#EAE1D2] text-center">
+                        <Link
+                          href="/dashboard/bookings"
+                          onClick={() => setNotificationsOpen(false)}
+                          className="text-[10px] text-[#D97706] hover:underline font-bold"
+                        >
+                          {language === 'mr' ? 'माझ्या सर्व अपॉइंटमेंट्स पहा →' : 'View all my bookings →'}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* User Authentication Status */}
               {user ? (

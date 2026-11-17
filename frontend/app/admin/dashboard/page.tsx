@@ -129,12 +129,13 @@ export default function AdminDashboardPage() {
   } | null>(null);
   const [streamStatus, setStreamStatus] = useState<'connected' | 'syncing' | 'offline'>('connected');
 
-  const fetchStats = async () => {
+  const fetchStats = async (selectedRange?: string) => {
     try {
       setError(null);
       setStreamStatus('syncing');
+      const activeRange = selectedRange || dateRange;
       const [res, astroRes, bookingsRes] = await Promise.allSettled([
-        adminApi.getDashboardStats(),
+        adminApi.getDashboardStats(activeRange),
         adminApi.getAstrologers({ pageSize: 50 }),
         adminApi.getBookings({ pageSize: 50 }),
       ]);
@@ -378,11 +379,47 @@ export default function AdminDashboardPage() {
     });
   };
 
-  const effectiveBookings = bookingsList.length > 0 ? bookingsList : (stats?.recentBookings || []);
+  // Compute dynamically filtered bookings based on selected dateRange
+  const nowMs = Date.now();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const thisMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+  const thisYearStart = new Date(new Date().getFullYear(), 0, 1).getTime();
+
+  const filteredBookings = bookingsList.filter((b: any) => {
+    if (dateRange === 'all') return true;
+    const bDateStr = b.date || b.createdAt?.slice(0, 10);
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+
+    if (dateRange === 'today') {
+      return bDateStr === todayStr;
+    }
+    if (dateRange === '7days') {
+      return bTime >= (nowMs - 7 * 86400000);
+    }
+    if (dateRange === '30days') {
+      return bTime >= (nowMs - 30 * 86400000);
+    }
+    if (dateRange === 'month') {
+      return bTime >= thisMonthStart;
+    }
+    if (dateRange === 'year') {
+      return bTime >= thisYearStart;
+    }
+    return true;
+  });
+
+  const effectiveBookings = filteredBookings.length > 0 
+    ? filteredBookings 
+    : (dateRange === 'all' || dateRange === '30days' ? (bookingsList.length > 0 ? bookingsList : (stats?.recentBookings || [])) : []);
+
   const confirmedCount = effectiveBookings.filter((b: any) => b.status === 'confirmed').length;
   const pendingCount = effectiveBookings.filter((b: any) => b.status === 'pending').length;
   const completedCount = effectiveBookings.filter((b: any) => b.status === 'completed').length;
-  const totalBookingsCount = Math.max(effectiveBookings.length, stats?.metrics?.totalBookings || 0);
+  const totalBookingsCount = effectiveBookings.length;
+
+  const filteredRevenue = effectiveBookings
+    .filter((b: any) => b.status === 'confirmed' || b.status === 'completed' || b.paymentStatus === 'captured')
+    .reduce((acc: number, b: any) => acc + (Number(b.consultationFee || b.fee) || 0), 0);
 
   const displayedBookings = bookingFilter === 'all'
     ? effectiveBookings
@@ -392,14 +429,19 @@ export default function AdminDashboardPage() {
     totalUsers: stats?.metrics?.totalUsers ?? 0,
     totalAstrologers: stats?.metrics?.totalAstrologers ?? (astrologersList.length || 0),
     activeAstrologers: stats?.metrics?.activeAstrologers ?? (astrologersList.filter((a) => a.isOnline).length || 0),
-    totalBookings: stats?.metrics?.totalBookings ?? totalBookingsCount,
-    pendingBookings: stats?.metrics?.pendingBookings ?? pendingCount,
-    completedBookings: stats?.metrics?.completedBookings ?? completedCount,
-    confirmedBookings: stats?.metrics?.confirmedBookings ?? confirmedCount,
-    totalRevenue: stats?.metrics?.totalRevenue ?? 0,
+    totalBookings: stats?.range === dateRange && stats?.metrics?.totalBookings !== undefined ? stats.metrics.totalBookings : totalBookingsCount,
+    pendingBookings: stats?.range === dateRange && stats?.metrics?.pendingBookings !== undefined ? stats.metrics.pendingBookings : pendingCount,
+    completedBookings: stats?.range === dateRange && stats?.metrics?.completedBookings !== undefined ? stats.metrics.completedBookings : completedCount,
+    confirmedBookings: stats?.range === dateRange && stats?.metrics?.confirmedBookings !== undefined ? stats.metrics.confirmedBookings : confirmedCount,
+    totalRevenue: stats?.range === dateRange && stats?.metrics?.totalRevenue !== undefined ? stats.metrics.totalRevenue : (filteredRevenue > 0 ? filteredRevenue : (stats?.metrics?.totalRevenue ?? 0)),
     totalSearches: stats?.metrics?.totalSearches ?? 0,
     totalKundlisCalculated: stats?.metrics?.totalKundlisCalculated ?? 0,
     totalEvents: stats?.metrics?.totalEvents ?? 0,
+  };
+
+  const handleSelectDateRange = (range: string) => {
+    setDateRange(range);
+    fetchStats(range);
   };
 
   const recentEvents = stats?.recentEvents || [];
@@ -423,8 +465,8 @@ export default function AdminDashboardPage() {
           {['today', '7days', '30days', 'month', 'year'].map((range) => (
             <button
               key={range}
-              onClick={() => setDateRange(range)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all ${
+              onClick={() => handleSelectDateRange(range)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
                 dateRange === range
                   ? 'bg-amber-500 text-black shadow-xs font-bold'
                   : isDark
@@ -443,6 +485,18 @@ export default function AdminDashboardPage() {
                 : 'Today'}
             </button>
           ))}
+          <span className="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 font-semibold ml-1">
+            {dateRange === 'today'
+              ? `📅 Filtered: Today (${todayStr})`
+              : dateRange === '7days'
+              ? '📅 Filtered: Last 7 Days'
+              : dateRange === '30days'
+              ? '📅 Filtered: Last 30 Days'
+              : dateRange === 'month'
+              ? '📅 Filtered: This Month'
+              : '📅 Filtered: This Year'}
+          </span>
+        </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

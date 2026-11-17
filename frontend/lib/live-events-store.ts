@@ -48,11 +48,28 @@ export interface LiveRegisteredUser {
   lastLogin: string;
 }
 
+export interface UserNotificationItem {
+  id: string;
+  bookingId?: string | number;
+  bookingNumber?: string;
+  userEmail?: string;
+  title: string;
+  message: string;
+  type: 'booking_confirmed' | 'booking_cancelled' | 'general';
+  meetingLink?: string;
+  astrologerName?: string;
+  date?: string;
+  timeSlot?: string;
+  read: boolean;
+  createdAt: string;
+}
+
 declare global {
   var __astroveda_live_events: LiveEventItem[] | undefined;
   var __astroveda_live_bookings: LiveBookingItem[] | undefined;
   var __astroveda_active_sessions: Record<string, LiveActiveSession> | undefined;
   var __astroveda_registered_users: LiveRegisteredUser[] | undefined;
+  var __astroveda_user_notifications: UserNotificationItem[] | undefined;
   var __astroveda_event_stats: {
     totalEvents: number;
     totalSearches: number;
@@ -78,6 +95,10 @@ if (!global.__astroveda_active_sessions) {
 
 if (!global.__astroveda_registered_users) {
   global.__astroveda_registered_users = [];
+}
+
+if (!global.__astroveda_user_notifications) {
+  global.__astroveda_user_notifications = [];
 }
 
 if (!global.__astroveda_event_stats) {
@@ -279,18 +300,78 @@ export function recordRealBooking(booking: Partial<LiveBookingItem>): LiveBookin
   }
 }
 
+export function recordUserNotification(item: Omit<UserNotificationItem, 'id' | 'createdAt' | 'read'>): UserNotificationItem {
+  const notifs = global.__astroveda_user_notifications || [];
+  const newNotif: UserNotificationItem = {
+    id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+    ...item,
+    read: false,
+    createdAt: new Date().toISOString(),
+  };
+  notifs.unshift(newNotif);
+  if (notifs.length > 50) notifs.pop();
+
+  // Cross-tab broadcast for real-time customer popup
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    try {
+      const bc = new BroadcastChannel('astroveda_telemetry_stream');
+      bc.postMessage({ type: 'USER_NOTIFICATION', notification: newNotif });
+      setTimeout(() => bc.close(), 100);
+    } catch {}
+  }
+  return newNotif;
+}
+
+export function getUserNotifications(userEmail?: string): UserNotificationItem[] {
+  const notifs = global.__astroveda_user_notifications || [];
+  if (!userEmail) return notifs;
+  const cleanEmail = userEmail.toLowerCase().trim();
+  return notifs.filter(
+    (n) => !n.userEmail || n.userEmail.toLowerCase().trim() === cleanEmail
+  );
+}
+
+export function markNotificationAsRead(id: string): void {
+  const notifs = global.__astroveda_user_notifications || [];
+  const found = notifs.find((n) => n.id === id);
+  if (found) found.read = true;
+}
+
 export function updateRealBooking(id: string | number, updates: Partial<LiveBookingItem>): LiveBookingItem | null {
   const bookings = global.__astroveda_live_bookings || [];
   const idx = bookings.findIndex(
     (b) => String(b.id) === String(id) || b.bookingNumber === String(id)
   );
+  let updatedBooking: LiveBookingItem;
   if (idx >= 0) {
     bookings[idx] = { ...bookings[idx], ...updates };
-    return bookings[idx];
+    updatedBooking = bookings[idx];
+  } else {
+    updatedBooking = recordRealBooking({ id, ...updates });
   }
-  // If not found in memory, create it so the update succeeds
-  const newBooking = recordRealBooking({ id, ...updates });
-  return newBooking;
+
+  // Auto-generate high-priority customer notification when status is confirmed or cancelled
+  if (updates.status === 'confirmed' || updates.status === 'cancelled') {
+    const isConfirmed = updates.status === 'confirmed';
+    recordUserNotification({
+      bookingId: updatedBooking.id,
+      bookingNumber: updatedBooking.bookingNumber,
+      userEmail: updatedBooking.clientEmail,
+      title: isConfirmed
+        ? `🎉 Consultation CONFIRMED: ${updatedBooking.astrologerName}`
+        : `⚠️ Consultation CANCELLED: #${updatedBooking.bookingNumber}`,
+      message: isConfirmed
+        ? `Your private session with ${updatedBooking.astrologerName} on ${updatedBooking.date} at ${updatedBooking.timeSlot} is officially confirmed. Meeting link: ${updatedBooking.meetingLink || 'Available in dashboard'}.`
+        : `Your booking #${updatedBooking.bookingNumber} with ${updatedBooking.astrologerName} has been cancelled. Our desk has initiated any due refund.`,
+      type: isConfirmed ? 'booking_confirmed' : 'booking_cancelled',
+      meetingLink: updatedBooking.meetingLink,
+      astrologerName: updatedBooking.astrologerName,
+      date: updatedBooking.date,
+      timeSlot: updatedBooking.timeSlot,
+    });
+  }
+
+  return updatedBooking;
 }
 
 export function getRealBookings(filters: { status?: string; search?: string } = {}): LiveBookingItem[] {
@@ -325,17 +406,53 @@ export function getRecentLiveEvents(limit = 25): LiveEventItem[] {
   return (global.__astroveda_live_events || []).slice(0, limit);
 }
 
-export function getLiveStats() {
+export function getLiveStats(range = 'all') {
   const stats = global.__astroveda_event_stats!;
-  const bookings = global.__astroveda_live_bookings || [];
+  let bookings = global.__astroveda_live_bookings || [];
 
-  // Calculate real booking metrics
+  // Filter bookings and events based on selected time range
+  const cleanRange = range.toLowerCase();
+  if (cleanRange !== 'all') {
+    const now = new Date();
+    if (cleanRange === 'today') {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      bookings = bookings.filter((b) => {
+        const d = b.date || b.createdAt?.slice(0, 10);
+        return d === todayStr;
+      });
+    } else {
+      let threshold = 0;
+      if (cleanRange === '7days' || cleanRange === 'last7days') {
+        threshold = now.getTime() - 7 * 86400000;
+      } else if (cleanRange === '30days' || cleanRange === 'last30days') {
+        threshold = now.getTime() - 30 * 86400000;
+      } else if (cleanRange === 'month' || cleanRange === 'thismonth') {
+        const d = new Date();
+        d.setDate(1);
+        d.setHours(0, 0, 0, 0);
+        threshold = d.getTime();
+      } else if (cleanRange === 'year' || cleanRange === 'thisyear') {
+        const d = new Date();
+        d.setMonth(0, 1);
+        d.setHours(0, 0, 0, 0);
+        threshold = d.getTime();
+      }
+      if (threshold > 0) {
+        bookings = bookings.filter((b) => {
+          const t = b.createdAt ? new Date(b.createdAt).getTime() : (b.date ? new Date(b.date).getTime() : 0);
+          return t >= threshold;
+        });
+      }
+    }
+  }
+
+  // Calculate real booking metrics for the period
   const totalBookings = bookings.length;
   const pendingBookings = bookings.filter((b) => b.status === 'pending').length;
   const completedBookings = bookings.filter((b) => b.status === 'completed').length;
   const confirmedBookings = bookings.filter((b) => b.status === 'confirmed').length;
   const totalRevenue = bookings
-    .filter((b) => b.paymentStatus === 'captured' || b.status === 'confirmed')
+    .filter((b) => b.paymentStatus === 'captured' || b.status === 'confirmed' || b.status === 'completed')
     .reduce((sum, b) => sum + (Number(b.fee) || 0), 0);
 
   // Format real top searched

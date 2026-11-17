@@ -81,6 +81,16 @@ function BookingsManagementContent() {
     }
     try {
       await adminApi.updateBooking(id, { status });
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        try {
+          const bc = new BroadcastChannel('astroveda_telemetry_stream');
+          bc.postMessage({
+            type: 'BOOKING_STATUS_UPDATED',
+            booking: { id, status },
+          });
+          setTimeout(() => bc.close(), 100);
+        } catch {}
+      }
     } catch (err: any) {
       console.warn('Booking status sync note:', err);
     }
@@ -105,6 +115,28 @@ function BookingsManagementContent() {
         status: newStatus,
         meetingLink: trimmedMeeting,
       });
+
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        try {
+          const bc = new BroadcastChannel('astroveda_telemetry_stream');
+          bc.postMessage({
+            type: 'BOOKING_STATUS_UPDATED',
+            booking: {
+              id: selectedBooking.id,
+              bookingNumber: selectedBooking.bookingNumber,
+              status: newStatus,
+              meetingLink: trimmedMeeting,
+              clientEmail: selectedBooking.clientEmail,
+              clientName: selectedBooking.clientName,
+              astrologerName: selectedBooking.astrologer?.name || selectedBooking.astrologerName,
+              date: selectedBooking.date,
+              timeSlot: selectedBooking.timeSlot,
+            },
+          });
+          setTimeout(() => bc.close(), 100);
+        } catch {}
+      }
+
       setSaveSuccess(true);
       setTimeout(() => {
         setSelectedBooking(null);

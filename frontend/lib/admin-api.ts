@@ -79,7 +79,8 @@ export const adminApi = {
   },
 
   // Dashboard Stats
-  async getDashboardStats() {
+  async getDashboardStats(range?: string) {
+    const endpoint = range ? `/api/admin/dashboard-stats?range=${encodeURIComponent(range)}` : '/api/admin/dashboard-stats';
     return adminRequest<{
       success: boolean;
       data: {

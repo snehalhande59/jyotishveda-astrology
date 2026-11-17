@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const notificationService = require('../../../services/notification-service');
 
 // Helper to authenticate Admin from Bearer token
 async function verifyAdminAuth(ctx) {
@@ -159,12 +160,34 @@ module.exports = {
     };
   },
 
-  // 3. Dashboard Statistics Overview (Real DB metrics)
+  // 3. Dashboard Statistics Overview (Real DB metrics with Time Range Filtering)
   async getDashboardStats(ctx) {
     const admin = await verifyAdminAuth(ctx);
     if (!admin) return ctx.unauthorized('Admin authentication required');
 
     try {
+      const range = (ctx.query.range || ctx.query.dateRange || 'all').toLowerCase();
+      let startDate = null;
+      const now = new Date();
+
+      if (range === 'today') {
+        const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        startDate = new Date(Date.UTC(istNow.getUTCFullYear(), istNow.getUTCMonth(), istNow.getUTCDate(), 0, 0, 0) - (5.5 * 60 * 60 * 1000));
+      } else if (range === '7days' || range === 'last7days') {
+        startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+      } else if (range === '30days' || range === 'last30days') {
+        startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+      } else if (range === 'month' || range === 'thismonth') {
+        const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        startDate = new Date(Date.UTC(istNow.getUTCFullYear(), istNow.getUTCMonth(), 1, 0, 0, 0) - (5.5 * 60 * 60 * 1000));
+      } else if (range === 'year' || range === 'thisyear') {
+        const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        startDate = new Date(Date.UTC(istNow.getUTCFullYear(), 0, 1, 0, 0, 0) - (5.5 * 60 * 60 * 1000));
+      }
+
+      const bookingDateFilter = startDate ? { createdAt: { $gte: startDate.toISOString() } } : {};
+      const paymentDateFilter = startDate ? { createdAt: { $gte: startDate.toISOString() } } : {};
+
       const [
         totalUsers,
         totalAstrologers,
@@ -178,12 +201,12 @@ module.exports = {
         strapi.entityService.count('plugin::users-permissions.user'),
         strapi.entityService.count('api::astrologer.astrologer'),
         strapi.entityService.count('api::astrologer.astrologer', { filters: { isOnline: true } }),
-        strapi.entityService.count('api::consultation-booking.consultation-booking'),
-        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'pending' } }),
-        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'completed' } }),
-        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'confirmed' } }),
+        strapi.entityService.count('api::consultation-booking.consultation-booking', startDate ? { filters: bookingDateFilter } : {}),
+        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'pending', ...bookingDateFilter } }),
+        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'completed', ...bookingDateFilter } }),
+        strapi.entityService.count('api::consultation-booking.consultation-booking', { filters: { status: 'confirmed', ...bookingDateFilter } }),
         strapi.entityService.findMany('api::payment-record.payment-record', {
-          filters: { status: 'captured' },
+          filters: { status: 'captured', ...paymentDateFilter },
           fields: ['amount'],
           limit: 10000,
         }),
@@ -717,6 +740,63 @@ module.exports = {
             updatedAt: new Date().toISOString(),
           },
         };
+      }
+
+      // Send real-time notification to user upon Confirmation or Cancellation
+      const finalStatus = updateData.status || updated?.status;
+      const targetUser = updated?.user;
+      const targetEmail = targetUser?.email || updated?.clientEmail || updated?.guestEmail;
+      const userName = targetUser?.username || updated?.clientName || 'Valued Devotee';
+      const astrologerName = updated?.astrologer?.name || 'Vedic Acharya';
+
+      if (targetEmail && (finalStatus === 'confirmed' || finalStatus === 'cancelled')) {
+        try {
+          if (finalStatus === 'confirmed') {
+            notificationService.sendBookingConfirmationEmail({
+              to: targetEmail,
+              userName,
+              bookingNumber: updated?.bookingNumber || id,
+              astrologerName,
+              bookingDate: updated?.date,
+              timeSlot: updated?.timeSlot,
+              fee: updated?.consultationFee,
+              meetingLink: updateData.meetingLink || updated?.meetingLink,
+            }).catch((err) => strapi.log.warn('Email dispatch warning:', err.message));
+          } else if (finalStatus === 'cancelled') {
+            notificationService.sendBookingCancellationEmail({
+              to: targetEmail,
+              userName,
+              bookingNumber: updated?.bookingNumber || id,
+              astrologerName,
+              bookingDate: updated?.date,
+              timeSlot: updated?.timeSlot,
+              fee: updated?.consultationFee,
+              reason: body.clientNotes || 'Administrative schedule update or cancellation',
+            }).catch((err) => strapi.log.warn('Cancellation email dispatch warning:', err.message));
+          }
+        } catch (notifErr) {
+          strapi.log.warn('Email dispatch notice:', notifErr.message);
+        }
+      }
+
+      // Broadcast real-time Socket event to all active clients and the booking user
+      if (strapi.io) {
+        try {
+          strapi.io.emit('booking_status_updated', {
+            bookingId: updated?.id || id,
+            bookingNumber: updated?.bookingNumber || id,
+            status: finalStatus,
+            meetingLink: updateData.meetingLink || updated?.meetingLink,
+            userEmail: targetEmail,
+            userName,
+            astrologerName,
+            date: updated?.date,
+            timeSlot: updated?.timeSlot,
+            timestamp: new Date().toISOString(),
+          });
+        } catch (sockErr) {
+          strapi.log.warn('Socket broadcast notice:', sockErr.message);
+        }
       }
 
       return { success: true, data: updated };
