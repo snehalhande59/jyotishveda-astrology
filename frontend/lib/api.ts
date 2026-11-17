@@ -613,6 +613,48 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ data: bookingData }),
     });
+
+    // Real-time broadcast for SuperAdmin live dashboard
+    try {
+      const user = getCurrentUser();
+      const payload = {
+        type: 'NEW_BOOKING',
+        booking: {
+          id: res?.data?.id || Date.now(),
+          bookingNumber: res?.data?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`,
+          clientName: user?.username || user?.email || 'Vedic Devotee',
+          clientEmail: user?.email,
+          astrologerId: bookingData.astrologerId,
+          astrologerName: 'Verified Astrologer',
+          date: bookingData.date,
+          timeSlot: bookingData.timeSlot,
+          topic: bookingData.topic || 'Vedic Consultation',
+          fee: 999,
+          status: 'confirmed',
+          paymentStatus: 'captured',
+          createdAt: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('astroveda_telemetry_stream');
+        bc.postMessage(payload);
+        setTimeout(() => bc.close(), 100);
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('astroveda_telemetry', { detail: payload }));
+      }
+
+      fetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload.booking),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {}
+
     return res.data;
   },
 
@@ -716,6 +758,48 @@ export const api = {
         }),
       }
     );
+
+    // Real-time broadcast for SuperAdmin live dashboard
+    try {
+      const user = getCurrentUser();
+      const payload = {
+        type: 'NEW_BOOKING',
+        booking: {
+          id: res?.data?.booking?.id || res?.data?.id || Date.now(),
+          bookingNumber: res?.data?.booking?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`,
+          clientName: user?.username || user?.email || 'Live Chat Client',
+          clientEmail: user?.email,
+          astrologerId: astrologerIdOrBookingId,
+          astrologerName: res?.data?.astrologer?.name || 'Vedic Astrologer',
+          date: details?.date || new Date().toISOString().split('T')[0],
+          timeSlot: details?.timeSlot || 'Live Consultation',
+          topic: details?.topic || 'Detailed Kundli & Life Forecast',
+          fee: (durationMinutes || 15) * 25,
+          status: 'confirmed',
+          paymentStatus: 'captured',
+          createdAt: new Date().toISOString(),
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('astroveda_telemetry_stream');
+        bc.postMessage(payload);
+        setTimeout(() => bc.close(), 100);
+      }
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('astroveda_telemetry', { detail: payload }));
+      }
+
+      fetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload.booking),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {}
+
     return res.data;
   },
 

@@ -64,6 +64,32 @@ module.exports = createCoreController('api::consultation-booking.consultation-bo
       populate: ['astrologer'],
     });
 
+    // Broadcast real-time booking event to SuperAdmin dashboard
+    try {
+      if (strapi.io) {
+        const payload = {
+          type: 'NEW_BOOKING',
+          booking: {
+            id: booking.id,
+            bookingNumber: booking.bookingNumber,
+            clientName: user?.username || body.fullName || 'Vedic Devotee',
+            clientEmail: user?.email || body.email,
+            astrologerName: astrologer.name,
+            date: body.date,
+            timeSlot: body.timeSlot,
+            topic: booking.topic,
+            fee: booking.consultationFee,
+            status: booking.status,
+            createdAt: booking.createdAt || new Date().toISOString(),
+          },
+        };
+        strapi.io.emit('new_booking', payload.booking);
+        strapi.io.to('admin_telemetry').emit('admin_telemetry_event', payload);
+      }
+    } catch (sockErr) {
+      strapi.log.warn('Socket booking broadcast notice:', sockErr);
+    }
+
     // Send confirmation email asynchronously if user email is present
     try {
       const recipientEmail = user?.email || body.email;

@@ -48,6 +48,12 @@ module.exports = function initializeSocketIO({ strapi }) {
     });
 
     io.on('connection', (socket) => {
+      // Join admin telemetry room for instant dashboard live updates
+      socket.on('join_admin_telemetry', (ack) => {
+        socket.join('admin_telemetry');
+        if (ack) ack({ success: true, timestamp: new Date().toISOString() });
+      });
+
       // Join a consultation session room
       socket.on('join_session', async ({ sessionId }, ack) => {
         try {

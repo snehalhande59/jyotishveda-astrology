@@ -31,9 +31,28 @@ export interface LiveBookingItem {
   createdAt: string;
 }
 
+export interface LiveActiveSession {
+  sessionId: string;
+  email?: string;
+  username?: string;
+  isGuest: boolean;
+  path: string;
+  lastSeen: number;
+}
+
+export interface LiveRegisteredUser {
+  id: number | string;
+  username: string;
+  email: string;
+  createdAt: string;
+  lastLogin: string;
+}
+
 declare global {
   var __astroveda_live_events: LiveEventItem[] | undefined;
   var __astroveda_live_bookings: LiveBookingItem[] | undefined;
+  var __astroveda_active_sessions: Record<string, LiveActiveSession> | undefined;
+  var __astroveda_registered_users: LiveRegisteredUser[] | undefined;
   var __astroveda_event_stats: {
     totalEvents: number;
     totalSearches: number;
@@ -53,6 +72,14 @@ if (!global.__astroveda_live_bookings) {
   global.__astroveda_live_bookings = [];
 }
 
+if (!global.__astroveda_active_sessions) {
+  global.__astroveda_active_sessions = {};
+}
+
+if (!global.__astroveda_registered_users) {
+  global.__astroveda_registered_users = [];
+}
+
 if (!global.__astroveda_event_stats) {
   global.__astroveda_event_stats = {
     totalEvents: 0,
@@ -62,6 +89,76 @@ if (!global.__astroveda_event_stats) {
     keywordCounts: {},
     astrologerViews: {},
   };
+}
+
+export function recordActiveSession(payload: {
+  sessionId?: string;
+  email?: string;
+  username?: string;
+  isGuest?: boolean;
+  path?: string;
+}): void {
+  const sessions = global.__astroveda_active_sessions!;
+  const sid = payload.sessionId || payload.email || `sess_${Date.now()}`;
+  sessions[sid] = {
+    sessionId: sid,
+    email: payload.email,
+    username: payload.username,
+    isGuest: payload.isGuest ?? !payload.email,
+    path: payload.path || '/',
+    lastSeen: Date.now(),
+  };
+
+  // If user is authenticated, register/update them in registered users list
+  if (payload.email) {
+    const regUsers = global.__astroveda_registered_users!;
+    const existing = regUsers.find((u) => u.email.toLowerCase() === payload.email!.toLowerCase());
+    if (existing) {
+      existing.lastLogin = new Date().toISOString();
+      if (payload.username) existing.username = payload.username;
+    } else {
+      regUsers.unshift({
+        id: Date.now(),
+        email: payload.email,
+        username: payload.username || payload.email.split('@')[0],
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+      });
+    }
+  }
+}
+
+export function getActiveSessions(): {
+  activeCount: number;
+  registeredActive: number;
+  guestActive: number;
+  sessions: LiveActiveSession[];
+} {
+  const sessions = global.__astroveda_active_sessions || {};
+  const cutoff = Date.now() - 3 * 60 * 1000; // active within last 3 minutes
+  const activeList: LiveActiveSession[] = [];
+
+  for (const [key, sess] of Object.entries(sessions)) {
+    if (sess.lastSeen >= cutoff) {
+      activeList.push(sess);
+    } else {
+      delete sessions[key];
+    }
+  }
+
+  const registeredActive = activeList.filter((s) => !s.isGuest && s.email).length;
+  const guestActive = activeList.length - registeredActive;
+
+  return {
+    activeCount: Math.max(1, activeList.length), // at least the admin is active
+    registeredActive,
+    guestActive,
+    sessions: activeList.sort((a, b) => b.lastSeen - a.lastSeen).slice(0, 15),
+  };
+}
+
+export function getRegisteredUsers(): LiveRegisteredUser[] {
+  return global.__astroveda_registered_users || [];
 }
 
 export function recordLiveEvent(payload: Partial<LiveEventItem> & { metadata?: any }): LiveEventItem {
@@ -259,10 +356,13 @@ export function getLiveStats() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 4);
 
+  const activeUsersInfo = getActiveSessions();
+  const registeredUsers = getRegisteredUsers();
+
   return {
     metrics: {
-      totalUsers: 0, // Hydrated from database/Strapi
-      totalAstrologers: 0, // Hydrated from verified astrologers
+      totalUsers: Math.max(1, registeredUsers.length), // Real registered count
+      activeUsers: activeUsersInfo.activeCount, // Real currently online
       activeAstrologers: 0,
       totalBookings,
       pendingBookings,
@@ -273,10 +373,11 @@ export function getLiveStats() {
       totalKundlisCalculated: stats.totalKundlis,
       totalEvents: stats.totalEvents,
     },
+    activeSessions: activeUsersInfo.sessions,
     topSearchedServices,
     mostUsedFreeTools,
     mostViewedAstrologers,
-    recentEvents: getRecentLiveEvents(15),
-    recentBookings: bookings.slice(0, 5),
+    recentEvents: getRecentLiveEvents(20),
+    recentBookings: bookings.slice(0, 10),
   };
 }

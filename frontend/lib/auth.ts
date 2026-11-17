@@ -63,6 +63,56 @@ export function setAuthSession(token: string, user: User): void {
 
   document.cookie = `vedic_token=${encodeURIComponent(token)}; path=/; max-age=2592000; SameSite=Lax`;
   window.dispatchEvent(new Event("auth-updated"));
+
+  // Real-time broadcast for SuperAdmin live telemetry
+  try {
+    const payload = {
+      type: "USER_LOGIN",
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
+      timestamp: new Date().toISOString(),
+    };
+
+    // Cross-tab broadcast for instant zero-latency admin dashboard update
+    if ("BroadcastChannel" in window) {
+      const bc = new BroadcastChannel("astroveda_telemetry_stream");
+      bc.postMessage(payload);
+      setTimeout(() => bc.close(), 100);
+    }
+
+    // Window event for current tab
+    window.dispatchEvent(new CustomEvent("astroveda_telemetry", { detail: payload }));
+
+    // Send server-side activity & heartbeat record
+    fetch("/api/user-activities/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventType: "user_login",
+        serviceName: "User Portal Sign-in",
+        serviceCategory: "auth",
+        userEmail: user.email,
+        username: user.username,
+        isGuest: false,
+        timestamp: new Date().toISOString(),
+      }),
+      keepalive: true,
+    }).catch(() => {});
+
+    fetch("/api/user-activities/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userEmail: user.email,
+        username: user.username,
+        path: window.location.pathname,
+      }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
 }
 
 export function clearAuthSession(): void {

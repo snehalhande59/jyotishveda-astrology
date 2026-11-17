@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { getCurrentUser, clearAuthSession, getWalletBalance } from '@/lib/auth';
+import { sendHeartbeat } from '@/lib/analytics';
 import { getCartTotals } from '@/lib/cart';
 import { User } from '@/lib/types';
 import SearchModal from '@/components/SearchModal';
@@ -86,7 +87,14 @@ export default function Navbar() {
     window.addEventListener('auth-updated', handleAuthUpdate);
     window.addEventListener('cart-updated', handleCartUpdate);
 
+    // Continuous live user telemetry heartbeat
+    sendHeartbeat();
+    const hbInterval = setInterval(() => {
+      sendHeartbeat();
+    }, 20000);
+
     return () => {
+      clearInterval(hbInterval);
       window.removeEventListener('wallet-updated', handleWalletUpdate);
       window.removeEventListener('auth-updated', handleAuthUpdate);
       window.removeEventListener('cart-updated', handleCartUpdate);

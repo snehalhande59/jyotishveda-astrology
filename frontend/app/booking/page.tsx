@@ -229,7 +229,48 @@ function BookingContent() {
     const finalBookingNumber = pendingBooking?.bookingNumber || `BK-${Date.now().toString(36).toUpperCase()}`;
     const confirmedFee = selectedAstrologer?.consultationFee || 999;
 
-    // Dispatch real-time booking confirmation & revenue event to admin
+    const bookingPayload = {
+      bookingNumber: finalBookingNumber,
+      clientName: fullName || 'Vedic Devotee',
+      clientEmail: email,
+      clientPhone: phone,
+      astrologerId: selectedAstrologer?.id,
+      astrologerName: selectedAstrologer?.name,
+      date,
+      timeSlot,
+      topic,
+      fee: confirmedFee,
+      status: 'confirmed',
+      paymentStatus: 'captured',
+      meetingLink: pendingBooking?.meetingLink || 'https://meet.google.com/vedic-session',
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Post to live-events-store via Next.js route
+    fetch('/api/admin/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingPayload),
+      keepalive: true,
+    }).catch(() => {});
+
+    // 2. Broadcast across browser tabs for 0ms instant SuperAdmin update
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('astroveda_telemetry_stream');
+        bc.postMessage({
+          type: 'NEW_BOOKING',
+          booking: bookingPayload,
+          timestamp: new Date().toISOString(),
+        });
+        setTimeout(() => bc.close(), 100);
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('astroveda_telemetry', { detail: { type: 'NEW_BOOKING', booking: bookingPayload } }));
+      }
+    } catch {}
+
+    // 3. Dispatch real-time booking confirmation & revenue event to activity stream
     fetch('/api/user-activities/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -237,7 +278,7 @@ function BookingContent() {
         eventType: 'booking_confirmed',
         serviceName: `Confirmed: ${selectedAstrologer?.name}`,
         serviceCategory: 'revenue',
-        userIdentifier: 'Devotee Client',
+        userIdentifier: fullName || email || 'Devotee Client',
         metadata: {
           bookingNumber: finalBookingNumber,
           astrologerId: selectedAstrologer?.id,
@@ -250,6 +291,7 @@ function BookingContent() {
           referenceId: paymentRecord?.referenceId || paymentRecord?.paymentId || 'BK-PAID',
         },
       }),
+      keepalive: true,
     }).catch(() => {});
 
     setConfirmedBooking({

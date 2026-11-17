@@ -551,7 +551,7 @@ export interface ApiBirthProfileBirthProfile
   extends Struct.CollectionTypeSchema {
   collectionName: 'birth_profiles';
   info: {
-    description: 'User Astrological Birth Details';
+    description: 'User Astrological Birth Details & Family Kundli Profiles';
     displayName: 'Birth Profile';
     pluralName: 'birth-profiles';
     singularName: 'birth-profile';
@@ -578,8 +578,24 @@ export interface ApiBirthProfileBirthProfile
     > &
       Schema.Attribute.Private;
     longitude: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    notes: Schema.Attribute.Text;
     placeOfBirth: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    relationship: Schema.Attribute.Enumeration<
+      [
+        'Self',
+        'Spouse',
+        'Father',
+        'Mother',
+        'Son',
+        'Daughter',
+        'Brother',
+        'Sister',
+        'Friend',
+        'Other',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'Self'>;
     timeOfBirth: Schema.Attribute.String & Schema.Attribute.Required;
     timezoneOffset: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<5.5>;
     updatedAt: Schema.Attribute.DateTime;

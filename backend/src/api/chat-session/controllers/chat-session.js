@@ -486,6 +486,27 @@ module.exports = {
             publishedAt: new Date(),
           },
         });
+
+        if (strapi.io) {
+          const payload = {
+            type: 'NEW_BOOKING',
+            booking: {
+              id: booking.id,
+              bookingNumber: booking.bookingNumber,
+              clientName: user.username || user.email,
+              clientEmail: user.email,
+              astrologerName,
+              date: booking.date,
+              timeSlot: booking.timeSlot,
+              topic: booking.topic,
+              fee: booking.consultationFee,
+              status: 'confirmed',
+              createdAt: new Date().toISOString(),
+            },
+          };
+          strapi.io.emit('new_booking', payload.booking);
+          strapi.io.to('admin_telemetry').emit('admin_telemetry_event', payload);
+        }
       } catch (bkErr) {
         strapi.log.warn('Auto booking record creation notice:', bkErr);
       }

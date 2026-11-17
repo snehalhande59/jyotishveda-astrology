@@ -127,23 +127,35 @@ function ChatHubContent() {
 
     // Sync live booking event to SuperAdmin platform records
     try {
+      const liveBookingData = {
+        clientName: currentUser.username || currentUser.email,
+        clientEmail: currentUser.email,
+        astrologerId: astrologer.id,
+        astrologerName: astrologer.name,
+        date,
+        timeSlot,
+        topic,
+        fee: totalAmount,
+        status: 'confirmed' as const,
+        paymentStatus: 'captured' as const,
+        meetingLink: `https://meet.google.com/vedic-${Math.random().toString(36).substring(2, 8)}`,
+      };
+
       await fetch('/api/admin/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientName: currentUser.username || currentUser.email,
-          clientEmail: currentUser.email,
-          astrologerId: astrologer.id,
-          astrologerName: astrologer.name,
-          date,
-          timeSlot,
-          topic,
-          fee: totalAmount,
-          status: 'confirmed',
-          paymentStatus: 'captured',
-          meetingLink: `https://meet.google.com/vedic-${Math.random().toString(36).substring(2, 8)}`,
-        }),
+        body: JSON.stringify(liveBookingData),
       });
+
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('astroveda_telemetry_stream');
+        bc.postMessage({
+          type: 'NEW_BOOKING',
+          booking: liveBookingData,
+          timestamp: new Date().toISOString(),
+        });
+        setTimeout(() => bc.close(), 100);
+      }
     } catch {}
 
     try {

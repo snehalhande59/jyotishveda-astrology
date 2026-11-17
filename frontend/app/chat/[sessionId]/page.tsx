@@ -27,6 +27,27 @@ import {
   WifiOff,
 } from 'lucide-react';
 
+// Play pleasant audio chime for incoming astrologer messages
+function playIncomingChime() {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.exponentialRampToValueAtTime(783.99, ctx.currentTime + 0.12); // G5
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.45);
+  } catch {}
+}
+
 export default function ActiveChatSessionPage() {
   const params = useParams();
   const router = useRouter();
@@ -131,6 +152,9 @@ export default function ActiveChatSessionPage() {
               (m.timestamp === incomingMsg.timestamp && m.message === incomingMsg.message)
           );
           if (exists) return prev;
+          if (incomingMsg.senderType === 'astrologer') {
+            playIncomingChime();
+          }
           return [...prev, incomingMsg];
         });
         setAstrologerTyping(false);
@@ -282,6 +306,7 @@ export default function ActiveChatSessionPage() {
       if (astrologerMsg) {
         replyReceived = true;
         setAstrologerTyping(false);
+        playIncomingChime();
         setMessages((prev) => {
           if (prev.some((m) => m.id === astrologerMsg.id || (m.timestamp === astrologerMsg.timestamp && m.message === astrologerMsg.message))) return prev;
           return [...prev, astrologerMsg];
@@ -297,22 +322,37 @@ export default function ActiveChatSessionPage() {
         setAstrologerTyping(false);
         setSending(false);
         if (!replyReceived) {
+          playIncomingChime();
           const isMr = language === 'mr' || /[\u0900-\u097F]/.test(userText);
           const q = userText.toLowerCase();
+          const chart = session?.birthChartSummary;
+          const lagnaStr = chart?.ascendantSign || chart?.ascendant?.signName;
+          const rashiStr = chart?.moonSign || chart?.moonSign?.signName;
+          const nakshatraStr = chart?.nakshatra;
+          const chartTag = lagnaStr || rashiStr
+            ? (isMr
+                ? `\n\n📌 आपल्या कुंडलीनुसार ${lagnaStr ? `लग्न: ${lagnaStr}` : ''} ${rashiStr ? `| राशी: ${rashiStr}` : ''} ${nakshatraStr ? `| नक्षत्र: ${nakshatraStr}` : ''}`
+                : `\n\n📌 Chart Context: ${lagnaStr ? `Ascendant: ${lagnaStr}` : ''} ${rashiStr ? `| Moon Sign: ${rashiStr}` : ''} ${nakshatraStr ? `| Nakshatra: ${nakshatraStr}` : ''}`)
+            : '';
+
           let replyContent = '';
 
           if (q.includes('career') || q.includes('job') || q.includes('business') || q.includes('work') || q.includes('नोकरी') || q.includes('व्यवसाय') || q.includes('काम') || q.includes('पदोन्नती')) {
             replyContent = isMr
-              ? `प्रणाम! मी ${astrologerName}. तुमच्या प्रश्नानुसार तुमच्या कुंडलीतील कर्म स्थान (१०वे भाव) आणि गुरु/शनीची स्थिती पाहिली असता: सध्याचा काळ स्थिरतेचा आणि नवीन संधींच्या सुरुवातीचा आहे. योग्य दिशेने केलेले प्रयत्न येत्या काळात लाभ मिळवून देतील.\n\nवैदिक उपाय:\n• रोज सकाळी उगवत्या सूर्याला तांब्याच्या पात्रातून जल अर्पण करून 'ॐ सूर्याय नमः' चा जप करा.\n• गुरुवारी गरजू व्यक्तीस अन्न किंवा पिवळी डाळ दान करा.`
-              : `Pranam! I am ${astrologerName}. Looking into your 10th House (Karma Bhava) and current planetary configurations: this phase indicates steady career progress and authority recognition. Strategic patience will yield fruitful results.\n\nVedic Remedy:\n• Offer water to the Sun (Surya Arghya) daily at sunrise with the Gayatri Mantra.\n• Strengthen Jupiter with charity on Thursdays.`;
+              ? `प्रणाम! मी ${astrologerName}. तुमच्या प्रश्नानुसार तुमच्या कुंडलीतील कर्म स्थान (१०वे भाव) आणि गुरु/शनीची स्थिती पाहिली असता: सध्याचा काळ स्थिरतेचा आणि नवीन संधींच्या सुरुवातीचा आहे. योग्य दिशेने केलेले प्रयत्न येत्या काळात लाभ मिळवून देतील.${chartTag}\n\nवैदिक उपाय:\n• रोज सकाळी उगवत्या सूर्याला तांब्याच्या पात्रातून जल अर्पण करून 'ॐ सूर्याय नमः' चा जप करा.\n• गुरुवारी गरजू व्यक्तीस अन्न किंवा पिवळी डाळ दान करा.`
+              : `Pranam! I am ${astrologerName}. Looking into your 10th House (Karma Bhava) and current planetary configurations: this phase indicates steady career progress and authority recognition. Strategic patience will yield fruitful results.${chartTag}\n\nVedic Remedy:\n• Offer water to the Sun (Surya Arghya) daily at sunrise with the Gayatri Mantra.\n• Strengthen Jupiter with charity on Thursdays.`;
           } else if (q.includes('marriage') || q.includes('love') || q.includes('relationship') || q.includes('विवाह') || q.includes('लग्न') || q.includes('प्रेम')) {
             replyContent = isMr
-              ? `प्रणाम! मी ${astrologerName}. विवाहाबाबत विचार करता तुमच्या कुंडलीतील कलत्र भाव (७वे स्थान) आणि शुक्र/गुरूचे गोचर अत्यंत अनुकूल आहे. नात्यामध्ये समजूतदारपणा आणि संवाद राखल्यास सकारात्मक परिणाम मिळतील.\n\nवैदिक उपाय:\n• शुक्रवारी महालक्ष्मीची आराधना करून 'ॐ श्रीं महालक्ष्म्यै नमः' चा १०८ वेळा जप करा.\n• मंगळवारी गणपतीला २१ दुर्वा अर्पण करा.`
-              : `Pranam! I am ${astrologerName}. Examining your 7th House (Kalatra Bhava) and Venus placements: planetary energies are supportive for relationship stabilization and auspicious marital timing.\n\nVedic Remedy:\n• Recite the Lakshmi Mantra on Fridays.\n• Offer 21 Durva blades to Lord Ganesha on Tuesdays to clear relationship hurdles.`;
+              ? `प्रणाम! मी ${astrologerName}. विवाहाबाबत विचार करता तुमच्या कुंडलीतील कलत्र भाव (७वे स्थान) आणि शुक्र/गुरूचे गोचर अत्यंत अनुकूल आहे. नात्यामध्ये समजूतदारपणा आणि संवाद राखल्यास सकारात्मक परिणाम मिळतील.${chartTag}\n\nवैदिक उपाय:\n• शुक्रवारी महालक्ष्मीची आराधना करून 'ॐ श्रीं महालक्ष्म्यै नमः' चा १०८ वेळा जप करा.\n• मंगळवारी गणपतीला २१ दुर्वा अर्पण करा.`
+              : `Pranam! I am ${astrologerName}. Examining your 7th House (Kalatra Bhava) and Venus placements: planetary energies are supportive for relationship stabilization and auspicious marital timing.${chartTag}\n\nVedic Remedy:\n• Recite the Lakshmi Mantra on Fridays.\n• Offer 21 Durva blades to Lord Ganesha on Tuesdays to clear relationship hurdles.`;
+          } else if (q.includes('finance') || q.includes('money') || q.includes('wealth') || q.includes('धन') || q.includes('पैसा') || q.includes('कर्ज')) {
+            replyContent = isMr
+              ? `प्रणाम! मी ${astrologerName}. आपल्या पत्रिकेतील धन स्थान (२रे भाव) आणि लाभ स्थान (११वे भाव) अभ्यासले असता: आगामी काळात धन संचय आणि गुंतवणुकीसाठी शुभ ग्रहयोग बनत आहेत. विनाकारण होणारे खर्च टाळल्यास उत्तम प्रगती होईल.${chartTag}\n\nवैदिक उपाय:\n• दर शुक्रवारी श्रीसूक्ताचे पठण करा.\n• उत्तर दिशेला स्वच्छता ठेवा आणि कुबेर यंत्राची पूजा करा.`
+              : `Pranam! I am ${astrologerName}. Examining your 2nd House of Wealth (Dhana Bhava) and 11th House of Gains (Labha Bhava): auspicious planetary alignments support savings accumulation and gradual financial expansion.${chartTag}\n\nVedic Remedy:\n• Recite Shree Suktam on Fridays.\n• Maintain clutter-free North direction in your living space.`;
           } else {
             replyContent = isMr
-              ? `प्रणाम! मी ${astrologerName}. तुमचे म्हणणे मी सविस्तर पाहिले आहे. वैदिक ज्योतिष सिद्धांतानुसार तुमच्या पत्रिकेतील ग्रहस्थिती शुभ परिणामांकडे वाटचाल करत आहे.\n\nतुम्हाला करिअर, वैवाहिक जीवन किंवा आरोग्याविषयी आणखी काही विशिष्ट प्रश्न विचारायचा आहे का? मला नक्की सांगा, मी आपल्या कुंडलीनुसार मार्गदर्शन करेन.`
-              : `Pranam! I am ${astrologerName}. I have carefully reflected on your query through classical Parashari astrology. The planetary currents are moving favorably towards growth.\n\nWould you like me to look into your Career, Marriage, or specific life timeline? Please let me know and I will guide you further.`;
+              ? `प्रणाम! मी ${astrologerName}. तुमचे म्हणणे मी सविस्तर पाहिले आहे. वैदिक ज्योतिष सिद्धांतानुसार तुमच्या पत्रिकेतील ग्रहस्थिती शुभ परिणामांकडे वाटचाल करत आहे.${chartTag}\n\nतुम्हाला करिअर, वैवाहिक जीवन किंवा आरोग्याविषयी आणखी काही विशिष्ट प्रश्न विचारायचा आहे का? मला नक्की सांगा, मी आपल्या कुंडलीनुसार मार्गदर्शन करेन.`
+              : `Pranam! I am ${astrologerName}. I have carefully reflected on your query through classical Parashari astrology. The planetary currents are moving favorably towards growth.${chartTag}\n\nWould you like me to look into your Career, Marriage, or specific life timeline? Please let me know and I will guide you further.`;
           }
 
           const fallbackMsg: ChatMessage = {
@@ -325,7 +365,7 @@ export default function ActiveChatSessionPage() {
 
           setMessages((prev) => [...prev, fallbackMsg]);
         }
-      }, 1400);
+      }, 1200);
     }
   };
 
@@ -627,7 +667,38 @@ export default function ActiveChatSessionPage() {
 
       {/* Message Input Footer */}
       <footer className="bg-white border-t border-[#EAE1D2] p-3 sm:p-4 shrink-0 sticky bottom-0 z-20 shadow-md">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-2">
+          {/* Quick Vedic Question Pills (Astrotalk Style) */}
+          {!isChatDisabled && (
+            <div className="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pb-1 text-[11px]">
+              {(language === 'mr'
+                ? [
+                    '💼 नोकरी व करिअर प्रगती कधी होईल?',
+                    '💍 विवाह योग व जोडीदार कसा असेल?',
+                    '💰 धन योग व आर्थिक प्रगती',
+                    '🕉️ शुभ रत्न व वैदिक उपाय सांगा',
+                  ]
+                : [
+                    '💼 When will my career improve?',
+                    '💍 When is marriage indicated in my chart?',
+                    '💰 Financial outlook & wealth yogas',
+                    '🕉️ Auspicious gemstone & remedies',
+                  ]
+              ).map((chipText, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => {
+                    setNewMessage(chipText);
+                  }}
+                  className="px-2.5 py-1 rounded-full bg-[#FAF7F2] hover:bg-[#FDF3E3] border border-[#EAE1D2] hover:border-[#F59E0B] text-[#786C60] hover:text-[#B45309] font-medium whitespace-nowrap cursor-pointer transition-colors shadow-2xs"
+                >
+                  {chipText}
+                </button>
+              ))}
+            </div>
+          )}
+
           <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
             <input
               type="text"
